@@ -1,0 +1,40 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/instagram?serverTimezone=Asia/Seoul
+    username: insta
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update #create update none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id:
+            client-secret:
+            scope:
+              - email
+              - profile
+
+jwt:
+  properties:
+    secret: 
+    expiredAt: 180000000 # 30 * 60000 30?  60000ms(1?)
+    refreshExpiredAt: 604800000 # 7 * 24 * 60 * 60000 7?
+    type: Bearer

@@ -1,0 +1,88 @@
+package com.my.instagram.config.security.oauth;
+
+import com.my.instagram.domains.accounts.domain.Accounts;
+import com.my.instagram.domains.accounts.domain.AccountsRole;
+import com.my.instagram.domains.accounts.domain.Role;
+import com.my.instagram.domains.accounts.dto.response.AccountsSearchResponse;
+import com.my.instagram.domains.accounts.repository.AccountsRepository;
+import com.my.instagram.domains.accounts.repository.AccountsRolesRepository;
+import com.my.instagram.domains.accounts.repository.RoleRepository;
+import com.my.instagram.config.security.auth.PrincipalDetails;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
+
+    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
+    @Autowired
+    private AccountsRepository accountsRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private AccountsRolesRepository accountsRolesRepository;
+
+    // 구글로 부터 받은 userRequest 데이터에 대한 후처리되는 함수
+    // 함수 종료시 @AuthenticationPrincipal 어노테이션이 만들어진다.
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        System.out.println("getClientRegistration: " + userRequest.getClientRegistration()); // registrationId로 어떤 OAuth로 로그인
+        System.out.println("getAccessToken: " + userRequest.getAccessToken().getTokenValue());
+        // 구글로그인 버튼 클릭 -> 구글 로그인창 -> 로그인 완료 -> code를 리턴(OAuth-client라이브러리) -> AccessToken요청
+        // userRequest 정보 -> loadUser함수 호출 -> 구글로부터 회원 프로필을 받아준다.
+        System.out.println("getAttributes: " + super.loadUser(userRequest).getAttributes());
+        OAuth2User oAuth2User = super.loadUser(userRequest);
+
+        String provider   = userRequest.getClientRegistration().getClientId(); // google
+        String providerId = oAuth2User.getAttribute("sub");
+        String username   = oAuth2User.getAttribute("email");
+
+        AccountsSearchResponse searchResponse = accountsRepository.findByUsernameInQuery(username).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
+
+        if(searchResponse == null){
+            searchResponse = createAccounts(oAuth2User, provider, providerId, username);
+        }
+
+        // 회원 가입을 강제로 진행
+        return new PrincipalDetails(searchResponse, oAuth2User.getAttributes());
+    }
+
+    private AccountsSearchResponse createAccounts(OAuth2User oAuth2User, String provider, String providerId,String username) {
+        String password   = bCryptPasswordEncoder.encode("a@#ad5bwsda!$23");
+        String email      = oAuth2User.getAttribute("email");
+        String name       = oAuth2User.getAttribute("name");
+
+        Accounts accounts = Accounts.builder()
+                                    .username(username)
+                                    .name(name)
+                                    .password(password)
+                                    .provider(provider)
+                                    .providerId(providerId)
+                                    .profileName(name) // 수정이 필요해 보임
+                                    .build();
+
+        Role roleAccounts = roleRepository.findByType("ROLE_USER").get();
+
+        AccountsRole accountsRole = AccountsRole.builder()
+                                                .accounts(accounts)
+                                                .role(roleAccounts)
+                                                .build();
+
+        accountsRepository.save(accounts);
+        accountsRolesRepository.save(accountsRole);
+
+        AccountsSearchResponse searchResponse = accountsRepository.findByUsernameInQuery(username).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
+
+        return searchResponse;
+    }
+
+
+}

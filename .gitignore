@@ -53,3 +53,6 @@ out/
 *.zip
 *.tar.gz
 *.rar
+
+# resource내 yml 파일은 업데이트 하지 않습니다.
+!application.yml

@@ -15,6 +15,8 @@ spring:
     password: ${db-password}
 
   jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update #create update none
       naming:

@@ -34,17 +34,14 @@ public class PrincipalOauth2UserService implements OAuth2UserService<OAuth2UserR
     // 함수 종료시 @AuthenticationPrincipal 어노테이션이 만들어진다.
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        System.out.println("getClientRegistration: " + userRequest.getClientRegistration()); // registrationId로 어떤 OAuth로 로그인
-        System.out.println("getAccessToken: " + userRequest.getAccessToken().getTokenValue());
-        // 구글로그인 버튼 클릭 -> 구글 로그인창 -> 로그인 완료 -> code를 리턴(OAuth-client라이브러리) -> AccessToken요청
-        // userRequest 정보 -> loadUser함수 호출 -> 구글로부터 회원 프로필을 받아준다.
-
+        DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
+        OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
         String provider   = userRequest.getClientRegistration().getClientId(); // google
         String providerId = oAuth2User.getAttribute("sub");
         String username   = oAuth2User.getAttribute("email");
 
-        AccountsSearchResponse searchResponse = accountsRepository.findByUsernameInQuery(username).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
+        AccountsSearchResponse searchResponse = accountsRepository.findByUsernameInQuery(username).orElse(null);
 
         if(searchResponse == null){
             searchResponse = createAccounts(oAuth2User, provider, providerId, username);

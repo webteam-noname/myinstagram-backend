@@ -34,6 +34,7 @@ public class SecurityConfig {
     private final AccountsRepository accountsRepository;
     private final PrincipalOauth2UserService principalOauth2UserService;
     private final String[] permitAllPaths = {"/api/auth/**",
+                                             "/",
                                              "/login/**",
                                              "/oauth2/**",
                                              "/api/images/**",

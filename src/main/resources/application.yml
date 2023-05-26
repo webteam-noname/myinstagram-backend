@@ -11,8 +11,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/instagram?serverTimezone=Asia/Seoul
-    username: insta
-    password:
+    username: ${db-username}
+    password: ${db-password}
 
   jpa:
     hibernate:
@@ -26,15 +26,15 @@ spring:
       client:
         registration:
           google:
-            client-id:
-            client-secret:
+            client-id: ${google-client-id}
+            client-secret: ${google-client-secret}
             scope:
               - email
               - profile
 
 jwt:
   properties:
-    secret: 
+    secret: ${jwt-secret}
     expiredAt: 180000000 # 30 * 60000 30?  60000ms(1?)
     refreshExpiredAt: 604800000 # 7 * 24 * 60 * 60000 7?
     type: Bearer

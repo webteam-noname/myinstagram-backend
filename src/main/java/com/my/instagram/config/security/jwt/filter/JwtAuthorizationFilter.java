@@ -38,6 +38,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try{
+            System.out.println(request.getServletPath());
+
             if(!shouldBypassAuthentication(request)){
                 String jwt = getJwtByHeader(request);
                 jwtProvider.validateJwt(jwt);

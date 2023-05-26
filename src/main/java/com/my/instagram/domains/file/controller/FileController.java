@@ -14,24 +14,25 @@ public class FileController {
 
      @GetMapping("/api/file")
      public ApiResponse<String> searchFile(){
-         return new ApiResponse<>(HttpStatus.OK, fileService.searchFile());
+         // fileService.searchFile()
+         return new ApiResponse<>(HttpStatus.OK, "파일을 조회합니다.");
      }
 
      @PostMapping("/api/file")
      public ApiResponse<String> saveFile(){
-         fileService.saveFile();
+         // fileService.saveFile();
          return new ApiResponse<>(HttpStatus.OK, "파일을 저장했습니다.");
      }
 
      @PutMapping("/api/file")
      public ApiResponse<String> updateFile(){
-        fileService.updateFile();
+         // fileService.updateFile();
         return new ApiResponse<>(HttpStatus.OK, "파일을 수정했습니다.");
      }
 
     @DeleteMapping("/api/file")
-    public ApiResponse<String> updateFile(){
-        fileService.deleteFile();
+    public ApiResponse<String> deleteFile(){
+        // fileService.deleteFile();
         return new ApiResponse<>(HttpStatus.OK, "파일을 삭제했습니다.");
     }
 }

@@ -1,5 +1,6 @@
 package com.my.instagram.config.security;
 
+import com.my.instagram.config.security.oauth.PrincipalOauth2UserService;
 import com.my.instagram.domains.accounts.repository.AccountsRepository;
 import com.my.instagram.config.security.jwt.JwtProvider;
 import com.my.instagram.config.security.jwt.exception.JwtAccessDeniedHandler;
@@ -31,8 +32,10 @@ public class SecurityConfig {
     private final JwtProvider jwtProvider;
     private final CorsConfig corsConfig;
     private final AccountsRepository accountsRepository;
+    private final PrincipalOauth2UserService principalOauth2UserService;
     private final String[] permitAllPaths = {"/api/auth/**",
-                                             "/oauth2/authorization/google",
+                                             "/login/**",
+                                             "/oauth2/**",
                                              "/api/images/**",
                                              "/favicon.ico",
                                              "/error"};
@@ -59,8 +62,8 @@ public class SecurityConfig {
                 .apply(new CustomFilter())
             .and()
                 .oauth2Login()
-                .loginPage("/loginForm")
                 .userInfoEndpoint()
+                .userService(principalOauth2UserService);
             ;
 
         return http.build();

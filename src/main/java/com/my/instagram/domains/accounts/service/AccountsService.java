@@ -21,15 +21,18 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AccountsService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AccountsRepository accountsRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AccountsRolesRepository accountsRolesRepository;
+    private final MailService mailService;
     private final RoleRepository roleRepository;
     private final JwtProvider jwtProvider;
 
@@ -67,13 +70,20 @@ public class AccountsService {
         return "회원가입에 성공했습니다.";
     }
 
-    public Long updatePassword(AccountsUpdateRequest accountsUpdateRequest) {
+    public String updatePassword(AccountsUpdateRequest accountsUpdateRequest) {
         Accounts accounts = getAccounts(accountsUpdateRequest.getUsername());
+
+        if(mailService.validatePasswordCode(accounts.getUsername(),accountsUpdateRequest.getAuthCode())){
+            throw new RuntimeException("인증코드가 틀렸습니다. 다시한번 조회해주세요");
+        }else{
+            // 인증이 완료되고 난 뒤 기존의 인증 코드를 삭제합니다.
+            mailService.deletePasswordCode(accounts.getUsername());
+        }
 
         accountsUpdateRequest.setPassword(getEncode(accountsUpdateRequest.getPassword()));
         accounts.updatePassword(accountsUpdateRequest);
 
-        return accounts.getId();
+        return "비밀번호가 변경되었습니다.";
     }
 
     public ProfileSearchResponse searchProfile(ProfileSearchRequest profileSearchRequest) {

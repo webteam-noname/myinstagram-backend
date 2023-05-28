@@ -1,5 +1,7 @@
 package com.my.instagram.domains.accounts.controller;
 
+import com.my.instagram.domains.accounts.dto.response.MailCodeResponse;
+import com.my.instagram.domains.accounts.service.MailService;
 import com.my.instagram.domains.accounts.dto.request.*;
 import com.my.instagram.domains.accounts.dto.response.AccountsLoginResponse;
 import com.my.instagram.domains.accounts.dto.response.ProfileSearchResponse;
@@ -9,6 +11,7 @@ import com.my.instagram.config.security.jwt.dto.JwtDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -16,9 +19,12 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
+@Transactional
 public class AccountsController {
 
     private final AccountsService accountService;
+    private final MailService mailService;
+
 
     @PostMapping("/api/auth/accounts/join")
     public ApiResponse<String> join(@Valid @RequestBody AccountsSaveRequest accountsSaveRequest){
@@ -33,17 +39,14 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
-    @GetMapping("/api/auth/accounts/password")
-    public ApiResponse<String> searchPassword(@Valid @RequestBody AccountsSaveRequest accountsSaveRequest){
-        // 이메일 전송 구현 필요
-        String check = "구현 필요";
-        return new ApiResponse<>(HttpStatus.OK, check);
+    @PostMapping("/api/auth/accounts/password/code")
+    public ApiResponse<MailCodeResponse> searchPasswordCode(@Valid @RequestBody MailCodeRequest mailCodeRequest) throws Exception {
+        return new ApiResponse<>(HttpStatus.OK, mailService.sendPasswordCodeEmail(mailCodeRequest));
     }
 
-    @PutMapping("/api/auth/accounts/password/{username}")
-    public ApiResponse<Long> updatePassword(@Valid @RequestBody AccountsUpdateRequest accountsUpdateRequest){
-        Long accountId = accountService.updatePassword(accountsUpdateRequest);
-        return new ApiResponse<>(HttpStatus.OK, accountId);
+    @PutMapping("/api/auth/accounts/password")
+    public ApiResponse<String> updatePassword(@Valid @RequestBody AccountsUpdateRequest accountsUpdateRequest){
+        return new ApiResponse<>(HttpStatus.OK, accountService.updatePassword(accountsUpdateRequest));
     }
 
     @GetMapping("/api/accounts/{username}/profile")

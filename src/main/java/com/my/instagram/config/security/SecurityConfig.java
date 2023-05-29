@@ -32,6 +32,7 @@ public class SecurityConfig {
     private final CorsConfig corsConfig;
     private final AccountsRepository accountsRepository;
     private final String[] permitAllPaths = {"/api/auth/**",
+                                             "/api/file",
                                              "/oauth2/authorization/google",
                                              "/api/images/**",
                                              "/favicon.ico",

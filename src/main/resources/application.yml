@@ -11,10 +11,12 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/instagram?serverTimezone=Asia/Seoul
-    username: insta
-    password:
+    username: ${db-username}
+    password: ${db-password}
 
   jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update #create update none
       naming:
@@ -26,15 +28,22 @@ spring:
       client:
         registration:
           google:
-            client-id:
-            client-secret:
+            client-id: ${google-client-id}
+            client-secret: ${google-client-secret}
             scope:
               - email
               - profile
+mail:
+  properties:
+    host: smtp.naver.com
+    username: ${mail-username}
+    password: ${mail-password}
+    port: 465
+
 
 jwt:
   properties:
-    secret: 
+    secret: ${jwt-secret}
     expiredAt: 180000000 # 30 * 60000 30?  60000ms(1?)
     refreshExpiredAt: 604800000 # 7 * 24 * 60 * 60000 7?
     type: Bearer

@@ -1,10 +1,11 @@
-package com.my.instagram.domains.file.dto.request;
+package com.my.instagram.common.file.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -13,7 +14,9 @@ public class FileUpdateRequest {
 
     @NotNull(message = "파일ID를 입력해주세요")
     private Long id;
+    private UUID fileName;
     private String realFileName;
-    private String realFilePath;
-    private String realFileExt;
+    private String filePath;
+    private String fileExt;
+    private int fileSeq;
 }

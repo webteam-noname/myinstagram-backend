@@ -1,5 +1,6 @@
 package com.my.instagram.domains.accounts.domain;
 
+import com.my.instagram.common.file.domain.Files;
 import com.my.instagram.domains.accounts.dto.request.AccountsUpdateRequest;
 import com.my.instagram.domains.accounts.dto.request.ProfileUpdateRequest;
 import com.my.instagram.common.domain.BaseEntity;
@@ -7,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -26,7 +29,7 @@ public class Accounts extends BaseEntity {
 
     private String profileName;
     private String profileIntro;
-    private String profileImg;
+    private Long   profileImgFileId;
 
     // oauth 관련된 프로퍼티
     private String provider;
@@ -36,22 +39,22 @@ public class Accounts extends BaseEntity {
     List<AccountsRole> accountsRoles = new ArrayList<>();
 
     @Builder
-    public Accounts(String username, String password, String name,String profileName, String profileIntro, String profileImg, String provider, String providerId) {
+    public Accounts(String username, String password, String name,String profileName, String profileIntro, Long profileImgFileId, String provider, String providerId) {
         this.username = username;
         this.password = password;
         this.name = name;
         this.profileName = profileName;
         this.profileIntro = profileIntro;
-        this.profileImg = profileImg;
+        this.profileImgFileId = profileImgFileId;
         this.provider = provider;
         this.providerId = providerId;
     }
 
     // 프로파일을 수정합니다.
     public void updateProfile(ProfileUpdateRequest profileUpdateRequest){
-        this.profileName  = profileUpdateRequest.getProfileName();
-        this.profileIntro = profileUpdateRequest.getProfileIntro();
-        this.profileImg   = profileUpdateRequest.getProfileImg();
+        this.profileName      = profileUpdateRequest.getProfileName();
+        this.profileIntro     = profileUpdateRequest.getProfileIntro();
+        this.profileImgFileId = profileUpdateRequest.getProfileImgFileId();
     }
 
     // 비밀번호를 변경합니다.

@@ -1,6 +1,7 @@
 package com.my.instagram.common.file.domain;
 
 import com.my.instagram.common.domain.BaseEntity;
+import com.my.instagram.domains.accounts.domain.Accounts;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,6 +29,11 @@ public class Files extends BaseEntity {
     private String filePath;
     private String fileExt;
     private int fileSeq;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "accounts_id")
+    private Accounts accounts;
+
 
     @Builder
     public Files(Long id, UUID fileName, String realFileName, String filePath, String fileExt, int fileSeq) {

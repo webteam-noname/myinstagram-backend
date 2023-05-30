@@ -19,6 +19,5 @@ public class ProfileUpdateRequest {
     @NotBlank(message = "프로필 소개글은 필수입니다.")
     private String profileIntro;
 
-    @NotBlank(message = "프로필 이미지는 필수입니다.")
-    private String profileImg;
+    private Long profileImgFileId;
 }

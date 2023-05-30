@@ -1,5 +1,9 @@
 package com.my.instagram.domains.accounts.service;
 
+import com.my.instagram.common.file.domain.Files;
+import com.my.instagram.common.file.dto.request.FileUpdateRequest;
+import com.my.instagram.common.file.repository.FileRepository;
+import com.my.instagram.common.file.service.FileService;
 import com.my.instagram.config.security.auth.PrincipalDetails;
 import com.my.instagram.config.security.jwt.JwtProvider;
 import com.my.instagram.config.security.jwt.dto.JwtDto;
@@ -22,6 +26,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +39,8 @@ public class AccountsService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final AccountsRolesRepository accountsRolesRepository;
     private final MailService mailService;
+    private final FileService fileService;
+    private final FileRepository fileRepository;
     private final RoleRepository roleRepository;
     private final JwtProvider jwtProvider;
 
@@ -88,14 +96,25 @@ public class AccountsService {
 
     public ProfileSearchResponse searchProfile(ProfileSearchRequest profileSearchRequest) {
         Accounts accounts = getAccounts(profileSearchRequest.getUsername());
+        Files file        = fileRepository.findById(accounts.getProfileImgFileId()).get();
 
-        return new ProfileSearchResponse(accounts);
+        return new ProfileSearchResponse(accounts, file);
     }
 
-    public Long updateProfie(ProfileUpdateRequest profileUpdateRequest) {
+    public Long updateProfie(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
         Accounts accounts = getAccounts(profileUpdateRequest.getUsername());
 
+        Long fileId = null;
         // 프로필을 수정합니다.
+        if(profileUpdateRequest.getProfileImgFileId() == null){
+            // 이미지 파일이 존재하지 않으면
+            fileId = fileService.saveFile(file);
+        }else{
+            // 이미지 파일이 존재하면
+            fileId = fileService.updateFile(new FileUpdateRequest(profileUpdateRequest.getProfileImgFileId()), file);
+        }
+        profileUpdateRequest.setProfileImgFileId(fileId);
+
         accounts.updateProfile(profileUpdateRequest);
 
         return accounts.getId();

@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -56,8 +57,9 @@ public class AccountsController {
     }
 
     @PutMapping("/api/accounts/{username}/profile")
-    public ApiResponse<Long> updateProfie(@Valid @RequestBody ProfileUpdateRequest profileUpdateRequest){
-        Long accountId = accountService.updateProfie(profileUpdateRequest);
+    public ApiResponse<Long> updateProfie(@Valid ProfileUpdateRequest profileUpdateRequest,
+                                          MultipartFile file){
+        Long accountId = accountService.updateProfie(profileUpdateRequest,file);
         return new ApiResponse<>(HttpStatus.OK, accountId);
     }
 

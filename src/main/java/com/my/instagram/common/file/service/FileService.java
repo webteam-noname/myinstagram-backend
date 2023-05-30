@@ -8,13 +8,14 @@ import com.my.instagram.common.file.dto.response.FileSearchResponse;
 import com.my.instagram.common.file.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class FileService {
 
     private final FileRepository fileRepository;
@@ -24,24 +25,22 @@ public class FileService {
         return new FileSearchResponse(files);
     }
 
-    public Long saveFile(List<MultipartFile> files) {
-        Files fileEntity = null;
-        for (MultipartFile file : files) {
-            UUID fileName       = UUID.randomUUID();
-            String realFileName = file.getOriginalFilename();
-            String filePath     = "c:/files/";
+    public Long saveFile(MultipartFile file) {
+        UUID fileName       = UUID.randomUUID();
+        String realFileName = file.getOriginalFilename();
+        String filePath     = "c:/files/";
+        String fileExt      = realFileName.substring(realFileName.lastIndexOf(".") + 1);
 
-            fileEntity = Files.builder()
-                              .filePath(filePath)
-                              .fileName(fileName)
-                              .realFileName(file.getOriginalFilename())
-                              .fileExt(realFileName.substring(realFileName.lastIndexOf(".") + 1))
-                              .fileSeq(searchFileSeq())
-                              .build();
+        Files fileEntity = Files.builder()
+                          .filePath(filePath)
+                          .fileName(fileName)
+                          .realFileName(file.getOriginalFilename())
+                          .fileExt(fileExt)
+                          .fileSeq(searchFileSeq())
+                          .build();
 
-            fileEntity.saveFile(file);
-            fileRepository.save(fileEntity);
-        }
+        fileEntity.saveFile(file);
+        fileRepository.save(fileEntity);
 
         return fileEntity.getId();
     }
@@ -50,30 +49,29 @@ public class FileService {
         return 0;
     }
 
-    public Long updateFile(FileUpdateRequest fileUpdateRequest, List<MultipartFile> files) {
-        Files byIdFileName = fileRepository.findByIdAndFileName(fileUpdateRequest.getId(), fileUpdateRequest.getFileName());
+    public Long updateFile(FileUpdateRequest fileUpdateRequest, MultipartFile file) {
+        Files files = fileRepository.findById(fileUpdateRequest.getId()).get();
 
-        deleteFile(new FileDeleteRequest(byIdFileName.getId(),
-                                         byIdFileName.getFilePath(),
-                                         byIdFileName.getFileName(),
-                                         byIdFileName.getFileSeq()));
+        deleteServerFile(files);
+        files.updateFile(file);
+        files.saveFile(file);
 
-        saveFile(files);
-
-        return byIdFileName.getId();
+        return files.getId();
     }
 
 
     public String deleteFile(FileDeleteRequest fileDeleteRequest) {
-        Files files = new Files(fileDeleteRequest.getId(), fileDeleteRequest.getFilePath(), fileDeleteRequest.getFileName());
-
-        fileRepository.deleteByIdAndFileNameAndFileSeq(fileDeleteRequest.getId(),
-                                                         fileDeleteRequest.getFileName(),
-                                                         fileDeleteRequest.getFileSeq());
-
-
-        files.deleteFile();
+        Files files = fileRepository.findById(fileDeleteRequest.getId()).get();
+        deleteServerFile(files);
+        fileRepository.deleteById(fileDeleteRequest.getId());
 
         return "파일을 삭제했습니다.";
     }
+
+    private void deleteServerFile(Files fileById) {
+        Files files = new Files(fileById.getFilePath(), fileById.getFileName(), fileById.getFileExt());
+        files.deleteFile();
+    }
+
+
 }

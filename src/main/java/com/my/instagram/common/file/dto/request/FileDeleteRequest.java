@@ -15,14 +15,8 @@ public class FileDeleteRequest {
 
     @NotNull(message = "파일ID를 입력해주세요")
     private Long id;
-    private String filePath;
-    private UUID fileName;
-    private int fileSeq;
 
-    public FileDeleteRequest(Long id, String filePath, UUID fileName, int fileSeq) {
+    public FileDeleteRequest(Long id) {
         this.id = id;
-        this.filePath = filePath;
-        this.fileName = fileName;
-        this.fileSeq = fileSeq;
     }
 }

@@ -13,10 +13,5 @@ import java.util.UUID;
 public class FileUpdateRequest {
 
     @NotNull(message = "파일ID를 입력해주세요")
-    private Long id;
-    private UUID fileName;
-    private String realFileName;
-    private String filePath;
-    private String fileExt;
-    private int fileSeq;
+    private Long   id;
 }

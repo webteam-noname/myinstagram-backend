@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,14 +25,14 @@ public class FileController {
      }
 
      @PostMapping("/api/file")
-     public ApiResponse<Long> saveFile(@RequestPart(required = false) List<MultipartFile> files){
-         return new ApiResponse<>(HttpStatus.OK, fileService.saveFile(files));
+     public ApiResponse<Long> saveFile(@RequestPart(required = false) MultipartFile file){
+         return new ApiResponse<>(HttpStatus.OK, fileService.saveFile( file));
      }
 
      @PutMapping("/api/file")
-     public ApiResponse<Long> updateFile(@Valid @RequestBody FileUpdateRequest fileUpdateRequest,
-                                         @RequestPart(required = false) List<MultipartFile> files){
-        return new ApiResponse<>(HttpStatus.OK, fileService.updateFile(fileUpdateRequest, files));
+     public ApiResponse<Long> updateFile(@Valid FileUpdateRequest fileUpdateRequest,
+                                         @RequestPart(required = false) MultipartFile file){
+        return new ApiResponse<>(HttpStatus.OK, fileService.updateFile(fileUpdateRequest, file));
      }
 
     @DeleteMapping("/api/file")

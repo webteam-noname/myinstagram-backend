@@ -1,7 +1,6 @@
 package com.my.instagram.common.file.domain;
 
 import com.my.instagram.common.domain.BaseEntity;
-import com.my.instagram.common.file.dto.request.FileSearchRequest;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +22,7 @@ public class Files extends BaseEntity {
     @Column(name = "file_id")
     private Long id;
 
-    @Column(columnDefinition = "BINARY(16)")
+    @Column(unique = true)
     private UUID fileName;
     private String realFileName;
     private String filePath;
@@ -32,16 +31,16 @@ public class Files extends BaseEntity {
 
     @Builder
     public Files(Long id, UUID fileName, String realFileName, String filePath, String fileExt, int fileSeq) {
-        this.id = id;
-        this.fileName = fileName;
+        this.id           = id;
+        this.fileName     = fileName;
         this.realFileName = realFileName;
-        this.filePath = filePath;
-        this.fileExt = fileExt;
-        this.fileSeq = fileSeq;
+        this.filePath     = filePath;
+        this.fileExt      = fileExt;
+        this.fileSeq      = fileSeq;
     }
 
-    public Files(Long id, String filePath, UUID fileName) {
-        this(id, fileName,filePath,null,null,0);
+    public Files(String filePath, UUID fileName, String fileExt) {
+        this(null, fileName,null,filePath,fileExt,0);
     }
 
     public void saveFile(MultipartFile file) {
@@ -56,7 +55,26 @@ public class Files extends BaseEntity {
     }
 
     public void deleteFile() {
-        File file = new File(this.filePath+this.fileName+this.fileExt);
-        file.delete();
+
+        File file = new File(this.filePath+ this.fileName+"."+this.fileExt);
+
+        if(file.exists()){
+            file.delete();
+        }else{
+            throw new RuntimeException("서버 파일 삭제가 완료되지 않았습니다.");
+        }
+
+    }
+
+    public void updateFile(MultipartFile file) {
+        UUID fileName       = UUID.randomUUID();
+        String realFileName = file.getOriginalFilename();
+        String filePath     = "c:/files/";
+        String fileExt      = realFileName.substring(realFileName.lastIndexOf(".") + 1);
+
+        this.fileName     = fileName;
+        this.realFileName = realFileName;
+        this.filePath     = filePath;
+        this.fileExt      = fileExt;
     }
 }

@@ -22,7 +22,7 @@ import javax.servlet.http.HttpSession;
 
 @Service
 @RequiredArgsConstructor
-public class PrincipalOauth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+public class PrincipalOauth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User>  {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AccountsRepository accountsRepository;
@@ -36,6 +36,7 @@ public class PrincipalOauth2UserService implements OAuth2UserService<OAuth2UserR
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
+        System.out.println(userRequest);
 
         String provider   = userRequest.getClientRegistration().getClientId(); // google
         String providerId = oAuth2User.getAttribute("sub");

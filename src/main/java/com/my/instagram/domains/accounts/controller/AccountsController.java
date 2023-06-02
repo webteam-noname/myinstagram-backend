@@ -1,5 +1,7 @@
 package com.my.instagram.domains.accounts.controller;
 
+import com.my.instagram.config.security.oauth.OAuthService;
+import com.my.instagram.config.security.oauth.SocialLoginType;
 import com.my.instagram.domains.accounts.dto.response.MailCodeResponse;
 import com.my.instagram.domains.accounts.service.MailService;
 import com.my.instagram.domains.accounts.dto.request.*;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +28,7 @@ public class AccountsController {
 
     private final AccountsService accountService;
     private final MailService mailService;
-
+    private final OAuthService oAuthService;
 
     @PostMapping("/api/auth/accounts/join")
     public ApiResponse<String> join(@Valid @RequestBody AccountsSaveRequest accountsSaveRequest){
@@ -38,6 +41,17 @@ public class AccountsController {
         AccountsLoginResponse accountsLoginResponse = accountService.login(accountsLoginReqeust);
         setCookie(response,accountsLoginResponse.getJwt());
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
+    }
+
+    @GetMapping("/api/auth/{socialLoginType}")
+    public void socialLoginRedirect(@PathVariable(name="socialLoginType") String SocialLoginPath) throws IOException {
+        SocialLoginType socialLoginType= SocialLoginType.valueOf(SocialLoginPath.toUpperCase());
+        oAuthService.request(socialLoginType);
+    }
+
+    @GetMapping("/login/oauth2/code/google")
+    public void socialCallBack() throws IOException {
+        System.out.println("callback");
     }
 
     @PostMapping("/api/auth/accounts/password/code")

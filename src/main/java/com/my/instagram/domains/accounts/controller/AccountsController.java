@@ -1,7 +1,5 @@
 package com.my.instagram.domains.accounts.controller;
 
-import com.my.instagram.config.security.oauth.OAuthService;
-import com.my.instagram.config.security.oauth.SocialLoginType;
 import com.my.instagram.domains.accounts.dto.response.MailCodeResponse;
 import com.my.instagram.domains.accounts.service.MailService;
 import com.my.instagram.domains.accounts.dto.request.*;
@@ -28,7 +26,7 @@ public class AccountsController {
 
     private final AccountsService accountService;
     private final MailService mailService;
-    private final OAuthService oAuthService;
+
 
     @PostMapping("/api/auth/accounts/join")
     public ApiResponse<String> join(@Valid @RequestBody AccountsSaveRequest accountsSaveRequest){
@@ -43,11 +41,7 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
-    @GetMapping("/api/auth/{socialLoginType}")
-    public void socialLoginRedirect(@PathVariable(name="socialLoginType") String SocialLoginPath) throws IOException {
-        SocialLoginType socialLoginType= SocialLoginType.valueOf(SocialLoginPath.toUpperCase());
-        oAuthService.request(socialLoginType);
-    }
+
 
     @GetMapping("/login/oauth2/code/google")
     public void socialCallBack() throws IOException {

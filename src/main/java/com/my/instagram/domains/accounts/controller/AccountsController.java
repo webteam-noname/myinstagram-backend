@@ -1,6 +1,7 @@
 package com.my.instagram.domains.accounts.controller;
 
 import com.my.instagram.domains.accounts.dto.response.MailCodeResponse;
+import com.my.instagram.domains.accounts.dto.response.ProfileUpdateResponse;
 import com.my.instagram.domains.accounts.service.MailService;
 import com.my.instagram.domains.accounts.dto.request.*;
 import com.my.instagram.domains.accounts.dto.response.AccountsLoginResponse;
@@ -41,8 +42,6 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
-
-
     @GetMapping("/login/oauth2/code/google")
     public void socialCallBack() throws IOException {
         System.out.println("callback");
@@ -58,17 +57,17 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, accountService.updatePassword(accountsUpdateRequest));
     }
 
-    @GetMapping("/api/accounts/{username}/profile")
+    @GetMapping("/api/accounts/profile")
     public ApiResponse<ProfileSearchResponse> searchProfile(@Valid @RequestBody ProfileSearchRequest profileSearchRequest){
         ProfileSearchResponse accountsLoginResponse = accountService.searchProfile(profileSearchRequest);
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
-    @PutMapping("/api/accounts/{username}/profile")
-    public ApiResponse<Long> updateProfie(@Valid ProfileUpdateRequest profileUpdateRequest,
-                                          MultipartFile file){
-        Long accountId = accountService.updateProfie(profileUpdateRequest,file);
-        return new ApiResponse<>(HttpStatus.OK, accountId);
+    @PutMapping("/api/accounts/profile")
+    public ApiResponse<ProfileUpdateResponse> updateProfie(@Valid ProfileUpdateRequest profileUpdateRequest,
+                                                           MultipartFile file){
+        ProfileUpdateResponse profileUpdateResponse = accountService.updateProfie(profileUpdateRequest,file);
+        return new ApiResponse<>(HttpStatus.OK, profileUpdateResponse);
     }
 
 

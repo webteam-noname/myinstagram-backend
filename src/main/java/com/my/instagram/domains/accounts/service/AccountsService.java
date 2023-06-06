@@ -15,6 +15,7 @@ import com.my.instagram.domains.accounts.dto.request.*;
 import com.my.instagram.domains.accounts.dto.response.AccountsLoginResponse;
 import com.my.instagram.domains.accounts.dto.response.AccountsResponse;
 import com.my.instagram.domains.accounts.dto.response.ProfileSearchResponse;
+import com.my.instagram.domains.accounts.dto.response.ProfileUpdateResponse;
 import com.my.instagram.domains.accounts.repository.AccountsRepository;
 import com.my.instagram.domains.accounts.repository.AccountsRolesRepository;
 import com.my.instagram.domains.accounts.repository.RefreshTokenRepository;
@@ -101,7 +102,7 @@ public class AccountsService {
         return new ProfileSearchResponse(accounts, file);
     }
 
-    public Long updateProfie(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
+    public ProfileUpdateResponse updateProfie(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
         Accounts accounts = getAccounts(profileUpdateRequest.getUsername());
 
         Long fileId = null;
@@ -113,11 +114,11 @@ public class AccountsService {
             // 이미지 파일이 존재하면
             fileId = fileService.updateFile(new FileUpdateRequest(profileUpdateRequest.getProfileImgFileId()), file);
         }
-        profileUpdateRequest.setProfileImgFileId(fileId);
 
+        profileUpdateRequest.setProfileImgFileId(fileId);
         accounts.updateProfile(profileUpdateRequest);
 
-        return accounts.getId();
+        return new ProfileUpdateResponse(accounts);
     }
 
     private Accounts getAccounts(String username) {

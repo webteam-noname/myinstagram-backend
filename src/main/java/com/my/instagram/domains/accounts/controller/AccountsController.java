@@ -1,11 +1,8 @@
 package com.my.instagram.domains.accounts.controller;
 
-import com.my.instagram.domains.accounts.dto.response.MailCodeResponse;
-import com.my.instagram.domains.accounts.dto.response.ProfileUpdateResponse;
+import com.my.instagram.domains.accounts.dto.response.*;
 import com.my.instagram.domains.accounts.service.MailService;
 import com.my.instagram.domains.accounts.dto.request.*;
-import com.my.instagram.domains.accounts.dto.response.AccountsLoginResponse;
-import com.my.instagram.domains.accounts.dto.response.ProfileSearchResponse;
 import com.my.instagram.domains.accounts.service.AccountsService;
 import com.my.instagram.common.dto.ApiResponse;
 import com.my.instagram.config.security.jwt.dto.JwtDto;
@@ -19,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,6 +45,11 @@ public class AccountsController {
         System.out.println("callback");
     }
 
+    @GetMapping("/api/accounts")
+    public ApiResponse<AccountsResponse> searchAccounts(@Valid @RequestBody AccountsRequest accountsRequest) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, accountService.searchAccounts(accountsRequest));
+    }
+
     @PostMapping("/api/auth/accounts/password/code")
     public ApiResponse<MailCodeResponse> searchPasswordCode(@Valid @RequestBody MailCodeRequest mailCodeRequest) throws Exception {
         return new ApiResponse<>(HttpStatus.OK, mailService.sendPasswordCodeEmail(mailCodeRequest));
@@ -69,6 +72,9 @@ public class AccountsController {
         ProfileUpdateResponse profileUpdateResponse = accountService.updateProfie(profileUpdateRequest,file);
         return new ApiResponse<>(HttpStatus.OK, profileUpdateResponse);
     }
+
+
+
 
 
     private void setCookie(HttpServletResponse response, JwtDto jwtDto) {

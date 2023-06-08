@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,9 +25,24 @@ public class FollowController {
 
     private final FollowService followService;
 
+    @GetMapping("/api/follow/count")
+    public ApiResponse<Long> searchFollowCount(@Valid @RequestBody FollowSearchRequest followSearchRequest) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, followService.searchFollowCount(followSearchRequest));
+    }
+
     @GetMapping("/api/follow")
-    public ApiResponse<FollowSearchResponse> searchFollow(@Valid @RequestBody FollowSearchRequest followSearchRequest) throws IOException {
+    public ApiResponse<List<FollowSearchResponse>> searchFollow(@Valid @RequestBody FollowSearchRequest followSearchRequest) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, followService.searchFollow(followSearchRequest));
+    }
+
+    @GetMapping("/api/follower/count")
+    public ApiResponse<Long> searchFollowerCount(@Valid @RequestBody FollowSearchRequest followSearchRequest) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, followService.searchFollowerCount(followSearchRequest));
+    }
+
+    @GetMapping("/api/follower")
+    public ApiResponse<List<FollowSearchResponse>> searchFollower(@Valid @RequestBody FollowSearchRequest followSearchRequest) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, followService.searchFollower(followSearchRequest));
     }
 
     @PostMapping("/api/follow")

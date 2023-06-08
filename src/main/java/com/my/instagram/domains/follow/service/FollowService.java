@@ -14,14 +14,28 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class FollowService {
     private final FollowRepository followRepository;
 
-    public FollowSearchResponse searchFollow(FollowSearchRequest followSearchRequest) {
-        return followRepository.findByUsernameAndBlockYn(followSearchRequest.getUsername());
+    public Long searchFollowCount(FollowSearchRequest followSearchRequest) {
+        return followRepository.countFollowByUsername(followSearchRequest.getUsername());
+    }
+
+    public List<FollowSearchResponse> searchFollower(FollowSearchRequest followSearchRequest) {
+        return followRepository.findFollowerByUsername(followSearchRequest.getUsername());
+    }
+
+    public Long searchFollowerCount(FollowSearchRequest followSearchRequest) {
+        return followRepository.countFollowerByUsername(followSearchRequest.getUsername());
+    }
+
+    public List<FollowSearchResponse> searchFollow(FollowSearchRequest followSearchRequest) {
+        return followRepository.findFollowByUsername(followSearchRequest.getUsername());
     }
 
     public FollowSaveResponse saveFollow(FollowSaveRequest followSaveRequest) {
@@ -47,4 +61,7 @@ public class FollowService {
         followRepository.blockFollow(follow.getUsername(), follow.getFollowName(), followBlockRequest.getBlockYn());
         return "정상처리되었습니다.";
     }
+
+
+
 }

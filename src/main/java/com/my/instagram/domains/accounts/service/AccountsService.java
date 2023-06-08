@@ -30,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -77,6 +79,11 @@ public class AccountsService {
         accountsRolesRepository.save(accountsRole);
 
         return "회원가입에 성공했습니다.";
+    }
+
+    public AccountsResponse searchAccounts(AccountsRequest accountsRequest) {
+        // return accountsRepository.findByName(accountsRequest.getName());
+        return null;
     }
 
     public String updatePassword(AccountsUpdateRequest accountsUpdateRequest) {
@@ -138,4 +145,6 @@ public class AccountsService {
                         loginReqeust.getPassword())
                 );
     }
+
+
 }

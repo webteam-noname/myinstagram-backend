@@ -14,5 +14,5 @@ public class FollowDeleteRequest {
     private String username;
 
     @NotBlank(message = "팔로워는 필수입니다.")
-    private String follow;
+    private String followName;
 }

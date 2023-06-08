@@ -4,20 +4,28 @@ import com.my.instagram.domains.follow.domain.Follow;
 import com.my.instagram.domains.follow.dto.request.FollowBlockRequest;
 import com.my.instagram.domains.follow.dto.response.FollowSearchResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.parameters.P;
 
 public interface FollowRepository extends JpaRepository<Follow,Long> {
-    FollowSearchResponse findByUsername(String username);
+    @Query("select f.*" +
+            " from Follow f" +
+            " where f.username = :username" +
+            " and f.blockYn = 'N'")
+    FollowSearchResponse findByUsernameAndBlockYn(@Param("username") String username);
 
-    Follow findByUsernameFollow(String username, String follow);
+    FollowSearchResponse findByUsernameAndFollowName(String username, String followName);
 
-    @Query("update from Follow f" +
+    @Modifying
+    @Query("update Follow f" +
             " set f.blockYn = :blockYn" +
             " where f.username = :username" +
-            " and f.follow = :follow")
+            " and f.followName = :followName")
     void blockFollow(@Param("username") String username,
-                     @Param("follow") String follow,
-                     @Param("blockYn") Character blockYn);
+                     @Param("followName") String followName,
+                     @Param("blockYn") char blockYn);
+
+    void deleteByUsernameAndFollowName(String username, String followName);
 }

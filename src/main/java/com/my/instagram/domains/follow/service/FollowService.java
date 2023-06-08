@@ -21,13 +21,13 @@ public class FollowService {
     private final FollowRepository followRepository;
 
     public FollowSearchResponse searchFollow(FollowSearchRequest followSearchRequest) {
-        return followRepository.findByUsername(followSearchRequest.getUsername());
+        return followRepository.findByUsernameAndBlockYn(followSearchRequest.getUsername());
     }
 
     public FollowSaveResponse saveFollow(FollowSaveRequest followSaveRequest) {
         Follow follow = Follow.builder()
                               .username(followSaveRequest.getUsername())
-                              .follow(followSaveRequest.getFollow())
+                              .followName(followSaveRequest.getFollowName())
                               .blockYn('N')
                               .build();
 
@@ -37,14 +37,14 @@ public class FollowService {
     }
 
     public String deleteFollow(FollowDeleteRequest followDeleteRequest) {
-        Follow follow = followRepository.findByUsernameFollow(followDeleteRequest.getUsername(), followDeleteRequest.getFollow());
-        followRepository.delete(follow);
+        followRepository.deleteByUsernameAndFollowName(followDeleteRequest.getUsername(), followDeleteRequest.getFollowName());
         return "팔로워를 취소했습니다.";
     }
 
     public String blockFollow(FollowBlockRequest followBlockRequest) {
-        Follow follow = followRepository.findByUsernameFollow(followBlockRequest.getUsername(), followBlockRequest.getFollow());
-        followRepository.blockFollow(follow.getUsername(),follow.getFollow(),follow.getBlockYn());
+        FollowSearchResponse follow = followRepository.findByUsernameAndFollowName(followBlockRequest.getUsername(), followBlockRequest.getFollowName());
+
+        followRepository.blockFollow(follow.getUsername(), follow.getFollowName(), followBlockRequest.getBlockYn());
         return "정상처리되었습니다.";
     }
 }

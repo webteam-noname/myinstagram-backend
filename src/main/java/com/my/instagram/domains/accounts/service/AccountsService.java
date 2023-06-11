@@ -60,7 +60,9 @@ public class AccountsService {
 
     public String join(AccountsSaveRequest accountsSaveRequest) {
         // 회원 중복 여부 체크
-        // validationAccounts();
+        usernameOverTwiceExistsException(accountsSaveRequest.getUsername());
+        profileNameOverTwiceExistsException(accountsSaveRequest.getProfileName());
+
         Accounts accounts = Accounts.builder()
                                     .username(accountsSaveRequest.getUsername())
                                     .name(accountsSaveRequest.getName())
@@ -87,7 +89,7 @@ public class AccountsService {
     }
 
     public String updatePassword(AccountsUpdateRequest accountsUpdateRequest) {
-        Accounts accounts = getAccounts(accountsUpdateRequest.getUsername());
+        Accounts accounts = getAccounts(accountsUpdateRequest.getProfileName());
 
         if(mailService.validatePasswordCode(accounts.getUsername(),accountsUpdateRequest.getAuthCode())){
             throw new RuntimeException("인증코드가 틀렸습니다. 다시한번 조회해주세요");
@@ -102,34 +104,51 @@ public class AccountsService {
         return "비밀번호가 변경되었습니다.";
     }
 
-    public ProfileSearchResponse searchProfile(ProfileSearchRequest profileSearchRequest) {
-        Accounts accounts = getAccounts(profileSearchRequest.getUsername());
+    public ProfileSearchResponse searchProfile(String profileName) {
+        Accounts accounts = getAccounts(profileName);
         Files file        = fileRepository.findById(accounts.getProfileImgFileId()).get();
 
         return new ProfileSearchResponse(accounts, file);
     }
 
     public ProfileUpdateResponse updateProfie(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
-        Accounts accounts = getAccounts(profileUpdateRequest.getUsername());
+        Accounts accounts = getAccounts(profileUpdateRequest.getProfileName());
+        Long fileId = getFileId(file, profileUpdateRequest.getProfileImgFileId());
 
-        Long fileId = null;
-        // 프로필을 수정합니다.
-        if(profileUpdateRequest.getProfileImgFileId() == null){
-            // 이미지 파일이 존재하지 않으면
-            fileId = fileService.saveFile(file);
-        }else{
-            // 이미지 파일이 존재하면
-            fileId = fileService.updateFile(new FileUpdateRequest(profileUpdateRequest.getProfileImgFileId()), file);
-        }
-
+        profileNameOverTwiceExistsException(profileUpdateRequest.getProfileName());
         profileUpdateRequest.setProfileImgFileId(fileId);
         accounts.updateProfile(profileUpdateRequest);
 
         return new ProfileUpdateResponse(accounts);
     }
 
-    private Accounts getAccounts(String username) {
-        Accounts accounts = accountsRepository.findByUsername(username)
+    private Long getFileId(MultipartFile file, Long imgFileId) {
+        // 프로필을 수정합니다.
+        if(imgFileId == null){
+            // 이미지 파일이 존재하지 않으면
+            imgFileId = fileService.saveFile(file);
+        }else{
+            // 이미지 파일이 존재하면
+            imgFileId = fileService.updateFile(new FileUpdateRequest(imgFileId), file);
+        }
+
+        return imgFileId;
+    }
+
+    private void usernameOverTwiceExistsException(String username) {
+        if(accountsRepository.countByUsername(username) > 1){
+            new RuntimeException("사용자 ID는 중복될 수 없습니다.");
+        }
+    }
+
+    private void profileNameOverTwiceExistsException(String profileName) {
+        if(accountsRepository.countByProfileName(profileName) > 1){
+            new RuntimeException("프로필 명은 중복될 수 없습니다.");
+        }
+    }
+
+    private Accounts getAccounts(String profileName) {
+        Accounts accounts = accountsRepository.findByProfileName(profileName)
                                               .orElseThrow(() -> new RuntimeException("유저를 조회할 수 없습니다."));
         return accounts;
     }

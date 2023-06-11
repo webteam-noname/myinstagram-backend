@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class FollowDeleteRequest {
     @NotBlank(message = "아이디 입력은 필수입니다.")
-    private String username;
+    private String ProfileName;
 
     @NotBlank(message = "팔로워는 필수입니다.")
     private String followName;

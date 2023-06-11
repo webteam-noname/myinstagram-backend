@@ -1,5 +1,6 @@
 package com.my.instagram.domains.follow.domain;
 
+import com.my.instagram.domains.accounts.domain.Accounts;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,15 +17,18 @@ public class Follow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "follow_id")
     private Long id;
-    private String username;
     private String followName;
     private Character blockYn;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "accounts_id")
+    private Accounts accounts;
+
     @Builder
-    public Follow(String username, String followName, Character blockYn ) {
-        this.username   = username;
-        this.followName = followName;
-        this.blockYn    = blockYn;
+    public Follow(Accounts accounts, String followName, Character blockYn ) {
+        this.accounts    = accounts;
+        this.followName  = followName;
+        this.blockYn     = blockYn;
     }
 
 }

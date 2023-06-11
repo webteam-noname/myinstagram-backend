@@ -12,27 +12,31 @@ import java.util.List;
 public interface FollowRepository extends JpaRepository<Follow,Long> {
     @Query("select count(1)" +
             " from Follow f" +
-            " where f.username = :username" +
+            " inner join fetch f.accounts a" +
+            " where a.profileName = :profileName" +
             " and f.blockYn = 'N'")
-    Long countFollowByUsername(@Param("username") String username);
+    Long countFollowByUsername(@Param("profileName") String profileName);
 
     @Query("select f" +
             " from Follow f" +
-            " where f.username = :username" +
+            " inner join fetch f.accounts a" +
+            " where a.profileName = :profileName" +
             " and f.blockYn = 'N'")
-    List<FollowSearchResponse> findFollowByUsername(@Param("username") String username);
+    List<FollowSearchResponse> findFollowByUsername(@Param("profileName") String profileName);
 
     @Query("select count(1)" +
             " from Follow f" +
-            " where f.followName = :username" +
+            " inner join fetch f.accounts a" +
+            " where a.followName = :profileName" +
             " and f.blockYn = 'N'")
-    Long countFollowerByUsername(@Param("username") String username);
+    Long countFollowerByUsername(@Param("profileName") String profileName);
 
     @Query("select f" +
             " from Follow f" +
-            " where f.followName = :username" +
+            " inner join fetch f.accounts a" +
+            " where a.followName = :profileName" +
             " and f.blockYn = 'N'")
-    List<FollowSearchResponse> findFollowerByUsername(@Param("username") String username);
+    List<FollowSearchResponse> findFollowerByUsername(@Param("profileName") String profileName);
 
 
     FollowSearchResponse findByUsernameAndFollowName(String username, String followName);
@@ -40,14 +44,19 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
     @Modifying
     @Query("update Follow f" +
             " set f.blockYn = :blockYn" +
-            " where f.username = :username" +
+            " where f.accounts.profileName = :profileName" +
             " and f.followName = :followName")
-    void blockFollow(@Param("username") String username,
+    void blockFollow(@Param("profileName") String profileName,
                      @Param("followName") String followName,
                      @Param("blockYn") char blockYn);
 
-    void deleteByUsernameAndFollowName(String username, String followName);
+    void deleteByProfileNameAndFollowName(String profileName, String followName);
 
-
-
+    @Query("select count(1)" +
+            " from Follow f" +
+            " inner join fetch f.accounts a" +
+            " where a.profileName = :profileName" +
+            "   and f.followName = :followName"+
+            "   and f.blockYn = 'N'")
+    int countByProfileNameAndFollowName(@Param("profileName") String profileName, @Param("followName") String followName);
 }

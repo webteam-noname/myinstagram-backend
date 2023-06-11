@@ -25,37 +25,37 @@ public class FollowController {
 
     private final FollowService followService;
 
-    @GetMapping("/api/follow/count")
-    public ApiResponse<Long> searchFollowCount(@Valid @RequestBody FollowSearchRequest followSearchRequest) throws IOException {
-        return new ApiResponse<>(HttpStatus.OK, followService.searchFollowCount(followSearchRequest));
+    @GetMapping("/api/follows/{profileName}/count")
+    public ApiResponse<Long> searchFollowCount(@PathVariable("profileName") String profileName) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, followService.searchFollowCount(profileName));
     }
 
-    @GetMapping("/api/follow")
-    public ApiResponse<List<FollowSearchResponse>> searchFollow(@Valid @RequestBody FollowSearchRequest followSearchRequest) throws IOException {
-        return new ApiResponse<>(HttpStatus.OK, followService.searchFollow(followSearchRequest));
+    @GetMapping("/api/follows/{profileName}")
+    public ApiResponse<List<FollowSearchResponse>> searchFollow(@PathVariable("profileName") String profileName) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, followService.searchFollow(profileName));
     }
 
-    @GetMapping("/api/follower/count")
-    public ApiResponse<Long> searchFollowerCount(@Valid @RequestBody FollowSearchRequest followSearchRequest) throws IOException {
-        return new ApiResponse<>(HttpStatus.OK, followService.searchFollowerCount(followSearchRequest));
+    @GetMapping("/api/followers/{profileName}/count")
+    public ApiResponse<Long> searchFollowerCount(@PathVariable("profileName") String profileName) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, followService.searchFollowerCount(profileName));
     }
 
-    @GetMapping("/api/follower")
-    public ApiResponse<List<FollowSearchResponse>> searchFollower(@Valid @RequestBody FollowSearchRequest followSearchRequest) throws IOException {
-        return new ApiResponse<>(HttpStatus.OK, followService.searchFollower(followSearchRequest));
+    @GetMapping("/api/followers/{profileName}")
+    public ApiResponse<List<FollowSearchResponse>> searchFollower(@PathVariable("profileName") String profileName) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, followService.searchFollower(profileName));
     }
 
-    @PostMapping("/api/follow")
+    @PostMapping("/api/follows")
     public ApiResponse<FollowSaveResponse> saveFollow(@Valid @RequestBody FollowSaveRequest followSaveRequest) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, followService.saveFollow(followSaveRequest));
     }
 
-    @DeleteMapping("/api/follow")
+    @DeleteMapping("/api/follows")
     public ApiResponse<String> deleteFollow(@Valid @RequestBody FollowDeleteRequest followDeleteRequest) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, followService.deleteFollow(followDeleteRequest));
     }
 
-    @PutMapping("/api/follow/block")
+    @PutMapping("/api/follows/block")
     public ApiResponse<String> blockFollow(@Valid @RequestBody FollowBlockRequest followBlockRequest) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, followService.blockFollow(followBlockRequest));
     }

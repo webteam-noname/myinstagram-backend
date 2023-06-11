@@ -40,11 +40,6 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
-    @GetMapping("/login/oauth2/code/google")
-    public void socialCallBack() throws IOException {
-        System.out.println("callback");
-    }
-
     @GetMapping("/api/accounts")
     public ApiResponse<AccountsResponse> searchAccounts(@Valid @RequestBody AccountsRequest accountsRequest) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, accountService.searchAccounts(accountsRequest));
@@ -60,9 +55,9 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, accountService.updatePassword(accountsUpdateRequest));
     }
 
-    @GetMapping("/api/accounts/profile")
-    public ApiResponse<ProfileSearchResponse> searchProfile(@Valid @RequestBody ProfileSearchRequest profileSearchRequest){
-        ProfileSearchResponse accountsLoginResponse = accountService.searchProfile(profileSearchRequest);
+    @GetMapping("/api/accounts/{profileName}/profile")
+    public ApiResponse<ProfileSearchResponse> searchProfile(@PathVariable("profileName") String profileName){
+        ProfileSearchResponse accountsLoginResponse = accountService.searchProfile(profileName);
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
@@ -72,10 +67,6 @@ public class AccountsController {
         ProfileUpdateResponse profileUpdateResponse = accountService.updateProfie(profileUpdateRequest,file);
         return new ApiResponse<>(HttpStatus.OK, profileUpdateResponse);
     }
-
-
-
-
 
     private void setCookie(HttpServletResponse response, JwtDto jwtDto) {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", jwtDto.getRefreshToken())

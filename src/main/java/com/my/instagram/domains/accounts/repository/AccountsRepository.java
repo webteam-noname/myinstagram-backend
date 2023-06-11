@@ -22,4 +22,15 @@ public interface AccountsRepository extends JpaRepository<Accounts,Long> {
 
     Optional<Accounts> findByUsername(String username);
 
+    public Optional<Accounts> findByProfileName(String profileName);
+
+    @Query("select count(1)" +
+            " from Accounts a" +
+            " where a.profileName = :profileName")
+    int countByProfileName(@Param("profileName") String profileName);
+
+    @Query("select count(1)" +
+            " from Accounts a" +
+            " where a.username = :username")
+    int countByUsername(@Param("username") String username);
 }

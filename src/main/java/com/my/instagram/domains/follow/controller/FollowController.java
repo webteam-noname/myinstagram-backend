@@ -1,13 +1,9 @@
 package com.my.instagram.domains.follow.controller;
 
 import com.my.instagram.common.dto.ApiResponse;
-import com.my.instagram.domains.accounts.dto.response.ProfileUpdateResponse;
 import com.my.instagram.domains.follow.dto.request.FollowBlockRequest;
 import com.my.instagram.domains.follow.dto.request.FollowDeleteRequest;
 import com.my.instagram.domains.follow.dto.request.FollowSaveRequest;
-import com.my.instagram.domains.follow.dto.request.FollowSearchRequest;
-import com.my.instagram.domains.follow.dto.response.FollowBlockResponse;
-import com.my.instagram.domains.follow.dto.response.FollowDeleteResponse;
 import com.my.instagram.domains.follow.dto.response.FollowSaveResponse;
 import com.my.instagram.domains.follow.dto.response.FollowSearchResponse;
 import com.my.instagram.domains.follow.service.FollowService;

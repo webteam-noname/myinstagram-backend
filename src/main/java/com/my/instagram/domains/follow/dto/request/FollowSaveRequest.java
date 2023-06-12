@@ -10,9 +10,6 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @NoArgsConstructor
 public class FollowSaveRequest {
-
-    private String username;
-
     private String profileName;
 
     @NotBlank(message = "팔로워는 필수입니다.")

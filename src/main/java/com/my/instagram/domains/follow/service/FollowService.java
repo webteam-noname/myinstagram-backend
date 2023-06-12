@@ -40,9 +40,9 @@ public class FollowService {
     }
 
     public FollowSaveResponse saveFollow(FollowSaveRequest followSaveRequest) {
-        followOverTwiceExistsException(followSaveRequest.getProfileName(), followSaveRequest.getFollowName());
+        Accounts accounts = getAccounts(followSaveRequest.getProfileName());
 
-        Accounts accounts = getAccounts(followSaveRequest);
+        followOverTwiceExistsException(accounts.getId(), followSaveRequest.getFollowName());
 
         Follow follow = Follow.builder()
                               .accounts(accounts)
@@ -55,22 +55,16 @@ public class FollowService {
         return new FollowSaveResponse(follow);
     }
 
-    private void followOverTwiceExistsException(String profileName, String followName) {
-        if(followRepository.countByProfileNameAndFollowName(profileName, followName) > 1){
-            new RuntimeException("Follow는 중복될 수 없습니다.");
+    private void followOverTwiceExistsException(Long accountsId, String followName) {
+        if(followRepository.countByAccountsIdAndFollowName(accountsId, followName) > 0){
+            throw new RuntimeException("Follow는 중복될 수 없습니다.");
         }
     }
 
-    private Accounts getAccounts(FollowSaveRequest followSaveRequest) {
-
-        if(accountNameExists(followSaveRequest.getProfileName())){
-            return accountsRepository.findByProfileName(followSaveRequest.getProfileName()).orElseThrow(() -> new RuntimeException("조회된 데이터가 없습니다."));
+    private Accounts getAccounts(String profileName) {
+        if(accountNameExists(profileName)){
+            return accountsRepository.findByProfileName(profileName).orElseThrow(() -> new RuntimeException("조회된 데이터가 없습니다."));
         }
-
-        if(accountNameExists(followSaveRequest.getUsername())){
-            return accountsRepository.findByUsername(followSaveRequest.getUsername()).orElseThrow(() -> new RuntimeException("조회된 데이터가 없습니다."));
-        }
-
         return null;
     }
 
@@ -79,14 +73,17 @@ public class FollowService {
     }
 
     public String deleteFollow(FollowDeleteRequest followDeleteRequest) {
-        followRepository.deleteByProfileNameAndFollowName(followDeleteRequest.getProfileName(), followDeleteRequest.getFollowName());
+        Accounts accounts = getAccounts(followDeleteRequest.getProfileName());
+        followRepository.deleteByAccountsIdAndFollowName(accounts.getId(), followDeleteRequest.getFollowName());
         return "팔로워를 취소했습니다.";
     }
 
     public String blockFollow(FollowBlockRequest followBlockRequest) {
         FollowSearchResponse follow = followRepository.findByProfileNameAndFollowName(followBlockRequest.getProfileName(), followBlockRequest.getFollowName());
 
-        followRepository.blockFollow(follow.getAccounts().getProfileName(), follow.getFollowName(), followBlockRequest.getBlockYn());
+        System.out.println(follow.getAccountsId());
+
+        followRepository.blockFollow(follow.getAccountsId(), follow.getFollowName(), followBlockRequest.getBlockYn());
         return "정상처리되었습니다.";
     }
 

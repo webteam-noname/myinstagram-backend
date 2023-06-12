@@ -1,6 +1,7 @@
 package com.my.instagram.domains.accounts.service;
 
 import com.my.instagram.common.file.domain.Files;
+import com.my.instagram.common.file.dto.request.FileDeleteRequest;
 import com.my.instagram.common.file.dto.request.FileUpdateRequest;
 import com.my.instagram.common.file.repository.FileRepository;
 import com.my.instagram.common.file.service.FileService;
@@ -107,6 +108,7 @@ public class AccountsService {
     public ProfileSearchResponse searchProfile(String profileName) {
         Accounts accounts = getAccounts(profileName);
         Files file = null;
+
         if(accounts.getProfileImgFileId() != null){
             file        = fileRepository.findById(accounts.getProfileImgFileId()).get();
         }
@@ -151,8 +153,6 @@ public class AccountsService {
     }
 
     private Accounts getAccounts(String profileName) {
-        System.out.println("service :: " + profileName);
-
         Accounts accounts = accountsRepository.findByProfileName(profileName)
                                               .orElseThrow(() -> new RuntimeException("유저를 조회할 수 없습니다."));
 

@@ -1,5 +1,6 @@
 package com.my.instagram.domains.follow.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.my.instagram.domains.accounts.domain.Accounts;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,6 +21,7 @@ public class Follow {
     private String followName;
     private Character blockYn;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "accounts_id")
     private Accounts accounts;

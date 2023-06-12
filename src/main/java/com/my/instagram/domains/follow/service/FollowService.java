@@ -84,9 +84,9 @@ public class FollowService {
     }
 
     public String blockFollow(FollowBlockRequest followBlockRequest) {
-        FollowSearchResponse follow = followRepository.findByUsernameAndFollowName(followBlockRequest.getUsername(), followBlockRequest.getFollowName());
+        FollowSearchResponse follow = followRepository.findByProfileNameAndFollowName(followBlockRequest.getProfileName(), followBlockRequest.getFollowName());
 
-        followRepository.blockFollow(follow.getUsername(), follow.getFollowName(), followBlockRequest.getBlockYn());
+        followRepository.blockFollow(follow.getAccounts().getProfileName(), follow.getFollowName(), followBlockRequest.getBlockYn());
         return "정상처리되었습니다.";
     }
 

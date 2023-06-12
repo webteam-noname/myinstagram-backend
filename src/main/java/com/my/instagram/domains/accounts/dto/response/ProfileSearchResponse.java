@@ -19,6 +19,9 @@ public class ProfileSearchResponse {
         this.profileName      = accounts.getProfileName();
         this.profileIntro     = accounts.getProfileIntro();
         this.profileImgFileId = accounts.getProfileImgFileId();
-        this.profileImg       = file.getFilePath()+file.getFileName()+"."+file.getFileExt();
+        if(file != null){
+            this.profileImg       = file.getFilePath()+file.getFileName()+"."+file.getFileExt();
+        }
+
     }
 }

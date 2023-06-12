@@ -64,6 +64,8 @@ public class AccountsController {
     @PutMapping("/api/accounts/profile")
     public ApiResponse<ProfileUpdateResponse> updateProfie(@Valid ProfileUpdateRequest profileUpdateRequest,
                                                            MultipartFile file){
+        System.out.println("controller ::: " + profileUpdateRequest.getProfileName());
+        System.out.println("controller ::: " + profileUpdateRequest.getProfileIntro());
         ProfileUpdateResponse profileUpdateResponse = accountService.updateProfie(profileUpdateRequest,file);
         return new ApiResponse<>(HttpStatus.OK, profileUpdateResponse);
     }

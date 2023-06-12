@@ -1,5 +1,6 @@
 package com.my.instagram.domains.follow.dto.response;
 
+import com.my.instagram.domains.accounts.domain.Accounts;
 import com.my.instagram.domains.follow.domain.Follow;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,12 +10,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class FollowSearchResponse {
-    private String username;
+    private Accounts accounts;
     private String followName;
     private Character blockYn;
 
     public FollowSearchResponse(Follow follow) {
-        this.username = follow.getUsername();
+        this.accounts = follow.getAccounts();
         this.followName = follow.getFollowName();
         this.blockYn = follow.getBlockYn();
     }

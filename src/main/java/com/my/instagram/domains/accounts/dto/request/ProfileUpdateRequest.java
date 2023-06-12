@@ -10,9 +10,6 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @NoArgsConstructor
 public class ProfileUpdateRequest {
-    @NotBlank(message = "아이디 입력은 필수입니다.")
-    private String username;
-
     @NotBlank(message = "프로필명은 필수입니다.")
     private String profileName;
 

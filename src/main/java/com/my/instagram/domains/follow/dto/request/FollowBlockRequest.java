@@ -10,8 +10,8 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @NoArgsConstructor
 public class FollowBlockRequest {
-    @NotBlank(message = "아이디 입력은 필수입니다.")
-    private String username;
+    @NotBlank(message = "프로필명은 필수입니다.")
+    private String profileName;
 
     @NotBlank(message = "팔로워는 필수입니다.")
     private String followName;

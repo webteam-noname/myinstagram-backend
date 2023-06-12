@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AccountsRepository extends JpaRepository<Accounts,Long> {
+public interface AccountsRepository extends JpaRepository<Accounts,Long>, AccountsRepositoryCustom {
 
     @Query("select a from Accounts a" +
             " inner join fetch a.accountsRoles ar" +
@@ -33,4 +33,10 @@ public interface AccountsRepository extends JpaRepository<Accounts,Long> {
             " from Accounts a" +
             " where a.username = :username")
     int countByUsername(@Param("username") String username);
+
+    @Query("select a from Accounts a" +
+            " where a.username like :name" +
+            " or a.profileName like :name" +
+            " or a.name like :name")
+    AccountsResponse findByName(@Param("name") String name);
 }

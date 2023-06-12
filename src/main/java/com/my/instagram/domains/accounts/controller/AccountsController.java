@@ -7,6 +7,8 @@ import com.my.instagram.domains.accounts.service.AccountsService;
 import com.my.instagram.common.dto.ApiResponse;
 import com.my.instagram.config.security.jwt.dto.JwtDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,11 +42,6 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
-    @GetMapping("/api/accounts")
-    public ApiResponse<AccountsResponse> searchAccounts(@Valid @RequestBody AccountsRequest accountsRequest) throws IOException {
-        return new ApiResponse<>(HttpStatus.OK, accountService.searchAccounts(accountsRequest));
-    }
-
     @PostMapping("/api/auth/accounts/password/code")
     public ApiResponse<MailCodeResponse> searchPasswordCode(@Valid @RequestBody MailCodeRequest mailCodeRequest) throws Exception {
         return new ApiResponse<>(HttpStatus.OK, mailService.sendPasswordCodeEmail(mailCodeRequest));
@@ -67,6 +64,18 @@ public class AccountsController {
         ProfileUpdateResponse profileUpdateResponse = accountService.updateProfie(profileUpdateRequest,file);
         return new ApiResponse<>(HttpStatus.OK, profileUpdateResponse);
     }
+
+    @GetMapping("/api/accounts")
+    public ApiResponse<Slice<AccountsResponse>> searchSliceRecommendAccounts(Pageable pageable) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, accountService.searchSliceRecommendAccounts(pageable));
+    }
+
+    @GetMapping("/api/accounts/{name}")
+    public ApiResponse<AccountsResponse> searchAccounts(@PathVariable("name") String name) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, accountService.searchAccounts(name));
+    }
+
+
 
     private void setCookie(HttpServletResponse response, JwtDto jwtDto) {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", jwtDto.getRefreshToken())

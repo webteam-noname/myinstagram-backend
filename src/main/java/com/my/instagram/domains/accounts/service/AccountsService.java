@@ -22,6 +22,8 @@ import com.my.instagram.domains.accounts.repository.AccountsRolesRepository;
 import com.my.instagram.domains.accounts.repository.RefreshTokenRepository;
 import com.my.instagram.domains.accounts.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -84,9 +86,12 @@ public class AccountsService {
         return "회원가입에 성공했습니다.";
     }
 
-    public AccountsResponse searchAccounts(AccountsRequest accountsRequest) {
-        // return accountsRepository.findByName(accountsRequest.getName());
-        return null;
+    public Slice<AccountsResponse> searchSliceRecommendAccounts(Pageable pageable) {
+        return accountsRepository.findAllSlice(pageable);
+    }
+
+    public AccountsResponse searchAccounts(String name) {
+        return accountsRepository.findByName(name+"%");
     }
 
     public String updatePassword(AccountsUpdateRequest accountsUpdateRequest) {
@@ -170,6 +175,7 @@ public class AccountsService {
                         loginReqeust.getPassword())
                 );
     }
+
 
 
 }

@@ -37,7 +37,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                                                   .map(Cookie::getValue);
 
         String targetUrl = redirectUrl.orElse(getDefaultTargetUrl());
-        System.out.println("targetUrl == " + targetUrl);
+
         String token = jwtProvider.generateToken(authentication);
 
         return UriComponentsBuilder.fromUriString(targetUrl)

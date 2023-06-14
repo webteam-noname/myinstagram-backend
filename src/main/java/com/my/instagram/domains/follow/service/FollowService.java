@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -28,7 +29,9 @@ public class FollowService {
     }
 
     public List<FollowSearchResponse> searchFollower(String profileName) {
-        return followRepository.findFollowerByUsername(profileName);
+        List<FollowSearchResponse> followerByUsername = followRepository.findFollowerByUsername(profileName);
+        existDataSkipElseException(followerByUsername);
+        return followerByUsername;
     }
 
     public Long searchFollowerCount(String profileName) {
@@ -36,7 +39,15 @@ public class FollowService {
     }
 
     public List<FollowSearchResponse> searchFollow(String profileName) {
-        return followRepository.findFollowByUsername(profileName);
+        List<FollowSearchResponse> followByUsername = followRepository.findFollowByUsername(profileName);
+        existDataSkipElseException(followByUsername);
+        return followByUsername;
+    }
+
+    private void existDataSkipElseException(List<FollowSearchResponse> followByUsername) {
+        if (followByUsername.size() == 0) {
+            throw new RuntimeException("팔로우 조회를 할 수 없습니다.");
+        }
     }
 
     public FollowSaveResponse saveFollow(FollowSaveRequest followSaveRequest) {

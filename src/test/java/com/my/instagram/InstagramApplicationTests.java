@@ -3,6 +3,8 @@ package com.my.instagram;
 import com.my.instagram.domains.accounts.domain.Accounts;
 import com.my.instagram.domains.accounts.dto.request.AccountsSaveRequest;
 import com.my.instagram.domains.accounts.service.AccountsService;
+import com.my.instagram.domains.follow.dto.request.FollowSaveRequest;
+import com.my.instagram.domains.follow.service.FollowService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +25,9 @@ class InstagramApplicationTests {
 	@Autowired
 	private AccountsService accountsService;
 
+	@Autowired
+	private FollowService followService;
+
 
 	@Test
 	@Rollback(false)
@@ -37,5 +42,20 @@ class InstagramApplicationTests {
 			accountsService.join(accountsSaveRequest);
 		}
 	}
+
+	@Test
+	@Rollback(false)
+	void 팔로우입력(){
+		for(int i = 0; i < 10; i++) {
+			for(int j = 0; j < 10; j++) {
+				FollowSaveRequest followSaveRequest = new FollowSaveRequest();
+				followSaveRequest.setProfileName("test"+i);
+				followSaveRequest.setFollowName("test"+j);
+				followService.saveFollow(followSaveRequest);
+			}
+		}
+	}
+
+
 
 }

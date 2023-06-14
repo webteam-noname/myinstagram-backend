@@ -52,7 +52,7 @@ public class Accounts extends BaseEntity {
 
     // 프로파일을 수정합니다.
     public void updateProfile(ProfileUpdateRequest profileUpdateRequest){
-        this.profileName      = profileUpdateRequest.getProfileName();
+        this.profileName      = profileUpdateRequest.getChangeProfileName();
         this.profileIntro     = profileUpdateRequest.getProfileIntro();
         this.profileImgFileId = profileUpdateRequest.getProfileImgFileId();
     }

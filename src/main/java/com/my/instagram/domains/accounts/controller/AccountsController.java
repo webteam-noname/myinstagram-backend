@@ -58,10 +58,10 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
-    @PutMapping("/api/accounts/profile")
-    public ApiResponse<ProfileUpdateResponse> updateProfie(@Valid ProfileUpdateRequest profileUpdateRequest,
+    @PutMapping("/api/accounts/{profileName}/profile")
+    public ApiResponse<ProfileUpdateResponse> updateProfie(@Valid @RequestBody ProfileUpdateRequest profileUpdateRequest,
                                                            MultipartFile file){
-        ProfileUpdateResponse profileUpdateResponse = accountService.updateProfie(profileUpdateRequest,file);
+        ProfileUpdateResponse profileUpdateResponse = accountService.updateProflie(profileUpdateRequest,file);
         return new ApiResponse<>(HttpStatus.OK, profileUpdateResponse);
     }
 

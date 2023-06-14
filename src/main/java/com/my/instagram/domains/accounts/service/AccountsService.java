@@ -1,7 +1,6 @@
 package com.my.instagram.domains.accounts.service;
 
 import com.my.instagram.common.file.domain.Files;
-import com.my.instagram.common.file.dto.request.FileDeleteRequest;
 import com.my.instagram.common.file.dto.request.FileUpdateRequest;
 import com.my.instagram.common.file.repository.FileRepository;
 import com.my.instagram.common.file.service.FileService;
@@ -12,7 +11,10 @@ import com.my.instagram.domains.accounts.domain.Accounts;
 import com.my.instagram.domains.accounts.domain.AccountsRole;
 import com.my.instagram.domains.accounts.domain.RefreshToken;
 import com.my.instagram.domains.accounts.domain.Role;
-import com.my.instagram.domains.accounts.dto.request.*;
+import com.my.instagram.domains.accounts.dto.request.AccountsLoginReqeust;
+import com.my.instagram.domains.accounts.dto.request.AccountsSaveRequest;
+import com.my.instagram.domains.accounts.dto.request.AccountsUpdateRequest;
+import com.my.instagram.domains.accounts.dto.request.ProfileUpdateRequest;
 import com.my.instagram.domains.accounts.dto.response.AccountsLoginResponse;
 import com.my.instagram.domains.accounts.dto.response.AccountsResponse;
 import com.my.instagram.domains.accounts.dto.response.ProfileSearchResponse;
@@ -22,6 +24,7 @@ import com.my.instagram.domains.accounts.repository.AccountsRolesRepository;
 import com.my.instagram.domains.accounts.repository.RefreshTokenRepository;
 import com.my.instagram.domains.accounts.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +33,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -91,7 +93,8 @@ public class AccountsService {
     }
 
     public List<AccountsResponse> searchAccounts(String searchName) {
-        return accountsRepository.findByName(searchName+"%");
+        Pageable pageable = PageRequest.of(0, 20);
+        return accountsRepository.findByName(searchName+"%", pageable);
     }
 
     public String updatePassword(AccountsUpdateRequest accountsUpdateRequest) {
@@ -121,18 +124,22 @@ public class AccountsService {
         return new ProfileSearchResponse(accounts, file);
     }
 
-    public ProfileUpdateResponse updateProfie(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
+    public ProfileUpdateResponse updateProflie(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
         Accounts accounts = getAccounts(profileUpdateRequest.getProfileName());
-        Long fileId = getFileId(file, profileUpdateRequest.getProfileImgFileId());
+
+        if(isFileExsist(file)){
+            Long fileId = getFileId(file, profileUpdateRequest.getProfileImgFileId());
+            profileUpdateRequest.setProfileImgFileId(fileId);
+        }
 
         profileNameOverTwiceExistsException(profileUpdateRequest.getProfileName());
-        profileUpdateRequest.setProfileImgFileId(fileId);
         accounts.updateProfile(profileUpdateRequest);
 
         return new ProfileUpdateResponse(accounts);
     }
 
     private Long getFileId(MultipartFile file, Long imgFileId) {
+
         // 프로필을 수정합니다.
         if(imgFileId == null){
             // 이미지 파일이 존재하지 않으면
@@ -145,15 +152,25 @@ public class AccountsService {
         return imgFileId;
     }
 
+    private boolean isFileExsist(MultipartFile file) {
+        if(file == null){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
     private void usernameOverTwiceExistsException(String username) {
-        if(accountsRepository.countByUsername(username) > 1){
-            new RuntimeException("사용자 ID는 중복될 수 없습니다.");
+        System.out.println(accountsRepository.countByUsername(username));
+        if(accountsRepository.countByUsername(username) > 0){
+            throw new RuntimeException("사용자 ID는 중복될 수 없습니다.");
         }
     }
 
     private void profileNameOverTwiceExistsException(String profileName) {
-        if(accountsRepository.countByProfileName(profileName) > 1){
-            new RuntimeException("프로필 명은 중복될 수 없습니다.");
+        System.out.println(accountsRepository.countByProfileName(profileName));
+        if(accountsRepository.countByProfileName(profileName) > 0){
+            throw new RuntimeException("프로필 명은 중복될 수 없습니다.");
         }
     }
 

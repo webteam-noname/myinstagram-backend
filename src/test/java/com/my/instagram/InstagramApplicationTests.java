@@ -29,7 +29,7 @@ class InstagramApplicationTests {
 	void 회원데이터입력() {
 		for (int i = 0; i < 100; i++) {
 			AccountsSaveRequest accountsSaveRequest = new AccountsSaveRequest();
-			accountsSaveRequest.setName("test"+i+"@gmail.com");
+			accountsSaveRequest.setUsername("test"+i+"@gmail.com");
 			accountsSaveRequest.setPassword("1234");
 			accountsSaveRequest.setProfileName("test"+i);
 			accountsSaveRequest.setName("kim"+i);

@@ -35,8 +35,8 @@ public interface AccountsRepository extends JpaRepository<Accounts,Long>, Accoun
     int countByUsername(@Param("username") String username);
 
     @Query("select a from Accounts a" +
-            " where a.username like :name" +
-            " or a.profileName like :name" +
-            " or a.name like :name")
-    AccountsResponse findByName(@Param("name") String name);
+            " where a.username like :searchName" +
+            " or a.profileName like :searchName" +
+            " or a.name like :searchName")
+    List<AccountsResponse> findByName(@Param("searchName") String searchName);
 }

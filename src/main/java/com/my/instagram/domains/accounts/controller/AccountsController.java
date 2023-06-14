@@ -70,9 +70,9 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, accountService.searchSliceRecommendAccounts(pageable));
     }
 
-    @GetMapping("/api/accounts/{name}")
-    public ApiResponse<AccountsResponse> searchAccounts(@PathVariable("name") String name) throws IOException {
-        return new ApiResponse<>(HttpStatus.OK, accountService.searchAccounts(name));
+    @GetMapping("/api/accounts/{searchName}")
+    public ApiResponse<List<AccountsResponse>> searchAccounts(@PathVariable("searchName") String searchName) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, accountService.searchAccounts(searchName));
     }
 
 

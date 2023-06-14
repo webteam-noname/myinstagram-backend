@@ -90,8 +90,8 @@ public class AccountsService {
         return accountsRepository.findAllSlice(pageable);
     }
 
-    public AccountsResponse searchAccounts(String name) {
-        return accountsRepository.findByName(name+"%");
+    public List<AccountsResponse> searchAccounts(String searchName) {
+        return accountsRepository.findByName(searchName+"%");
     }
 
     public String updatePassword(AccountsUpdateRequest accountsUpdateRequest) {

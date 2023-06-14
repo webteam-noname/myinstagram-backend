@@ -82,7 +82,7 @@ public class FollowService {
         FollowSearchResponse follow = followRepository.findByProfileNameAndFollowName(followBlockRequest.getProfileName(), followBlockRequest.getFollowName());
 
 
-        followRepository.blockFollow(follow.getAccountsId(), follow.getFollowName(), followBlockRequest.getBlockYn());
+        followRepository.blockFollow(follow.getAccountId(), follow.getFollowName(), followBlockRequest.getBlockYn());
         return "정상처리되었습니다.";
     }
 

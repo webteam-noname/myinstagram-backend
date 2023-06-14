@@ -10,14 +10,14 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class FollowSearchResponse {
-    private Long accountsId;
+    private Long accountId;
     private String username;
     private String profileName;
     private String followName;
     private Character blockYn;
 
     public FollowSearchResponse(Follow follow) {
-        this.accountsId = follow.getAccounts().getId();
+        this.accountId = follow.getAccounts().getId();
         this.username = follow.getAccounts().getUsername();
         this.profileName = follow.getAccounts().getProfileName();
         this.followName = follow.getFollowName();

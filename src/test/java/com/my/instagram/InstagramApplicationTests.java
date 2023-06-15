@@ -48,6 +48,10 @@ class InstagramApplicationTests {
 	void 팔로우입력(){
 		for(int i = 0; i < 10; i++) {
 			for(int j = 0; j < 10; j++) {
+				if(i == j){
+					continue;
+				}
+
 				FollowSaveRequest followSaveRequest = new FollowSaveRequest();
 				followSaveRequest.setProfileName("test"+i);
 				followSaveRequest.setFollowName("test"+j);

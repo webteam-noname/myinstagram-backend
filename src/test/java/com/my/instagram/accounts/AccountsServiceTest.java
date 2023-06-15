@@ -52,11 +52,11 @@ public class AccountsServiceTest {
 
     @Test
     void 회원추천조회(){
-        Pageable pageable = PageRequest.of(0, 5);
-        Slice<AccountsResponse> accountsResponses = accountsService.searchSliceRecommendAccounts(pageable);
+        int currentPage = 0;
+        Slice<AccountsResponse> accountsResponses = accountsService.searchSliceRecommendAccounts(currentPage);
         int count = accountsResponses.getContent().size();
 
-        assertThat(count).isEqualTo(5);
+        assertThat(count).isEqualTo(10);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class AccountsServiceTest {
         profileUpdateRequest.setChangeProfileName("수정_kimgun");
         profileUpdateRequest.setProfileIntro("수정_프로필 소개글입니다.");
 
-        accountsService.updateProflie(profileUpdateRequest,null);
+        accountsService.updateProfile(profileUpdateRequest,null);
         List<AccountsResponse> response = accountsService.searchAccounts("수정_kimgun");
         String profileName = response.get(0).getProfileName();
 
@@ -83,7 +83,7 @@ public class AccountsServiceTest {
         byte[] fileContent = "Test file content".getBytes();
         MultipartFile file = new MockMultipartFile("testFile.txt", "testFile.txt", "text/plain", fileContent);
 
-        accountsService.updateProflie(profileUpdateRequest, file);
+        accountsService.updateProfile(profileUpdateRequest, file);
         ProfileSearchResponse searchProfile = accountsService.searchProfile("수정_kimgun");
         String profileName = searchProfile.getProfileName();
         Long profileImgId  = searchProfile.getProfileImgFileId();

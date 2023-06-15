@@ -88,7 +88,8 @@ public class AccountsService {
         return "회원가입에 성공했습니다.";
     }
 
-    public Slice<AccountsResponse> searchSliceRecommendAccounts(Pageable pageable) {
+    public Slice<AccountsResponse> searchSliceRecommendAccounts(int currentPage) {
+        Pageable pageable = PageRequest.of(currentPage, 10);
         return accountsRepository.findAllSlice(pageable);
     }
 
@@ -124,7 +125,7 @@ public class AccountsService {
         return new ProfileSearchResponse(accounts, file);
     }
 
-    public ProfileUpdateResponse updateProflie(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
+    public ProfileUpdateResponse updateProfile(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
         Accounts accounts = getAccounts(profileUpdateRequest.getProfileName());
 
         if(isFileExsist(file)){

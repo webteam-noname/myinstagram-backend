@@ -59,15 +59,15 @@ public class AccountsController {
     }
 
     @PutMapping("/api/accounts/{profileName}/profile")
-    public ApiResponse<ProfileUpdateResponse> updateProfie(@Valid @RequestBody ProfileUpdateRequest profileUpdateRequest,
+    public ApiResponse<ProfileUpdateResponse> updateProfile(@Valid @RequestBody ProfileUpdateRequest profileUpdateRequest,
                                                            MultipartFile file){
-        ProfileUpdateResponse profileUpdateResponse = accountService.updateProflie(profileUpdateRequest,file);
+        ProfileUpdateResponse profileUpdateResponse = accountService.updateProfile(profileUpdateRequest,file);
         return new ApiResponse<>(HttpStatus.OK, profileUpdateResponse);
     }
 
-    @GetMapping("/api/accounts")
-    public ApiResponse<Slice<AccountsResponse>> searchSliceRecommendAccounts(Pageable pageable) throws IOException {
-        return new ApiResponse<>(HttpStatus.OK, accountService.searchSliceRecommendAccounts(pageable));
+    @GetMapping("/api/accounts/recommendation/page/{currentPage}")
+    public ApiResponse<Slice<AccountsResponse>> searchSliceRecommendAccounts(@PathVariable("currentPage") int currentPage) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, accountService.searchSliceRecommendAccounts(currentPage));
     }
 
     @GetMapping("/api/accounts/{searchName}")

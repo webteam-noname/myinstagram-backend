@@ -41,17 +41,17 @@ public class FollowController {
         return new ApiResponse<>(HttpStatus.OK, followService.searchFollower(profileName));
     }
 
-    @PostMapping("/api/follows")
+    @PostMapping("/api/follows/{profileName}")
     public ApiResponse<FollowSaveResponse> saveFollow(@Valid @RequestBody FollowSaveRequest followSaveRequest) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, followService.saveFollow(followSaveRequest));
     }
 
-    @DeleteMapping("/api/follows")
+    @DeleteMapping("/api/follows/{profileName}")
     public ApiResponse<String> deleteFollow(@Valid @RequestBody FollowDeleteRequest followDeleteRequest) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, followService.deleteFollow(followDeleteRequest));
     }
 
-    @PutMapping("/api/follows/block")
+    @PutMapping("/api/follows/{profileName}/block")
     public ApiResponse<String> blockFollow(@Valid @RequestBody FollowBlockRequest followBlockRequest) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, followService.blockFollow(followBlockRequest));
     }

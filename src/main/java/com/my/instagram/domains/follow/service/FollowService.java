@@ -1,5 +1,6 @@
 package com.my.instagram.domains.follow.service;
 
+import com.my.instagram.common.file.repository.FileRepository;
 import com.my.instagram.domains.accounts.domain.Accounts;
 import com.my.instagram.domains.accounts.repository.AccountsRepository;
 import com.my.instagram.domains.follow.domain.Follow;
@@ -21,7 +22,7 @@ import java.util.Optional;
 @Transactional
 @RequiredArgsConstructor
 public class FollowService {
-    private final FollowRepository   followRepository;
+    private final FollowRepository followRepository;
     private final AccountsRepository accountsRepository;
 
     public Long searchFollowCount(String profileName) {
@@ -52,11 +53,13 @@ public class FollowService {
 
     public FollowSaveResponse saveFollow(FollowSaveRequest followSaveRequest) {
         Accounts accounts = getAccounts(followSaveRequest.getProfileName());
+        Accounts followAccount = getAccounts(followSaveRequest.getFollowName());
 
         followOverTwiceExistsException(accounts.getId(), followSaveRequest.getFollowName());
 
         Follow follow = Follow.builder()
                               .accounts(accounts)
+                              .followUsername(followAccount.getUsername())
                               .followName(followSaveRequest.getFollowName())
                               .blockYn('N')
                               .build();

@@ -51,7 +51,6 @@ class InstagramApplicationTests {
 				if(i == j){
 					continue;
 				}
-
 				FollowSaveRequest followSaveRequest = new FollowSaveRequest();
 				followSaveRequest.setProfileName("test"+i);
 				followSaveRequest.setFollowName("test"+j);

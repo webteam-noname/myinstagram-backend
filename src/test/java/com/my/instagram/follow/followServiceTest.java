@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.transaction.Transactional;
@@ -35,23 +36,32 @@ public class followServiceTest {
         assertThrows(RuntimeException.class, () -> {
             followService.searchFollow("test12412");
         });
+        for (int i = 0; i < responses.size(); i++) {
+            System.out.println(responses.get(i));
+        }
+        System.out.println();
 
         assertThat(totalCount).isEqualTo(searchFollowCount);
     }
 
     @Test
     void 팔로잉조회(){
-        List<FollowSearchResponse> test0 = followService.searchFollow("test0");
+        List<FollowSearchResponse> test0 = followService.searchFollower("test0");
         int totalCount = test0.size();
 
-        assertThat(totalCount).isEqualTo(10);
+        for (int i = 0; i < test0.size(); i++) {
+            System.out.println(test0.get(i));
+        }
+
+        assertThat(totalCount).isEqualTo(9);
     }
 
     @Test
+    @Rollback(false)
     void 팔로우삭제(){
         FollowDeleteRequest followDeleteRequest = new FollowDeleteRequest();
         followDeleteRequest.setProfileName("test0");
-        followDeleteRequest.setFollowName("test1");
+        followDeleteRequest.setFollowName("test2");
 
         followService.deleteFollow(followDeleteRequest);
 

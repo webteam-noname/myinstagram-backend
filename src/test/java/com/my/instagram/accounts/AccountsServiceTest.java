@@ -33,7 +33,7 @@ public class AccountsServiceTest {
 
     @Test
     void 회원을조회(){
-        List<AccountsResponse> list= accountsService.searchAccounts("test");
+        List<AccountsResponse> list = accountsService.searchAccounts("test");
         int count = list.size();
 
         assertThat(count).isEqualTo(20);

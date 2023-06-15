@@ -119,7 +119,7 @@ public class AccountsService {
         Files file = null;
 
         if(accounts.getProfileImgFileId() != null){
-            file        = fileRepository.findById(accounts.getProfileImgFileId()).get();
+            file = fileRepository.findById(accounts.getProfileImgFileId()).get();
         }
 
         return new ProfileSearchResponse(accounts, file);
@@ -135,7 +135,6 @@ public class AccountsService {
 
         profileNameOverTwiceExistsException(profileUpdateRequest.getProfileName());
         accounts.updateProfile(profileUpdateRequest);
-
         return new ProfileUpdateResponse(accounts);
     }
 

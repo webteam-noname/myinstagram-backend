@@ -18,6 +18,7 @@ public class Follow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "follow_id")
     private Long id;
+    private String followUsername;
     private String followName;
     private Character blockYn;
 
@@ -27,10 +28,11 @@ public class Follow {
     private Accounts accounts;
 
     @Builder
-    public Follow(Accounts accounts, String followName, Character blockYn ) {
-        this.accounts    = accounts;
-        this.followName  = followName;
-        this.blockYn     = blockYn;
+    public Follow(Accounts accounts, String followUsername, String followName, Character blockYn ) {
+        this.accounts       = accounts;
+        this.followUsername = followUsername;
+        this.followName     = followName;
+        this.blockYn        = blockYn;
     }
 
 }

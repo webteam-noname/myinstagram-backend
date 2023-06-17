@@ -77,7 +77,7 @@ class InstagramApplicationTests {
 
 			MockMultipartFile file = new MockMultipartFile(
 					"profileImg",
-					"profile.jpg",
+					"test"+i,
 					"image/jpeg",
 					fileData
 			);

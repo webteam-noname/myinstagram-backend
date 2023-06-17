@@ -22,7 +22,6 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Transactional
 public class AccountsController {
 
     private final AccountsService accountService;

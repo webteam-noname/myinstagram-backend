@@ -102,7 +102,7 @@ public class FollowService {
 
     private Accounts getAccounts(String profileName) {
         if(accountNameExists(profileName)){
-            return accountsRepository.findByProfileName(profileName).orElseThrow(() -> new RuntimeException("조회된 데이터가 없습니다."));
+            return accountsRepository.findByProfileName(profileName).orElseThrow(() -> new RuntimeException("유저를 조회할 수 없습니다."));
         }
         return null;
     }

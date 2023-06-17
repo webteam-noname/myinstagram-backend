@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
@@ -12,7 +13,7 @@ import javax.validation.constraints.NotBlank;
 public class FollowSaveRequest {
     private String profileName;
 
-    @NotBlank(message = "팔로워는 필수입니다.")
+    @NotEmpty(message = "팔로워는 필수입니다.")
     private String followName;
 
     private Character blockYn;

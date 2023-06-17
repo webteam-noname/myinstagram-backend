@@ -1,7 +1,6 @@
 package com.my.instagram.follow;
 
 import com.my.instagram.domains.accounts.dto.request.ProfileUpdateRequest;
-import com.my.instagram.domains.accounts.dto.response.AccountsResponse;
 import com.my.instagram.domains.accounts.service.AccountsService;
 import com.my.instagram.domains.follow.dto.request.FollowBlockRequest;
 import com.my.instagram.domains.follow.dto.request.FollowDeleteRequest;
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.persistence.EntityManager;
@@ -86,7 +84,7 @@ public class followServiceTest {
         System.out.println();
 
         assertThat(followTotalCount).isEqualTo(searchFollowCount);
-        assertThat(followerTotalCount).isEqualTo(searchFollowCount);
+        assertThat(followerTotalCount).isEqualTo(searchFollowerCount);
 
     }
 
@@ -105,6 +103,8 @@ public class followServiceTest {
 
     @Test
     void 팔로우삭제(){
+        Long prevSearchFollowCount = followService.searchFollowCount("test0");
+        Long prevSearchFollowerCount = followService.searchFollowerCount("test0");
         FollowSearchResponse existsData = followRepository.findByProfileNameAndFollowName("test0", "test2");
 
         FollowDeleteRequest followDeleteRequest = new FollowDeleteRequest();
@@ -113,8 +113,13 @@ public class followServiceTest {
 
         followService.deleteFollow(followDeleteRequest);
 
+        Long searchFollowCount = followService.searchFollowCount("test0");
+        Long searchFollowerCount = followService.searchFollowerCount("test0");
+
         FollowSearchResponse deleteData = followRepository.findByProfileNameAndFollowName("test0", "test2");
 
+        assertThat(prevSearchFollowCount-1).isEqualTo(searchFollowCount);
+        assertThat(prevSearchFollowerCount).isEqualTo(searchFollowerCount);
         assertThat(existsData.getFollowName()).isEqualTo("test2");
         assertThat(deleteData).isNull();
     }
@@ -125,9 +130,24 @@ public class followServiceTest {
         followSaveRequest.setProfileName("test123452");
         followSaveRequest.setFollowName("test11");
 
-        assertThrows(RuntimeException.class, () -> {
+        RuntimeException runtimeException = assertThrows(RuntimeException.class, () -> {
             followService.saveFollow(followSaveRequest);
         });
+
+        assertThat("유저를 조회할 수 없습니다.").isEqualTo(runtimeException.getMessage());
+    }
+
+    @Test
+    void 등록되지않은_팔로워등록(){
+        FollowSaveRequest followSaveRequest = new FollowSaveRequest();
+        followSaveRequest.setProfileName("test0");
+        followSaveRequest.setFollowName("test1112314");
+
+        RuntimeException runtimeException = assertThrows(RuntimeException.class, () -> {
+            followService.saveFollow(followSaveRequest);
+        });
+
+        assertThat("유저를 조회할 수 없습니다.").isEqualTo(runtimeException.getMessage());
     }
 
     @Test
@@ -140,6 +160,19 @@ public class followServiceTest {
         List<FollowSearchResponse> responses = followService.searchFollow("test0");
 
         assertThat(responses.get(responses.size() - 1).getFollowName()).isEqualTo("test11");
+    }
+
+    @Test
+    void 팔로우등록_중복등록(){
+        FollowSaveRequest followSaveRequest = new FollowSaveRequest();
+        followSaveRequest.setProfileName("test0");
+        followSaveRequest.setFollowName("test1");
+
+        RuntimeException runtimeException = assertThrows(RuntimeException.class, () -> {
+            followService.saveFollow(followSaveRequest);
+        });
+
+        assertThat("Follow는 중복될 수 없습니다.").isEqualTo(runtimeException.getMessage());
     }
 
     @Test

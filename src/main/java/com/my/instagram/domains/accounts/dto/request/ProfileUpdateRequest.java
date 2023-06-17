@@ -6,12 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class ProfileUpdateRequest {
-    @NotBlank(message = "프로필명은 필수입니다.")
+    @NotEmpty(message = "프로필 명을 입력하셔야 합니다.")
     private String profileName;
 
     private String changeProfileName;

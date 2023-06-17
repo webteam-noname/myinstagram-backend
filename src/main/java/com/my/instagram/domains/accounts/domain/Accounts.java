@@ -26,10 +26,14 @@ public class Accounts extends BaseEntity {
 
     @Column(name = "follow_accounts_id")
     private Long followAccountsId;
+    @Column(unique = true, nullable = false)
     private String username;
+    @Column(unique = true, nullable = false)
     private String password;
+
     private String name;
 
+    @Column(unique = true, nullable = false)
     private String profileName;
     private String profileIntro;
     private Long profileImgFileId;
@@ -59,7 +63,7 @@ public class Accounts extends BaseEntity {
 
     // 프로파일을 수정합니다.
     public void updateProfile(ProfileUpdateRequest profileUpdateRequest){
-        if(profileUpdateRequest.getChangeProfileName() != null){
+        if(profileUpdateRequest.getChangeProfileName() != null && profileUpdateRequest.getChangeProfileName() != ""){
             this.profileName      = profileUpdateRequest.getChangeProfileName();
         }
 

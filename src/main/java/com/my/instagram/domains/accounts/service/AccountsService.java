@@ -33,6 +33,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -40,6 +41,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Validated
 public class AccountsService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -54,6 +56,7 @@ public class AccountsService {
 
     public AccountsLoginResponse login(AccountsLoginReqeust accountsLoginReqeust){
         PrincipalDetails principalDetails = (PrincipalDetails) getAuthentication(accountsLoginReqeust).getPrincipal();
+        System.out.println("principalDetails ::: " + principalDetails);
         JwtDto jwtDto = jwtProvider.createJwtDto(principalDetails);
         Accounts accounts = accountsRepository.findByUsername(principalDetails.getAccountResponse().getUsername()).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
         refreshTokenRepository.save(RefreshToken.builder()
@@ -126,6 +129,7 @@ public class AccountsService {
     }
 
     public ProfileUpdateResponse updateProfile(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
+        profileNameOverTwiceExistsException(profileUpdateRequest.getChangeProfileName());
         Accounts accounts = getAccounts(profileUpdateRequest.getProfileName());
 
         if(isFileExsist(file)){

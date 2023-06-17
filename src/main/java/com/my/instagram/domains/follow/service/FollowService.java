@@ -1,5 +1,6 @@
 package com.my.instagram.domains.follow.service;
 
+import com.my.instagram.common.file.domain.Files;
 import com.my.instagram.common.file.repository.FileRepository;
 import com.my.instagram.domains.accounts.domain.Accounts;
 import com.my.instagram.domains.accounts.repository.AccountsRepository;
@@ -24,6 +25,7 @@ import java.util.Optional;
 public class FollowService {
     private final FollowRepository followRepository;
     private final AccountsRepository accountsRepository;
+    private final FileRepository fileRepository;
 
     public Long searchFollowCount(String profileName) {
         return followRepository.countFollowByUsername(profileName);
@@ -32,7 +34,30 @@ public class FollowService {
     public List<FollowSearchResponse> searchFollower(String profileName) {
         List<FollowSearchResponse> followerByUsername = followRepository.findFollowerByUsername(profileName);
         existDataSkipElseException(followerByUsername);
+        inputFollowerFileImg(followerByUsername);
         return followerByUsername;
+    }
+
+    private void inputFollowFileImg(List<FollowSearchResponse> listData) {
+        int dataLength = listData.size();
+        for (int i = 0; i < dataLength; i++) {
+             if(listData.get(i).getProfileImgFileId() != null){
+                 Accounts accounts = accountsRepository.findByProfileName(listData.get(i).getFollowName()).get();
+                 Files files = fileRepository.findById(accounts.getProfileImgFileId()).get();
+                 listData.get(i).setProfileImg(files.getFilePath()+files.getFileName()+"."+files.getFileExt());
+             }
+        }
+    }
+
+    private void inputFollowerFileImg(List<FollowSearchResponse> listData) {
+        int dataLength = listData.size();
+        for (int i = 0; i < dataLength; i++) {
+            if(listData.get(i).getProfileImgFileId() != null){
+                Accounts accounts = accountsRepository.findByProfileName(listData.get(i).getProfileName()).get();
+                Files files = fileRepository.findById(accounts.getProfileImgFileId()).get();
+                listData.get(i).setProfileImg(files.getFilePath()+files.getFileName()+"."+files.getFileExt());
+            }
+        }
     }
 
     public Long searchFollowerCount(String profileName) {
@@ -42,6 +67,7 @@ public class FollowService {
     public List<FollowSearchResponse> searchFollow(String profileName) {
         List<FollowSearchResponse> followByUsername = followRepository.findFollowByUsername(profileName);
         existDataSkipElseException(followByUsername);
+        inputFollowFileImg(followByUsername);
         return followByUsername;
     }
 
@@ -59,8 +85,7 @@ public class FollowService {
 
         Follow follow = Follow.builder()
                               .accounts(accounts)
-                              .followUsername(followAccount.getUsername())
-                              .followName(followSaveRequest.getFollowName())
+                              .followAccounts(followAccount)
                               .blockYn('N')
                               .build();
 
@@ -88,7 +113,8 @@ public class FollowService {
 
     public String deleteFollow(FollowDeleteRequest followDeleteRequest) {
         Accounts accounts = getAccounts(followDeleteRequest.getProfileName());
-        followRepository.deleteByAccountsIdAndFollowName(accounts.getId(), followDeleteRequest.getFollowName());
+        Accounts followAccountsId = getAccounts(followDeleteRequest.getFollowName());
+        followRepository.deleteByAccountsIdAndFollowAccountsId(accounts.getId(), followAccountsId.getId());
         return "팔로워를 취소했습니다.";
     }
 
@@ -96,7 +122,7 @@ public class FollowService {
         FollowSearchResponse follow = followRepository.findByProfileNameAndFollowName(followBlockRequest.getProfileName(), followBlockRequest.getFollowName());
 
 
-        followRepository.blockFollow(follow.getAccountId(), follow.getFollowName(), followBlockRequest.getBlockYn());
+        followRepository.blockFollow(follow.getAccountId(), follow.getFollowAccountId(), followBlockRequest.getBlockYn());
         return "정상처리되었습니다.";
     }
 

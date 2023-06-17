@@ -23,13 +23,16 @@ public class Accounts extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "accounts_id")
     private Long id;
+
+    @Column(name = "follow_accounts_id")
+    private Long followAccountsId;
     private String username;
     private String password;
     private String name;
 
     private String profileName;
     private String profileIntro;
-    private Long   profileImgFileId;
+    private Long profileImgFileId;
 
     // oauth 관련된 프로퍼티
     private String provider;
@@ -38,6 +41,11 @@ public class Accounts extends BaseEntity {
     @OneToMany(mappedBy = "accounts", cascade = CascadeType.PERSIST)
     List<AccountsRole> accountsRoles = new ArrayList<>();
 
+    @PostPersist
+    public void setFollowAccountsId() {
+        this.followAccountsId = this.id;
+    }
+
     @Builder
     public Accounts(String username, String password, String name,String profileName, String profileIntro, Long profileImgFileId, String provider, String providerId) {
         this.username = username;
@@ -45,16 +53,23 @@ public class Accounts extends BaseEntity {
         this.name = name;
         this.profileName = profileName;
         this.profileIntro = profileIntro;
-        this.profileImgFileId = profileImgFileId;
         this.provider = provider;
         this.providerId = providerId;
     }
 
     // 프로파일을 수정합니다.
     public void updateProfile(ProfileUpdateRequest profileUpdateRequest){
-        this.profileName      = profileUpdateRequest.getChangeProfileName();
-        this.profileIntro     = profileUpdateRequest.getProfileIntro();
-        this.profileImgFileId = profileUpdateRequest.getProfileImgFileId();
+        if(profileUpdateRequest.getChangeProfileName() != null){
+            this.profileName      = profileUpdateRequest.getChangeProfileName();
+        }
+
+        if(profileUpdateRequest.getProfileIntro() != null){
+            this.profileIntro     = profileUpdateRequest.getProfileIntro();
+        }
+
+        if(profileUpdateRequest.getProfileImgFileId() != null){
+            this.profileImgFileId = profileUpdateRequest.getProfileImgFileId();
+        }
     }
 
     // 비밀번호를 변경합니다.

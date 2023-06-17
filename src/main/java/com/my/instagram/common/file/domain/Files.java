@@ -30,11 +30,6 @@ public class Files extends BaseEntity {
     private String fileExt;
     private int fileSeq;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "accounts_id")
-    private Accounts accounts;
-
-
     @Builder
     public Files(Long id, UUID fileName, String realFileName, String filePath, String fileExt, int fileSeq) {
         this.id           = id;

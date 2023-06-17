@@ -27,23 +27,24 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
 
     @Query( "select count(1)" +
             " from Follow f" +
-            " inner join f.accounts a" +
-            " where f.followName = :profileName" +
+            " inner join f.followAccounts fa" +
+            " where fa.profileName = :profileName" +
             " and f.blockYn = 'N'")
     Long countFollowerByUsername(@Param("profileName") String profileName);
 
     @Query( "select f" +
             " from Follow f" +
-            " inner join f.accounts a" +
-            " where f.followName = :profileName" +
+            " inner join f.followAccounts fa" +
+            " where fa.profileName = :profileName" +
             " and f.blockYn = 'N'")
     List<FollowSearchResponse> findFollowerByUsername(@Param("profileName") String profileName);
 
     @Query( "select f" +
             " from Follow f" +
             " inner join f.accounts a" +
+            " inner join f.followAccounts fa" +
             " where a.profileName = :profileName" +
-            " and f.followName = :followName" +
+            " and fa.profileName = :followName" +
             " and f.blockYn = 'N'")
     FollowSearchResponse findByProfileNameAndFollowName(@Param("profileName") String profileName,
                                                         @Param("followName") String followName);
@@ -52,23 +53,24 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
     @Query( "update Follow f" +
             " set f.blockYn = :blockYn" +
             " where f.accounts.id = :accountsId" +
-            " and f.followName = :followName")
+            " and f.followAccounts.id = :followAccountId")
     void blockFollow(@Param("accountsId") Long accountsId,
-                     @Param("followName") String followName,
+                     @Param("followAccountId") Long followAccountId,
                      @Param("blockYn") char blockYn);
 
     @Modifying
     @Query("delete from Follow f"+
             " where f.accounts.id = :accountsId" +
-            " and f.followName = :followName")
-    int deleteByAccountsIdAndFollowName(@Param("accountsId") Long accountsId,
-                                        @Param("followName") String followName);
+            " and f.followAccounts.id = :followAccountsId")
+    int deleteByAccountsIdAndFollowAccountsId(@Param("accountsId") Long accountsId,
+                                              @Param("followAccountsId") Long followAccountsId);
 
     @Query("select count(1)" +
            " from Follow as f" +
            " inner join f.accounts a" +
+           " inner join f.followAccounts fa" +
            " where a.id = :accountsId" +
-           " and f.followName = :followName" +
+           " and fa.profileName = :followName" +
            " and f.blockYn = 'N'")
     int countByAccountsIdAndFollowName(@Param("accountsId") Long accountsId,
                                        @Param("followName") String followName);

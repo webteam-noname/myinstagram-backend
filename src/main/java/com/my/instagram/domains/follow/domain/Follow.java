@@ -18,8 +18,6 @@ public class Follow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "follow_id")
     private Long id;
-    private String followUsername;
-    private String followName;
     private Character blockYn;
 
     @JsonIgnore
@@ -27,11 +25,16 @@ public class Follow {
     @JoinColumn(name = "accounts_id")
     private Accounts accounts;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "follow_accounts_id")
+    @org.hibernate.annotations.Index(name = "follow_accounts_id_index")
+    private Accounts followAccounts;
+
     @Builder
-    public Follow(Accounts accounts, String followUsername, String followName, Character blockYn ) {
+    public Follow(Accounts accounts, Accounts followAccounts, Character blockYn ) {
         this.accounts       = accounts;
-        this.followUsername = followUsername;
-        this.followName     = followName;
+        this.followAccounts = followAccounts;
         this.blockYn        = blockYn;
     }
 

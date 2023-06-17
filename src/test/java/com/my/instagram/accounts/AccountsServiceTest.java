@@ -17,6 +17,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.List;
 
@@ -30,6 +31,8 @@ public class AccountsServiceTest {
     @Autowired
     private AccountsService accountsService;
 
+    @Autowired
+    private EntityManager em;
 
     @Test
     void 회원을조회(){
@@ -67,8 +70,12 @@ public class AccountsServiceTest {
         profileUpdateRequest.setProfileIntro("수정_프로필 소개글입니다.");
 
         accountsService.updateProfile(profileUpdateRequest,null);
-        List<AccountsResponse> response = accountsService.searchAccounts("수정_kimgun");
-        String profileName = response.get(0).getProfileName();
+
+        em.flush();
+        em.clear();
+
+        ProfileSearchResponse searchProfile = accountsService.searchProfile("수정_kimgun");
+        String profileName = searchProfile.getProfileName();
 
         assertThat(profileName).isEqualTo("수정_kimgun");
     }
@@ -84,6 +91,10 @@ public class AccountsServiceTest {
         MultipartFile file = new MockMultipartFile("testFile.txt", "testFile.txt", "text/plain", fileContent);
 
         accountsService.updateProfile(profileUpdateRequest, file);
+
+        em.flush();
+        em.clear();
+
         ProfileSearchResponse searchProfile = accountsService.searchProfile("수정_kimgun");
         String profileName = searchProfile.getProfileName();
         Long profileImgId  = searchProfile.getProfileImgFileId();

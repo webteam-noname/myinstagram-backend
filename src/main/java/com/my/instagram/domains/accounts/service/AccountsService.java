@@ -133,7 +133,7 @@ public class AccountsService {
             profileUpdateRequest.setProfileImgFileId(fileId);
         }
 
-        profileNameOverTwiceExistsException(profileUpdateRequest.getProfileName());
+        // profileNameOverTwiceExistsException(profileUpdateRequest.getProfileName());
         accounts.updateProfile(profileUpdateRequest);
         return new ProfileUpdateResponse(accounts);
     }

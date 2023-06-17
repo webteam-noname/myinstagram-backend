@@ -33,12 +33,12 @@ public class FileService {
         String fileExt      = realFileName.substring(realFileName.lastIndexOf(".") + 1);
 
         Files fileEntity = Files.builder()
-                          .filePath(filePath)
-                          .fileName(fileName)
-                          .realFileName(file.getOriginalFilename())
-                          .fileExt(fileExt)
-                          .fileSeq(searchFileSeq())
-                          .build();
+                                .filePath(filePath)
+                                .fileName(fileName)
+                                .realFileName(file.getOriginalFilename())
+                                .fileExt(fileExt)
+                                .fileSeq(searchFileSeq())
+                                .build();
 
         fileEntity.saveFile(file);
         fileRepository.save(fileEntity);

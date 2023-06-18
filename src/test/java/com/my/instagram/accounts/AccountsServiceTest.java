@@ -187,9 +187,6 @@ public class AccountsServiceTest {
 
         accountsService.updateProfile(profileUpdateRequest,null);
 
-        em.flush();
-        em.clear();
-
         ProfileSearchResponse searchProfile = accountsService.searchProfile("수정_kimgun");
         String profileName = searchProfile.getProfileName();
         String profileIntro = searchProfile.getProfileIntro();
@@ -204,18 +201,79 @@ public class AccountsServiceTest {
         profileUpdateRequest.setProfileName("test0");
         profileUpdateRequest.setChangeProfileName("");
         profileUpdateRequest.setProfileIntro("");
+        profileUpdateRequest.setProfileImgFileId(229L);
 
         accountsService.updateProfile(profileUpdateRequest,null);
-
-        em.flush();
-        em.clear();
 
         ProfileSearchResponse searchProfile = accountsService.searchProfile("test0");
         String profileName = searchProfile.getProfileName();
         String profileIntro = searchProfile.getProfileIntro();
+        String profileImg = searchProfile.getProfileImg();
 
         assertThat(profileName).isNotEqualTo("");
         assertThat(profileIntro).isEqualTo("");
+        assertThat(profileImg).isEqualTo("c:/files/no-image.jpg");
+    }
+
+    @Test
+    void 프로필수정_이미지ID있음_파일no(){
+        ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
+        profileUpdateRequest.setProfileName("test0");
+        profileUpdateRequest.setChangeProfileName("수정_kimgun");
+        profileUpdateRequest.setProfileIntro("수정_프로필 소개글입니다.");
+
+        byte[] fileContent = "Test file content".getBytes();
+        MultipartFile file = new MockMultipartFile("profileImg",
+                "profile.jpg",
+                "image/jpeg",
+                fileContent);
+
+        accountsService.updateProfile(profileUpdateRequest, file);
+
+        ProfileSearchResponse searchProfile = accountsService.searchProfile("수정_kimgun");
+        String profileName = searchProfile.getProfileName();
+        String profileIntro = searchProfile.getProfileIntro();
+        String profileImg = searchProfile.getProfileImg();
+
+        assertThat(profileName).isEqualTo("수정_kimgun");
+        assertThat(profileIntro).isEqualTo("수정_프로필 소개글입니다.");
+        assertThat(profileImg).isNotNull();
+        assertThat(profileImg).isNotEmpty();
+        assertThat(profileImg).isNotEqualTo("c:/files/no-image.jpg");
+    }
+
+    @Test
+    void 프로필수정_이미지삭제후_재등록(){
+        ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
+        profileUpdateRequest.setProfileName("test0");
+        profileUpdateRequest.setChangeProfileName("");
+        profileUpdateRequest.setProfileIntro("");
+        profileUpdateRequest.setProfileImgFileId(229L);
+
+        accountsService.updateProfile(profileUpdateRequest,null);
+
+        profileUpdateRequest.setProfileName("test0");
+        profileUpdateRequest.setChangeProfileName("수정_kimgun");
+        profileUpdateRequest.setProfileIntro("수정_프로필 소개글입니다.");
+
+        byte[] fileContent = "Test file content".getBytes();
+        MultipartFile file = new MockMultipartFile("profileImg",
+                "profile.jpg",
+                "image/jpeg",
+                fileContent);
+
+        accountsService.updateProfile(profileUpdateRequest, file);
+
+        ProfileSearchResponse searchProfile = accountsService.searchProfile("수정_kimgun");
+        String profileName = searchProfile.getProfileName();
+        String profileIntro = searchProfile.getProfileIntro();
+        String profileImg = searchProfile.getProfileImg();
+
+        assertThat(profileName).isEqualTo("수정_kimgun");
+        assertThat(profileIntro).isEqualTo("수정_프로필 소개글입니다.");
+        assertThat(profileImg).isNotNull();
+        assertThat(profileImg).isNotEmpty();
+        assertThat(profileImg).isNotEqualTo("c:/files/no-image.jpg");
     }
 
     @Test

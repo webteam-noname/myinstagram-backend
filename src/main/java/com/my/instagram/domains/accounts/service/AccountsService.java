@@ -132,10 +132,8 @@ public class AccountsService {
         profileNameOverTwiceExistsException(profileUpdateRequest.getChangeProfileName());
         Accounts accounts = getAccounts(profileUpdateRequest.getProfileName());
 
-        if(isFileExsist(file)){
-            Long fileId = getFileId(file, profileUpdateRequest.getProfileImgFileId());
-            profileUpdateRequest.setProfileImgFileId(fileId);
-        }
+        Long fileId = getFileId(file, profileUpdateRequest.getProfileImgFileId());
+        profileUpdateRequest.setProfileImgFileId(fileId);
 
         // profileNameOverTwiceExistsException(profileUpdateRequest.getProfileName());
         accounts.updateProfile(profileUpdateRequest);
@@ -156,13 +154,6 @@ public class AccountsService {
         return imgFileId;
     }
 
-    private boolean isFileExsist(MultipartFile file) {
-        if(file == null){
-            return false;
-        }else{
-            return true;
-        }
-    }
 
     private void usernameOverTwiceExistsException(String username) {
         System.out.println(accountsRepository.countByUsername(username));

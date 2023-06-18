@@ -97,8 +97,8 @@ class InstagramApplicationTests {
 			byte[] fileData = Files.readAllBytes(Paths.get(filePath));
 
 			MockMultipartFile file = new MockMultipartFile(
-					"profileImg",
-					"test"+i,
+					"test"+imgNumber,
+					"test"+imgNumber+".jpg",
 					"image/jpeg",
 					fileData
 			);

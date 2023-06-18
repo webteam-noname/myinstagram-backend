@@ -45,6 +45,10 @@ public class Files extends BaseEntity {
     }
 
     public void saveFile(MultipartFile file) {
+        if(file == null){
+            return;
+        }
+
         File dest = new File(this.filePath+this.fileName+"."+this.fileExt);
 
         try {
@@ -56,7 +60,7 @@ public class Files extends BaseEntity {
     }
 
     public void deleteFile() {
-
+        System.out.println(this.filePath+ this.fileName+"."+this.fileExt);
         File file = new File(this.filePath+ this.fileName+"."+this.fileExt);
 
         if(file.exists()){
@@ -68,14 +72,22 @@ public class Files extends BaseEntity {
     }
 
     public void updateFile(MultipartFile file) {
-        UUID fileName       = UUID.randomUUID();
-        String realFileName = file.getOriginalFilename();
-        String filePath     = "c:/files/";
-        String fileExt      = realFileName.substring(realFileName.lastIndexOf(".") + 1);
+        if(file == null){
+            this.fileName     = null;
+            this.realFileName = null;
+            this.filePath     = null;
+            this.fileExt      = null;
+        }else{
+            UUID fileName       = UUID.randomUUID();
+            String realFileName = file.getOriginalFilename();
+            String filePath     = "c:/files/";
+            String fileExt      = realFileName.substring(realFileName.lastIndexOf(".") + 1);
 
-        this.fileName     = fileName;
-        this.realFileName = realFileName;
-        this.filePath     = filePath;
-        this.fileExt      = fileExt;
+            this.fileName     = fileName;
+            this.realFileName = realFileName;
+            this.filePath     = filePath;
+            this.fileExt      = fileExt;
+        }
+
     }
 }

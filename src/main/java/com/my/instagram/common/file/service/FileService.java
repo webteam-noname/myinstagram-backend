@@ -9,6 +9,7 @@ import com.my.instagram.common.file.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -53,7 +54,10 @@ public class FileService {
     public Long updateFile(FileUpdateRequest fileUpdateRequest, MultipartFile file) {
         Files files = fileRepository.findById(fileUpdateRequest.getId()).get();
 
-        deleteServerFile(files);
+        if(StringUtils.hasText(files.getRealFileName())){
+            deleteServerFile(files);
+        }
+
         files.updateFile(file);
         files.saveFile(file);
 

@@ -1,6 +1,7 @@
 package com.my.instagram.domains.follow.controller;
 
 import com.my.instagram.common.dto.ApiResponse;
+import com.my.instagram.domains.follow.dto.request.FollowApproveRequest;
 import com.my.instagram.domains.follow.dto.request.FollowBlockRequest;
 import com.my.instagram.domains.follow.dto.request.FollowDeleteRequest;
 import com.my.instagram.domains.follow.dto.request.FollowSaveRequest;
@@ -49,6 +50,11 @@ public class FollowController {
     @DeleteMapping("/api/follows/{profileName}")
     public ApiResponse<String> deleteFollow(@Valid @RequestBody FollowDeleteRequest followDeleteRequest) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, followService.deleteFollow(followDeleteRequest));
+    }
+
+    @PutMapping("/api/follows/{profileName}/approval")
+    public ApiResponse<String> approveFollow(@Valid @RequestBody FollowApproveRequest followApproveRequest) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, followService.approveFollow(followApproveRequest));
     }
 
     @PutMapping("/api/follows/{profileName}/block")

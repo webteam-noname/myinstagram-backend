@@ -5,6 +5,7 @@ import com.my.instagram.common.file.repository.FileRepository;
 import com.my.instagram.domains.accounts.domain.Accounts;
 import com.my.instagram.domains.accounts.repository.AccountsRepository;
 import com.my.instagram.domains.follow.domain.Follow;
+import com.my.instagram.domains.follow.dto.request.FollowApproveRequest;
 import com.my.instagram.domains.follow.dto.request.FollowBlockRequest;
 import com.my.instagram.domains.follow.dto.request.FollowDeleteRequest;
 import com.my.instagram.domains.follow.dto.request.FollowSaveRequest;
@@ -17,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -87,6 +87,7 @@ public class FollowService {
                               .accounts(accounts)
                               .followAccounts(followAccount)
                               .blockYn('N')
+                              .followAccept('N')
                               .build();
 
         followRepository.save(follow);
@@ -112,20 +113,31 @@ public class FollowService {
     }
 
     public String deleteFollow(FollowDeleteRequest followDeleteRequest) {
-        Accounts accounts = getAccounts(followDeleteRequest.getProfileName());
-        Accounts followAccountsId = getAccounts(followDeleteRequest.getFollowName());
-        followRepository.deleteByAccountsIdAndFollowAccountsId(accounts.getId(), followAccountsId.getId());
+        Follow follow = followRepository.findAcceptByProfileNameAndFollowName(followDeleteRequest.getProfileName(), followDeleteRequest.getFollowName(), 'Y');
+        followRepository.deleteByAccountsIdAndFollowAccountsId(follow.getAccounts().getId(), follow.getFollowAccounts().getId());
+
+        System.out.println(followDeleteRequest.getFollowName());
+        System.out.println(followDeleteRequest.getProfileName());
+        Follow oppositeFollow = followRepository.findAcceptByProfileNameAndFollowName(followDeleteRequest.getFollowName(), followDeleteRequest.getProfileName(),'Y');
+
+        if(oppositeFollow != null){
+            followRepository.deleteByAccountsIdAndFollowAccountsId(oppositeFollow.getAccounts().getId(), oppositeFollow.getFollowAccounts().getId());
+        }
+
         return "팔로워를 취소했습니다.";
     }
 
+
     public String blockFollow(FollowBlockRequest followBlockRequest) {
-        FollowSearchResponse follow = followRepository.findByProfileNameAndFollowName(followBlockRequest.getProfileName(), followBlockRequest.getFollowName());
-
-
-        followRepository.blockFollow(follow.getAccountId(), follow.getFollowAccountId(), followBlockRequest.getBlockYn());
+        Follow follow = followRepository.findByProfileNameAndFollowName(followBlockRequest.getProfileName(), followBlockRequest.getFollowName());
+        follow.setBlockYn(followBlockRequest.getBlockYn());
         return "정상처리되었습니다.";
     }
 
 
-
+    public String approveFollow(FollowApproveRequest followApproveRequest) {
+        Follow follow = followRepository.findAcceptByProfileNameAndFollowName(followApproveRequest.getProfileName(), followApproveRequest.getFollowName(),'N');
+        follow.setFollowAccept(followApproveRequest.getFollowAccept());
+        return "정상처리되었습니다.";
+    }
 }

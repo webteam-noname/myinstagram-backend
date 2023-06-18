@@ -4,7 +4,10 @@ import com.my.instagram.domains.accounts.domain.Accounts;
 import com.my.instagram.domains.accounts.dto.request.AccountsSaveRequest;
 import com.my.instagram.domains.accounts.dto.request.ProfileUpdateRequest;
 import com.my.instagram.domains.accounts.service.AccountsService;
+import com.my.instagram.domains.follow.domain.Follow;
 import com.my.instagram.domains.follow.dto.request.FollowSaveRequest;
+import com.my.instagram.domains.follow.dto.response.FollowSearchResponse;
+import com.my.instagram.domains.follow.repository.FollowRepository;
 import com.my.instagram.domains.follow.service.FollowService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +25,7 @@ import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 @SpringBootTest
 @Transactional
@@ -34,6 +38,8 @@ class InstagramApplicationTests {
 	@Autowired
 	private FollowService followService;
 
+	@Autowired
+	private FollowRepository followRepository;
 
 	@Test
 	@Rollback(false)
@@ -60,7 +66,22 @@ class InstagramApplicationTests {
 				FollowSaveRequest followSaveRequest = new FollowSaveRequest();
 				followSaveRequest.setProfileName("test"+i);
 				followSaveRequest.setFollowName("test"+j);
+
 				followService.saveFollow(followSaveRequest);
+			}
+		}
+	}
+
+	@Test
+	@Rollback(false)
+	void 팔로우요청승인(){
+		for(int i = 0; i < 10; i++) {
+			for(int j = 0; j < 10; j++) {
+				if(i == j){
+					continue;
+				}
+				Follow follow = followRepository.findAcceptByProfileNameAndFollowName("test"+i,"test"+j,'N');
+				follow.setFollowAccept('Y');
 			}
 		}
 	}

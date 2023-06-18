@@ -18,6 +18,7 @@ public class Follow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "follow_id")
     private Long id;
+    private Character followAccept;
     private Character blockYn;
 
     @JsonIgnore
@@ -32,10 +33,18 @@ public class Follow {
     private Accounts followAccounts;
 
     @Builder
-    public Follow(Accounts accounts, Accounts followAccounts, Character blockYn ) {
+    public Follow(Accounts accounts, Accounts followAccounts, Character blockYn,Character followAccept) {
         this.accounts       = accounts;
         this.followAccounts = followAccounts;
         this.blockYn        = blockYn;
+        this.followAccept  = followAccept;
     }
 
+    public void setBlockYn(Character blockYn) {
+        this.blockYn = blockYn;
+    }
+
+    public void setFollowAccept(Character followAccept) {
+        this.followAccept = followAccept;
+    }
 }

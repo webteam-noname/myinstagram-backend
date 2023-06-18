@@ -2,6 +2,8 @@ package com.my.instagram.follow;
 
 import com.my.instagram.domains.accounts.dto.request.ProfileUpdateRequest;
 import com.my.instagram.domains.accounts.service.AccountsService;
+import com.my.instagram.domains.follow.domain.Follow;
+import com.my.instagram.domains.follow.dto.request.FollowApproveRequest;
 import com.my.instagram.domains.follow.dto.request.FollowBlockRequest;
 import com.my.instagram.domains.follow.dto.request.FollowDeleteRequest;
 import com.my.instagram.domains.follow.dto.request.FollowSaveRequest;
@@ -102,10 +104,10 @@ public class followServiceTest {
     }
 
     @Test
-    void 팔로우삭제(){
+    void 맞팔로우삭제(){
         Long prevSearchFollowCount = followService.searchFollowCount("test0");
         Long prevSearchFollowerCount = followService.searchFollowerCount("test0");
-        FollowSearchResponse existsData = followRepository.findByProfileNameAndFollowName("test0", "test2");
+        Follow existsData = followRepository.findByProfileNameAndFollowName("test0", "test2");
 
         FollowDeleteRequest followDeleteRequest = new FollowDeleteRequest();
         followDeleteRequest.setProfileName("test0");
@@ -116,11 +118,11 @@ public class followServiceTest {
         Long searchFollowCount = followService.searchFollowCount("test0");
         Long searchFollowerCount = followService.searchFollowerCount("test0");
 
-        FollowSearchResponse deleteData = followRepository.findByProfileNameAndFollowName("test0", "test2");
+        Follow deleteData = followRepository.findByProfileNameAndFollowName("test0", "test2");
 
         assertThat(prevSearchFollowCount-1).isEqualTo(searchFollowCount);
-        assertThat(prevSearchFollowerCount).isEqualTo(searchFollowerCount);
-        assertThat(existsData.getFollowName()).isEqualTo("test2");
+        assertThat(prevSearchFollowerCount-1).isEqualTo(searchFollowerCount);
+        assertThat(existsData.getFollowAccounts().getProfileName()).isEqualTo("test2");
         assertThat(deleteData).isNull();
     }
 
@@ -151,15 +153,41 @@ public class followServiceTest {
     }
 
     @Test
-    void 팔로우등록(){
+    void 팔로우등록_승인함(){
+        FollowSaveRequest followSaveRequest = new FollowSaveRequest();
+        followSaveRequest.setProfileName("test0");
+        followSaveRequest.setFollowName("test11");
+
+        followService.saveFollow(followSaveRequest);
+
+        FollowApproveRequest followApproveRequest = new FollowApproveRequest();
+        followApproveRequest.setProfileName("test0");
+        followApproveRequest.setFollowName("test11");
+        followApproveRequest.setFollowAccept('Y');
+
+        followService.approveFollow(followApproveRequest);
+
+        List<FollowSearchResponse> responses = followService.searchFollow("test0");
+
+        assertThat(responses.get(responses.size() - 1).getFollowName()).isEqualTo("test11");
+    }
+
+    @Test
+    void 팔로우등록_승인안함(){
+        Long prevSearchFollowCount   = followService.searchFollowCount("test0");
+        Long prevSearchFollowerCount = followService.searchFollowerCount("test0");
+
         FollowSaveRequest followSaveRequest = new FollowSaveRequest();
         followSaveRequest.setProfileName("test0");
         followSaveRequest.setFollowName("test11");
         followService.saveFollow(followSaveRequest);
 
-        List<FollowSearchResponse> responses = followService.searchFollow("test0");
+        Long searchFollowCount   = followService.searchFollowCount("test0");
+        Long searchFollowerCount = followService.searchFollowerCount("test0");
 
-        assertThat(responses.get(responses.size() - 1).getFollowName()).isEqualTo("test11");
+        assertThat(prevSearchFollowCount).isEqualTo(searchFollowCount);
+        assertThat(prevSearchFollowerCount).isEqualTo(searchFollowerCount);
+
     }
 
     @Test

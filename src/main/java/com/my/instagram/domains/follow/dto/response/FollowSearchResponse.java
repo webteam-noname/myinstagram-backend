@@ -36,9 +36,11 @@ public class FollowSearchResponse {
                 "accountId=" + accountId +
                 ", username='" + username + '\'' +
                 ", profileName='" + profileName + '\'' +
+                ", followAccountId=" + followAccountId +
                 ", followUsername='" + followUsername + '\'' +
                 ", followName='" + followName + '\'' +
                 ", blockYn=" + blockYn +
+                ", profileImgFileId=" + profileImgFileId +
                 ", profileImg='" + profileImg + '\'' +
                 '}';
     }

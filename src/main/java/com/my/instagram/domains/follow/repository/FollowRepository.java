@@ -15,28 +15,32 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
            " from Follow f" +
            " inner join f.accounts a" +
            " where a.profileName = :profileName" +
-           " and f.blockYn = 'N'")
+           " and f.blockYn = 'N'" +
+           " and f.followAccept = 'Y'")
     Long countFollowByUsername(@Param("profileName") String profileName);
 
     @Query("select f" +
            " from Follow f" +
            " inner join f.accounts a" +
            " where a.profileName = :profileName" +
-           " and f.blockYn = 'N'")
+           " and f.blockYn = 'N'" +
+           " and f.followAccept = 'Y'")
     List<FollowSearchResponse> findFollowByUsername(@Param("profileName") String profileName);
 
     @Query( "select count(1)" +
             " from Follow f" +
             " inner join f.followAccounts fa" +
             " where fa.profileName = :profileName" +
-            " and f.blockYn = 'N'")
+            " and f.blockYn = 'N'"+
+            " and f.followAccept = 'Y'")
     Long countFollowerByUsername(@Param("profileName") String profileName);
 
     @Query( "select f" +
             " from Follow f" +
             " inner join f.followAccounts fa" +
             " where fa.profileName = :profileName" +
-            " and f.blockYn = 'N'")
+            " and f.blockYn = 'N'"+
+            " and f.followAccept = 'Y'")
     List<FollowSearchResponse> findFollowerByUsername(@Param("profileName") String profileName);
 
     @Query( "select f" +
@@ -46,8 +50,20 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
             " where a.profileName = :profileName" +
             " and fa.profileName = :followName" +
             " and f.blockYn = 'N'")
-    FollowSearchResponse findByProfileNameAndFollowName(@Param("profileName") String profileName,
-                                                        @Param("followName") String followName);
+    Follow findByProfileNameAndFollowName(@Param("profileName") String profileName,
+                                          @Param("followName") String followName);
+
+    @Query( "select f" +
+            " from Follow f" +
+            " inner join f.accounts a" +
+            " inner join f.followAccounts fa" +
+            " where a.profileName = :profileName" +
+            " and fa.profileName = :followName" +
+            " and f.blockYn = 'N'" +
+            " and f.followAccept = :followAccept")
+    Follow findAcceptByProfileNameAndFollowName(@Param("profileName") String profileName,
+                                                @Param("followName") String followName,
+                                                @Param("followAccept") Character followAccept);
 
     @Modifying
     @Query( "update Follow f" +
@@ -57,6 +73,15 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
     void blockFollow(@Param("accountsId") Long accountsId,
                      @Param("followAccountId") Long followAccountId,
                      @Param("blockYn") char blockYn);
+
+    @Modifying
+    @Query( "update Follow f" +
+            " set f.followAccept = :followAccept" +
+            " where f.accounts.id = :accountsId" +
+            " and f.followAccounts.id = :followAccountId")
+    void approveFollow(@Param("accountsId") Long accountsId,
+                       @Param("followAccountId") Long followAccountId,
+                       @Param("followAccept") Character followAccept);
 
     @Modifying
     @Query("delete from Follow f"+
@@ -71,7 +96,10 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
            " inner join f.followAccounts fa" +
            " where a.id = :accountsId" +
            " and fa.profileName = :followName" +
-           " and f.blockYn = 'N'")
+           " and f.blockYn = 'N'"+
+           " and f.followAccept = 'Y'")
     int countByAccountsIdAndFollowName(@Param("accountsId") Long accountsId,
                                        @Param("followName") String followName);
+
+
 }

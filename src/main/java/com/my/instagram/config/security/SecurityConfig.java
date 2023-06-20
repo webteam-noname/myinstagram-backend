@@ -41,6 +41,9 @@ public class SecurityConfig {
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final String[] permitAllPaths = {"/api/auth/**",
+                                             "/swagger-resources/**",
+                                             "/swagger-ui/**",
+                                             "/v3/api-docs/**",
                                              "/",
                                              "/app/accounts/**",
                                              "/login/**",

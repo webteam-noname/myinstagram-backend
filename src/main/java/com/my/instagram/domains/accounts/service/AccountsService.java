@@ -12,26 +12,30 @@ import com.my.instagram.domains.accounts.domain.AccountsRole;
 import com.my.instagram.domains.accounts.domain.RefreshToken;
 import com.my.instagram.domains.accounts.domain.Role;
 import com.my.instagram.domains.accounts.dto.request.*;
-import com.my.instagram.domains.accounts.dto.response.AccountsLoginResponse;
-import com.my.instagram.domains.accounts.dto.response.AccountsResponse;
-import com.my.instagram.domains.accounts.dto.response.ProfileSearchResponse;
+import com.my.instagram.domains.accounts.dto.response.*;
 import com.my.instagram.domains.accounts.repository.AccountsRepository;
 import com.my.instagram.domains.accounts.repository.AccountsRolesRepository;
 import com.my.instagram.domains.accounts.repository.RefreshTokenRepository;
 import com.my.instagram.domains.accounts.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Validated
 public class AccountsService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -46,6 +50,7 @@ public class AccountsService {
 
     public AccountsLoginResponse login(AccountsLoginReqeust accountsLoginReqeust){
         PrincipalDetails principalDetails = (PrincipalDetails) getAuthentication(accountsLoginReqeust).getPrincipal();
+        System.out.println("principalDetails ::: " + principalDetails);
         JwtDto jwtDto = jwtProvider.createJwtDto(principalDetails);
         Accounts accounts = accountsRepository.findByUsername(principalDetails.getAccountResponse().getUsername()).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
         refreshTokenRepository.save(RefreshToken.builder()
@@ -55,9 +60,11 @@ public class AccountsService {
         return new AccountsLoginResponse(jwtDto, new AccountsResponse(accounts));
     }
 
-    public String join(AccountsSaveRequest accountsSaveRequest) {
+    public String signUp(AccountsSaveRequest accountsSaveRequest) {
         // 회원 중복 여부 체크
-        // validationAccounts();
+        usernameOverTwiceExistsException(accountsSaveRequest.getUsername());
+        profileNameOverTwiceExistsException(accountsSaveRequest.getProfileName());
+
         Accounts accounts = Accounts.builder()
                                     .username(accountsSaveRequest.getUsername())
                                     .name(accountsSaveRequest.getName())
@@ -78,8 +85,18 @@ public class AccountsService {
         return "회원가입에 성공했습니다.";
     }
 
+    public Slice<AccountsResponse> searchSliceRecommendAccounts(int currentPage) {
+        Pageable pageable = PageRequest.of(currentPage, 10);
+        return accountsRepository.findAllSlice(pageable);
+    }
+
+    public List<AccountsResponse> searchAccounts(String searchName) {
+        Pageable pageable = PageRequest.of(0, 20);
+        return accountsRepository.findByName(searchName+"%", pageable);
+    }
+
     public String updatePassword(AccountsUpdateRequest accountsUpdateRequest) {
-        Accounts accounts = getAccounts(accountsUpdateRequest.getUsername());
+        Accounts accounts = getAccounts(accountsUpdateRequest.getProfileName());
 
         if(mailService.validatePasswordCode(accounts.getUsername(),accountsUpdateRequest.getAuthCode())){
             throw new RuntimeException("인증코드가 틀렸습니다. 다시한번 조회해주세요");
@@ -94,35 +111,62 @@ public class AccountsService {
         return "비밀번호가 변경되었습니다.";
     }
 
-    public ProfileSearchResponse searchProfile(ProfileSearchRequest profileSearchRequest) {
-        Accounts accounts = getAccounts(profileSearchRequest.getUsername());
-        Files file        = fileRepository.findById(accounts.getProfileImgFileId()).get();
+    public ProfileSearchResponse searchProfile(String profileName) {
+        Accounts accounts = getAccounts(profileName);
+        Files file = null;
+
+        if(accounts.getProfileImgFileId() != null){
+            file = fileRepository.findById(accounts.getProfileImgFileId()).get();
+        }
 
         return new ProfileSearchResponse(accounts, file);
     }
 
-    public Long updateProfie(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
-        Accounts accounts = getAccounts(profileUpdateRequest.getUsername());
+    public ProfileUpdateResponse updateProfile(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
+        profileNameOverTwiceExistsException(profileUpdateRequest.getChangeProfileName());
+        Accounts accounts = getAccounts(profileUpdateRequest.getProfileName());
 
-        Long fileId = null;
-        // 프로필을 수정합니다.
-        if(profileUpdateRequest.getProfileImgFileId() == null){
-            // 이미지 파일이 존재하지 않으면
-            fileId = fileService.saveFile(file);
-        }else{
-            // 이미지 파일이 존재하면
-            fileId = fileService.updateFile(new FileUpdateRequest(profileUpdateRequest.getProfileImgFileId()), file);
-        }
+        Long fileId = getFileId(file, profileUpdateRequest.getProfileImgFileId());
         profileUpdateRequest.setProfileImgFileId(fileId);
 
+        // profileNameOverTwiceExistsException(profileUpdateRequest.getProfileName());
         accounts.updateProfile(profileUpdateRequest);
-
-        return accounts.getId();
+        return new ProfileUpdateResponse(accounts);
     }
 
-    private Accounts getAccounts(String username) {
-        Accounts accounts = accountsRepository.findByUsername(username)
+    private Long getFileId(MultipartFile file, Long imgFileId) {
+
+        // 프로필을 수정합니다.
+        if(imgFileId == null){
+            // 이미지 파일이 존재하지 않으면
+            imgFileId = fileService.saveFile(file);
+        }else{
+            // 이미지 파일이 존재하면
+            imgFileId = fileService.updateFile(new FileUpdateRequest(imgFileId), file);
+        }
+
+        return imgFileId;
+    }
+
+
+    private void usernameOverTwiceExistsException(String username) {
+        System.out.println(accountsRepository.countByUsername(username));
+        if(accountsRepository.countByUsername(username) > 0){
+            throw new RuntimeException("사용자 ID는 중복될 수 없습니다.");
+        }
+    }
+
+    private void profileNameOverTwiceExistsException(String profileName) {
+        System.out.println(accountsRepository.countByProfileName(profileName));
+        if(accountsRepository.countByProfileName(profileName) > 0){
+            throw new RuntimeException("프로필 명은 중복될 수 없습니다.");
+        }
+    }
+
+    private Accounts getAccounts(String profileName) {
+        Accounts accounts = accountsRepository.findByProfileName(profileName)
                                               .orElseThrow(() -> new RuntimeException("유저를 조회할 수 없습니다."));
+
         return accounts;
     }
 
@@ -136,5 +180,25 @@ public class AccountsService {
                         loginReqeust.getUsername(),
                         loginReqeust.getPassword())
                 );
+    }
+
+    public String updateSignInPassword(AccountsUpdateSignInRequest accountsUpdateSignInRequest) {
+        return null;
+    }
+
+    public String updateProfilePassword(String profileName, UpdateProfilePasswordRequest updateProfilePasswordRequest) {
+        return null;
+    }
+
+    public ProfileSignInDayResponse searchProfileSignInDay(String profileName) {
+        return null;
+    }
+
+    public ProfileUpdateResponse updateProfileImage(ProfileUpdateImageRequest profileUpdateImageRequest, MultipartFile file) {
+        return null;
+    }
+
+    public String deleteProfileImage(ProfileDeleteImageRequest profileDeleteImageRequest) {
+        return null;
     }
 }

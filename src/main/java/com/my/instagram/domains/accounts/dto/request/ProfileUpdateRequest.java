@@ -1,23 +1,24 @@
 package com.my.instagram.domains.accounts.dto.request;
 
+import com.my.instagram.domains.accounts.domain.Accounts;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class ProfileUpdateRequest {
-    @NotBlank(message = "아이디 입력은 필수입니다.")
-    private String username;
-
-    @NotBlank(message = "프로필명은 필수입니다.")
+    @NotEmpty(message = "프로필 명을 입력하셔야 합니다.")
     private String profileName;
 
-    @NotBlank(message = "프로필 소개글은 필수입니다.")
+    private String changeProfileName;
+
     private String profileIntro;
 
     private Long profileImgFileId;
+
 }

@@ -10,10 +10,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AccountsResponse {
     private String username;
+    private String profileName;
     private String name;
 
     public AccountsResponse(Accounts accounts) {
         this.username = accounts.getUsername();
+        this.profileName = accounts.getProfileName();
         this.name = accounts.getName();
     }
 }

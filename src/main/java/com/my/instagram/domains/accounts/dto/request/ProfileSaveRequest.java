@@ -5,20 +5,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class ProfileSaveRequest {
-    @NotBlank(message = "아이디 입력은 필수입니다.")
+    @NotEmpty(message = "아이디 입력은 필수입니다.")
     private String username;
 
-    @NotBlank(message = "프로필명은 필수입니다.")
+    @NotEmpty(message = "프로필명은 필수입니다.")
     private String profileName;
 
-    @NotBlank(message = "프로필 소개글은 필수입니다.")
+    @NotEmpty(message = "프로필 소개글은 필수입니다.")
     private String profileIntro;
 
-    @NotBlank(message = "프로필 이미지는 필수입니다.")
+    @NotEmpty(message = "프로필 이미지는 필수입니다.")
     private String profileImg;
 }

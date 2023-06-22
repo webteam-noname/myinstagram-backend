@@ -4,16 +4,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class AccountsLoginReqeust {
+public class AccountsRequest {
     @NotEmpty(message = "아이디 입력은 필수입니다.")
-    private String username;
-
-    @NotEmpty(message = "비밀번호 입력은 필수입니다.")
-    private String password;
+    private String name;
 }

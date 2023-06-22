@@ -50,7 +50,7 @@ public class JwtProvider {
                 .sign(Algorithm.HMAC512(jwtProperties.getSecret()));
     }
 
-    private String createAccessToken(String username, String realName, String roleType) {
+    public String createAccessToken(String username, String realName, String roleType) {
         return JWT.create()
                   .withSubject(username)
                   .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getExpiredAt()))

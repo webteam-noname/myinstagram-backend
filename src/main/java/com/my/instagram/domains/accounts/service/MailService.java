@@ -3,6 +3,7 @@ package com.my.instagram.domains.accounts.service;
 import com.my.instagram.config.mail.properties.MailProperties;
 import com.my.instagram.domains.accounts.domain.Mail;
 import com.my.instagram.domains.accounts.dto.request.MailCodeRequest;
+import com.my.instagram.domains.accounts.dto.request.MailUpdatePasswordRequest;
 import com.my.instagram.domains.accounts.dto.response.AccountsSearchResponse;
 import com.my.instagram.domains.accounts.dto.response.MailCodeResponse;
 import com.my.instagram.domains.accounts.repository.AccountsRepository;
@@ -56,7 +57,7 @@ public class MailService {
     }
 
     // 메일 발송
-    public MailCodeResponse sendPasswordCodeEmail(MailCodeRequest mailSendRequest) throws Exception {
+    public MailCodeResponse sendJoinCodeEmail(MailCodeRequest mailSendRequest) throws Exception {
         String ePw = createKey(); // 랜덤 인증번호 생성
         String to  = mailSendRequest.getUsername(); // 이메일 받는 사람
 
@@ -108,5 +109,9 @@ public class MailService {
     // 비밀번호 변경 인증코드를 삭제합니다.
     public void deletePasswordCode(String username) {
         mailRepository.deleteByUsername(username);
+    }
+
+    public String sendUpdatePasswordEmail(MailUpdatePasswordRequest mailUpdatePasswordRequest) {
+        return "";
     }
 }

@@ -24,8 +24,8 @@ public class JwtProvider {
 
     public String generateToken(Authentication authentication){
         String authorities = authentication.getAuthorities().stream()
-                                       .map(GrantedAuthority::getAuthority)
-                                       .collect(Collectors.joining(","));
+                                           .map(GrantedAuthority::getAuthority)
+                                           .collect(Collectors.joining(","));
 
         return createAccessToken(authentication.getName(),"",authorities);
     }
@@ -47,6 +47,15 @@ public class JwtProvider {
     private String createRefreshToken() {
         return JWT.create()
                 .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getRefreshExpiredAt()))
+                .sign(Algorithm.HMAC512(jwtProperties.getSecret()));
+    }
+
+    public String createTempAccessToken(String uidb, String roleType) {
+        return JWT.create()
+                .withSubject(uidb)
+                .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getExpiredAt()))
+                .withClaim("uidb",uidb)
+                .withClaim("roleType", roleType)
                 .sign(Algorithm.HMAC512(jwtProperties.getSecret()));
     }
 

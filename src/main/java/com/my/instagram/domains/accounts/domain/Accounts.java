@@ -37,6 +37,7 @@ public class Accounts extends BaseEntity {
     private String profileName;
     private String profileIntro;
     private Long profileImgFileId;
+    private Character checkAuthYn;
 
     // oauth 관련된 프로퍼티
     private String provider;
@@ -51,7 +52,15 @@ public class Accounts extends BaseEntity {
     }
 
     @Builder
-    public Accounts(String username, String password, String name,String profileName, String profileIntro, Long profileImgFileId, String provider, String providerId) {
+    public Accounts(String username,
+                    String password,
+                    String name,
+                    String profileName,
+                    String profileIntro,
+                    Long profileImgFileId,
+                    String provider,
+                    String providerId,
+                    Character checkAuthYn) {
         this.username = username;
         this.password = password;
         this.name = name;
@@ -59,6 +68,7 @@ public class Accounts extends BaseEntity {
         this.profileIntro = profileIntro;
         this.provider = provider;
         this.providerId = providerId;
+        this.checkAuthYn = checkAuthYn;
     }
 
     // 프로파일을 수정합니다.
@@ -77,7 +87,11 @@ public class Accounts extends BaseEntity {
     }
 
     // 비밀번호를 변경합니다.
-    public void updatePassword(AccountsUpdateRequest accountsUpdateRequest) {
-        this.password = accountsUpdateRequest.getPassword();
+    public void updatePassword(String changePassword) {
+        this.password = changePassword;
+    }
+
+    public void updateCheckAuthY() {
+        this.checkAuthYn = 'Y';
     }
 }

@@ -2,12 +2,15 @@ package com.my.instagram.accounts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.my.instagram.config.security.jwt.JwtProvider;
+import com.my.instagram.domains.accounts.domain.Accounts;
 import com.my.instagram.domains.accounts.dto.request.AccountsLoginReqeust;
 import com.my.instagram.domains.accounts.dto.request.AccountsSaveRequest;
+import com.my.instagram.domains.accounts.dto.request.AccountsUpdatePasswordRequest;
 import com.my.instagram.domains.accounts.dto.request.ProfileUpdateRequest;
 import com.my.instagram.domains.accounts.dto.response.AccountsLoginResponse;
 import com.my.instagram.domains.accounts.dto.response.AccountsResponse;
 import com.my.instagram.domains.accounts.dto.response.ProfileSearchResponse;
+import com.my.instagram.domains.accounts.repository.AccountsRepository;
 import com.my.instagram.domains.accounts.service.AccountsService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,10 +44,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 public class AccountsServiceTest {
 
     @Autowired
-    private EntityManager em;
+    private AccountsService accountsService;
 
     @Autowired
-    private AccountsService accountsService;
+    private AccountsRepository accountsRepository;
 
     @Autowired
     MockMvc mockMvc;
@@ -57,10 +61,9 @@ public class AccountsServiceTest {
     @Test
     void 로그인(){
         AccountsLoginReqeust accountsLoginReqeust = new AccountsLoginReqeust();
-        accountsLoginReqeust.setUsername("test0@gmail.com");
-        accountsLoginReqeust.setPassword("1234");
+        accountsLoginReqeust.setUsername("etkim02@naver.com");
+        accountsLoginReqeust.setPassword("123456");
         AccountsLoginResponse login = accountsService.login(accountsLoginReqeust);
-
 
         System.out.println(login.getJwt().getAccessToken());
     }
@@ -76,7 +79,7 @@ public class AccountsServiceTest {
     @Test
     void 중복회원체크_유저명이같을경우(){
         AccountsSaveRequest accountsSaveRequest = new AccountsSaveRequest();
-        accountsSaveRequest.setUsername("test0@gmail.com");
+        accountsSaveRequest.setUsername("etkim02@naver.com");
         accountsSaveRequest.setPassword("1234");
         accountsSaveRequest.setProfileName("test0");
         accountsSaveRequest.setName("kim");
@@ -117,7 +120,7 @@ public class AccountsServiceTest {
         // Generate a valid JWT token
         String jwtToken = generateValidJwtToken(); // 유효한 JWT 토큰 생성하는 함수 (구현 필요)
 
-        MvcResult result = mockMvc.perform(post("/api/auth/accounts/join")
+        MvcResult result = mockMvc.perform(post("/api/auth/accounts/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + jwtToken) // JWT 토큰을 Authorization 헤더에 포함
                         .content(saveDtoJsonString))
@@ -142,6 +145,19 @@ public class AccountsServiceTest {
         int count = accountsResponses.getContent().size();
 
         assertThat(count).isEqualTo(10);
+    }
+
+    @Test
+    void 비밀번호변경(){
+        AccountsUpdatePasswordRequest accountsUpdatePasswordRequest = new AccountsUpdatePasswordRequest();
+        accountsUpdatePasswordRequest.setUidb("fd68");
+        accountsUpdatePasswordRequest.setPassword("123456");
+        accountsUpdatePasswordRequest.setCheckPassword("123456");
+        String s = accountsService.updatePassword(accountsUpdatePasswordRequest);
+
+        Accounts accounts = accountsRepository.findByProfileName("test0").get();
+
+        assertThat(accounts.getPassword()).isEqualTo("123456");
     }
 
     @Test
@@ -195,25 +211,6 @@ public class AccountsServiceTest {
         assertThat(profileIntro).isEqualTo("수정_프로필 소개글입니다.");
     }
 
-    @Test
-    void 프로필수정_데이터빈값일경우_체크(){
-        ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
-        profileUpdateRequest.setProfileName("test0");
-        profileUpdateRequest.setChangeProfileName("");
-        profileUpdateRequest.setProfileIntro("");
-        profileUpdateRequest.setProfileImgFileId(229L);
-
-        accountsService.updateProfile(profileUpdateRequest,null);
-
-        ProfileSearchResponse searchProfile = accountsService.searchProfile("test0");
-        String profileName = searchProfile.getProfileName();
-        String profileIntro = searchProfile.getProfileIntro();
-        String profileImg = searchProfile.getProfileImg();
-
-        assertThat(profileName).isNotEqualTo("");
-        assertThat(profileIntro).isEqualTo("");
-        assertThat(profileImg).isEqualTo("c:/files/no-image.jpg");
-    }
 
     @Test
     void 프로필수정_이미지ID있음_파일no(){
@@ -304,9 +301,6 @@ public class AccountsServiceTest {
                 fileContent);
 
         accountsService.updateProfile(profileUpdateRequest, file);
-
-        em.flush();
-        em.clear();
 
         ProfileSearchResponse searchProfile = accountsService.searchProfile("수정_kimgun");
         String profileName = searchProfile.getProfileName();

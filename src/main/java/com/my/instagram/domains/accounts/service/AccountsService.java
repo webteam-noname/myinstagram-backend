@@ -1,6 +1,8 @@
 package com.my.instagram.domains.accounts.service;
 
 import com.my.instagram.common.file.domain.Files;
+import com.my.instagram.common.file.dto.request.FileDeleteRequest;
+import com.my.instagram.common.file.dto.request.FileSearchRequest;
 import com.my.instagram.common.file.dto.request.FileUpdateRequest;
 import com.my.instagram.common.file.repository.FileRepository;
 import com.my.instagram.common.file.service.FileService;
@@ -30,13 +32,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Validated
-public class AccountsService {
+public class AccountsService extends EmailLogin{
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AccountsRepository accountsRepository;
@@ -50,14 +54,18 @@ public class AccountsService {
 
     public AccountsLoginResponse login(AccountsLoginReqeust accountsLoginReqeust){
         PrincipalDetails principalDetails = (PrincipalDetails) getAuthentication(accountsLoginReqeust).getPrincipal();
-        System.out.println("principalDetails ::: " + principalDetails);
         JwtDto jwtDto = jwtProvider.createJwtDto(principalDetails);
-        Accounts accounts = accountsRepository.findByUsername(principalDetails.getAccountResponse().getUsername()).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
+        Accounts accounts = getAccountsByUsername(principalDetails.getAccountResponse().getUsername());
         refreshTokenRepository.save(RefreshToken.builder()
                                                 .token(jwtDto.getRefreshToken())
                                                 .accounts(accounts)
                                                 .build());
         return new AccountsLoginResponse(jwtDto, new AccountsResponse(accounts));
+    }
+
+    private Accounts getAccountsByUsername(String username) {
+        Accounts accounts = accountsRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
+        return accounts;
     }
 
     public String signUp(AccountsSaveRequest accountsSaveRequest) {
@@ -70,6 +78,7 @@ public class AccountsService {
                                     .name(accountsSaveRequest.getName())
                                     .profileName(accountsSaveRequest.getProfileName())
                                     .password(getEncode(accountsSaveRequest.getPassword()))
+                                    .checkAuthYn('N')
                                     .build();
 
         Role roleAccounts = roleRepository.findByType("ROLE_USER").get();
@@ -85,6 +94,19 @@ public class AccountsService {
         return "회원가입에 성공했습니다.";
     }
 
+    public String inputJoinCodeEmail(AccountsCodeRequest accountsCodeRequest) {
+        Accounts accounts = getAccountsByUsername(accountsCodeRequest.getUsername());
+
+        if(mailService.validateJoinCode(accounts.getUsername(),accountsCodeRequest.getAuthCode())){
+            throw new RuntimeException("인증코드가 틀렸습니다. 다시한번 조회해주세요");
+        }else{
+            accounts.updateCheckAuthY();
+            mailService.deletePasswordCode(accounts.getUsername());
+        }
+
+        return "인증 코드 입력이 완료됐습니다.";
+    }
+
     public Slice<AccountsResponse> searchSliceRecommendAccounts(int currentPage) {
         Pageable pageable = PageRequest.of(currentPage, 10);
         return accountsRepository.findAllSlice(pageable);
@@ -95,19 +117,35 @@ public class AccountsService {
         return accountsRepository.findByName(searchName+"%", pageable);
     }
 
-    public String updatePassword(AccountsUpdateRequest accountsUpdateRequest) {
-        Accounts accounts = getAccounts(accountsUpdateRequest.getProfileName());
+    public String updatePassword(AccountsUpdatePasswordRequest accountsUpdatePasswordRequest) {
+        String uidb = accountsUpdatePasswordRequest.getUidb();
+        String username = getEamilLoginRealUsername(uidb);
+        Accounts accounts = getAccountsByUsername(username);
 
-        if(mailService.validatePasswordCode(accounts.getUsername(),accountsUpdateRequest.getAuthCode())){
-            throw new RuntimeException("인증코드가 틀렸습니다. 다시한번 조회해주세요");
-        }else{
-            // 인증이 완료되고 난 뒤 기존의 인증 코드를 삭제합니다.
-            mailService.deletePasswordCode(accounts.getUsername());
+        String password = accountsUpdatePasswordRequest.getPassword();
+        String checkPassword = accountsUpdatePasswordRequest.getCheckPassword();
+
+        if(!password.equals(checkPassword)){
+            throw new RuntimeException("변경할 비밀번호가 일치하지 않습니다.");
         }
 
-        accountsUpdateRequest.setPassword(getEncode(accountsUpdateRequest.getPassword()));
-        accounts.updatePassword(accountsUpdateRequest);
+        accounts.updatePassword(getEncode(accountsUpdatePasswordRequest.getPassword()));
+        deleteTempAccounts(uidb);
+        System.out.println();
 
+        return "비밀번호가 변경되었습니다.";
+    }
+
+    public String updateProfilePassword(String profileName, UpdateProfilePasswordRequest updateProfilePasswordRequest) {
+        Accounts accounts = getAccounts(profileName);
+        String password = updateProfilePasswordRequest.getPassword();
+        String checkPassword = updateProfilePasswordRequest.getCheckPassword();
+
+        if(!password.equals(checkPassword)){
+            throw new RuntimeException("변경할 비밀번호가 일치하지 않습니다.");
+        }
+
+        accounts.updatePassword(getEncode(accounts.getPassword()));
         return "비밀번호가 변경되었습니다.";
     }
 
@@ -125,9 +163,12 @@ public class AccountsService {
     public ProfileUpdateResponse updateProfile(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
         profileNameOverTwiceExistsException(profileUpdateRequest.getChangeProfileName());
         Accounts accounts = getAccounts(profileUpdateRequest.getProfileName());
+        Long fileId = null;
 
-        Long fileId = getFileId(file, profileUpdateRequest.getProfileImgFileId());
-        profileUpdateRequest.setProfileImgFileId(fileId);
+        if(file != null){
+            fileId = getFileId(file, profileUpdateRequest.getProfileImgFileId());
+            profileUpdateRequest.setProfileImgFileId(fileId);
+        }
 
         // profileNameOverTwiceExistsException(profileUpdateRequest.getProfileName());
         accounts.updateProfile(profileUpdateRequest);
@@ -182,23 +223,47 @@ public class AccountsService {
                 );
     }
 
-    public String updateSignInPassword(AccountsUpdateSignInRequest accountsUpdateSignInRequest) {
-        return null;
-    }
-
-    public String updateProfilePassword(String profileName, UpdateProfilePasswordRequest updateProfilePasswordRequest) {
-        return null;
-    }
 
     public ProfileSignInDayResponse searchProfileSignInDay(String profileName) {
-        return null;
+        Accounts accounts = getAccounts(profileName);
+        Files file = null;
+
+        if(accounts.getProfileImgFileId() != null){
+            file = fileRepository.findById(accounts.getProfileImgFileId()).get();
+        }
+
+        return new ProfileSignInDayResponse(accounts, file);
     }
 
-    public ProfileUpdateResponse updateProfileImage(ProfileUpdateImageRequest profileUpdateImageRequest, MultipartFile file) {
-        return null;
+    public String updateProfileImage(String profileName, MultipartFile file) {
+        Accounts accounts = getAccounts(profileName);
+        fileService.updateFile(new FileUpdateRequest(accounts.getProfileImgFileId()), file);
+        return "업데이트가 완료되었습니다.";
     }
 
-    public String deleteProfileImage(ProfileDeleteImageRequest profileDeleteImageRequest) {
-        return null;
+    public String deleteProfileImage(String profileName) {
+        Accounts accounts = getAccounts(profileName);
+        fileService.deleteFile(new FileDeleteRequest(accounts.getProfileImgFileId()));
+        return "파일이 삭제되었습니다.";
     }
+
+    public String confirmEmailSignIn(AccountsConfirmRequest accountsConfirmRequest,
+                                     HttpServletResponse response) {
+        String uidb = accountsConfirmRequest.getUidb();
+        String accessToken = accountsConfirmRequest.getAccessToken();
+        isAutoCountOverFirstExistsException(uidb);
+
+        if(isRightTempAccessToken(uidb, accessToken)){
+            increaseAutoCount(uidb);
+        }
+
+        try {
+            response.sendRedirect("http://localhost:8081/?uidb="+uidb+"&accessToken="+accessToken);
+        } catch (IOException e) {
+            throw new RuntimeException("Vue 서버를 확인해주세요!");
+        }
+
+        return "정상 처리 되었습니다.";
+    }
+
 }

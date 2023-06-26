@@ -37,6 +37,11 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, mailService.sendJoinCodeEmail(mailCodeRequest));
     }
 
+    @PutMapping("/api/auth/accounts/sign-up/codes")
+    public ApiResponse<String> inputJoinCodeEmail(@Valid @RequestBody AccountsCodeRequest accountsCodeRequest) throws Exception {
+        return new ApiResponse<>(HttpStatus.OK, accountService.inputJoinCodeEmail(accountsCodeRequest));
+    }
+
     @PostMapping("/api/auth/accounts/sign-in")
     public ApiResponse<AccountsLoginResponse> signIn(@Valid @RequestBody AccountsLoginReqeust accountsLoginReqeust,
                                                     HttpServletResponse response){
@@ -52,49 +57,48 @@ public class AccountsController {
     }
 
     @PostMapping("/api/auth/accounts/password/email")
-    public ApiResponse<String> sendUpdatePasswordEmail(@Valid @RequestBody MailUpdatePasswordRequest mailUpdatePasswordRequest){
-        return new ApiResponse<>(HttpStatus.OK, mailService.sendUpdatePasswordEmail(mailUpdatePasswordRequest));
+    public ApiResponse<String> sendUpdatePasswordEmail(@Valid @RequestBody MailCodeRequest mailSendRequest){
+        return new ApiResponse<>(HttpStatus.OK, mailService.sendUpdatePasswordEmail(mailSendRequest));
     }
 
-    @PutMapping("/api/auth/accounts/sign-in/password")
-    public ApiResponse<String> updateSignInPassword(@Valid @RequestBody AccountsUpdateSignInRequest accountsUpdateSignInRequest){
-        return new ApiResponse<>(HttpStatus.OK, accountService.updateSignInPassword(accountsUpdateSignInRequest));
+    @GetMapping("/api/auth/accounts/password/reset/confirm")
+    public ApiResponse<String> confirmEmailSignIn(AccountsConfirmRequest accountsConfirmRequest,
+                                                  HttpServletResponse response){
+        return new ApiResponse<>(HttpStatus.OK, accountService.confirmEmailSignIn(accountsConfirmRequest,response));
     }
 
-    @PutMapping("/api/auth/accounts/password")
-    public ApiResponse<String> updatePassword(@Valid @RequestBody AccountsUpdateRequest accountsUpdateRequest){
-        return new ApiResponse<>(HttpStatus.OK, accountService.updatePassword(accountsUpdateRequest));
+    @PutMapping("/api/accounts/password/reset")
+    public ApiResponse<String> updatePassword(@Valid @RequestBody AccountsUpdatePasswordRequest accountsUpdatePasswordRequest){
+        return new ApiResponse<>(HttpStatus.OK, accountService.updatePassword(accountsUpdatePasswordRequest));
     }
 
-    @PutMapping("/api/auth/accounts/{profile-name}/password")
-    public ApiResponse<String> updateProfilePassword(@PathVariable("profileName") String profileName,
+    @PutMapping("/api/accounts/{profile-name}/password/reset")
+    public ApiResponse<String> updateProfilePassword(@PathVariable("profile-name") String profileName,
                                                      @Valid @RequestBody UpdateProfilePasswordRequest updateProfilePasswordRequest){
         return new ApiResponse<>(HttpStatus.OK, accountService.updateProfilePassword(profileName, updateProfilePasswordRequest));
     }
 
     @GetMapping("/api/accounts/{profile-name}/profile/sign-in-day")
-    public ApiResponse<ProfileSignInDayResponse> searchProfileSignInDay(@PathVariable("profileName") String profileName){
+    public ApiResponse<ProfileSignInDayResponse> searchProfileSignInDay(@PathVariable("profile-name") String profileName){
         ProfileSignInDayResponse accountsLoginResponse = accountService.searchProfileSignInDay(profileName);
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
     @GetMapping("/api/accounts/{profile-name}/profile")
-    public ApiResponse<ProfileSearchResponse> searchProfile(@PathVariable("profileName") String profileName){
+    public ApiResponse<ProfileSearchResponse> searchProfile(@PathVariable("profile-name") String profileName){
         ProfileSearchResponse accountsLoginResponse = accountService.searchProfile(profileName);
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
     @PutMapping("/api/accounts/{profile-name}/image")
-    public ApiResponse<ProfileUpdateResponse> updateProfileImage(@Valid @RequestBody ProfileUpdateImageRequest profileUpdateImageRequest,
+    public ApiResponse<String> updateProfileImage(@PathVariable("profile-name") String profileName,
                                                                  MultipartFile file){
-        ProfileUpdateResponse profileUpdateResponse = accountService.updateProfileImage(profileUpdateImageRequest, file);
-        return new ApiResponse<>(HttpStatus.OK, profileUpdateResponse);
+        return new ApiResponse<>(HttpStatus.OK, accountService.updateProfileImage(profileName, file));
     }
 
     @DeleteMapping("/api/accounts/{profile-name}/image")
-    public ApiResponse<String> deleteProfileImage(@Valid @RequestBody ProfileDeleteImageRequest profileDeleteImageRequest,
-                                                                 MultipartFile file){
-        return new ApiResponse<>(HttpStatus.OK, accountService.deleteProfileImage(profileDeleteImageRequest));
+    public ApiResponse<String> deleteProfileImage(@PathVariable("profile-name") String profileName){
+        return new ApiResponse<>(HttpStatus.OK, accountService.deleteProfileImage(profileName));
     }
 
     @PutMapping("/api/accounts/{profile-name}/profile")

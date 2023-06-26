@@ -9,6 +9,7 @@ import com.my.instagram.config.security.oauth.PrincipalOauth2UserService;
 import com.my.instagram.config.security.oauth.exception.OAuth2AuthenticationFailureHandler;
 import com.my.instagram.config.security.oauth.exception.OAuth2AuthenticationSuccessHandler;
 import com.my.instagram.domains.accounts.repository.AccountsRepository;
+import com.my.instagram.domains.accounts.service.AccountsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +36,7 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtProvider jwtProvider;
     private final CorsConfig corsConfig;
+    private final AccountsService accountsService;
     private final AccountsRepository accountsRepository;
     private final HttpCookieOAuth2AuthorizationRequestRepository cookieOAuth2AuthorizationRequestRepository;
     private final PrincipalOauth2UserService principalOauth2UserService;
@@ -103,7 +105,7 @@ public class SecurityConfig {
         @Override
         public void configure(HttpSecurity http) throws Exception {
             http.addFilter(corsConfig.corsFilter()) // @CrossOrigin(인증 X), 시큐리티 필터에 등록 인증(O)
-                .addFilterBefore(new JwtAuthorizationFilter(accountsRepository, jwtProvider, permitAllPaths),
+                .addFilterBefore(new JwtAuthorizationFilter(accountsRepository, jwtProvider, permitAllPaths, accountsService),
                                  UsernamePasswordAuthenticationFilter.class);
         }
     }

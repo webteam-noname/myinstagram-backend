@@ -1,9 +1,13 @@
 package com.my.instagram.config;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.boot.web.servlet.view.MustacheViewResolver;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.persistence.EntityManager;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -20,4 +24,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.viewResolver(resolver);
     }
 
+    @Bean
+    public JPAQueryFactory jpaQueryFactory(EntityManager em) {
+        return new JPAQueryFactory(em);
+    }
 }

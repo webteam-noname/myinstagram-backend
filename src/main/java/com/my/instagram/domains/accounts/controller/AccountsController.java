@@ -83,37 +83,37 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, accountService.updateProfilePassword(profileName, updateProfilePasswordRequest));
     }
 
-    @GetMapping("/api/accounts/{profile-name}/profile/sign-in-day")
+    @GetMapping("/api/accounts/{profile-name}/profiles/sign-in-day")
     public ApiResponse<ProfileSignInDayResponse> searchProfileSignInDay(@PathVariable("profile-name") String profileName){
         ProfileSignInDayResponse accountsLoginResponse = accountService.searchProfileSignInDay(profileName);
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
-    @GetMapping("/api/accounts/{profile-name}/profile")
+    @GetMapping("/api/accounts/{profile-name}/profiles")
     public ApiResponse<ProfileSearchResponse> searchProfile(@PathVariable("profile-name") String profileName){
         ProfileSearchResponse accountsLoginResponse = accountService.searchProfile(profileName);
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
-    @PutMapping("/api/accounts/{profile-name}/image")
+    @PutMapping("/api/accounts/{profile-name}/images")
     public ApiResponse<String> updateProfileImage(@PathVariable("profile-name") String profileName,
                                                                  MultipartFile file){
         return new ApiResponse<>(HttpStatus.OK, accountService.updateProfileImage(profileName, file));
     }
 
-    @DeleteMapping("/api/accounts/{profile-name}/image")
+    @DeleteMapping("/api/accounts/{profile-name}/images")
     public ApiResponse<String> deleteProfileImage(@PathVariable("profile-name") String profileName){
         return new ApiResponse<>(HttpStatus.OK, accountService.deleteProfileImage(profileName));
     }
 
-    @PutMapping("/api/accounts/{profile-name}/profile")
+    @PutMapping("/api/accounts/{profile-name}/profiles")
     public ApiResponse<ProfileUpdateResponse> updateProfile(@Valid @RequestBody ProfileUpdateRequest profileUpdateRequest,
                                                             MultipartFile file){
         ProfileUpdateResponse profileUpdateResponse = accountService.updateProfile(profileUpdateRequest,file);
         return new ApiResponse<>(HttpStatus.OK, profileUpdateResponse);
     }
 
-    @GetMapping("/api/accounts/recommendation/page/{current-page}")
+    @GetMapping("/api/accounts/recommendation/pages/{current-page}")
     public ApiResponse<Slice<AccountsResponse>> searchSliceRecommendAccounts(@PathVariable("current-page") int currentPage) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, accountService.searchSliceRecommendAccounts(currentPage));
     }

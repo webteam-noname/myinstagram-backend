@@ -61,10 +61,16 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, mailService.sendUpdatePasswordEmail(mailSendRequest));
     }
 
-    @GetMapping("/api/auth/accounts/password/reset/confirm")
+    @GetMapping("/api/auth/accounts/password/reset/sign-in/confirm")
     public ApiResponse<String> confirmEmailSignIn(AccountsConfirmRequest accountsConfirmRequest,
                                                   HttpServletResponse response){
         return new ApiResponse<>(HttpStatus.OK, accountService.confirmEmailSignIn(accountsConfirmRequest,response));
+    }
+
+    @GetMapping("/api/auth/accounts/password/reset/confirm")
+    public ApiResponse<String> confirmEmailPassword(AccountsConfirmRequest accountsConfirmRequest,
+                                                  HttpServletResponse response){
+        return new ApiResponse<>(HttpStatus.OK, accountService.confirmEmailPassword(accountsConfirmRequest,response));
     }
 
     @PutMapping("/api/accounts/password/reset")

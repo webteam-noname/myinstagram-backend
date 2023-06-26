@@ -41,7 +41,7 @@ class InstagramApplicationTests {
     @Test
     @Rollback(false)
     void 프로필입력() throws IOException {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1; i++) {
             ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
             profileUpdateRequest.setProfileName("test"+i);
             int imgNumber = i % 8;

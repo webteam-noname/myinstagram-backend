@@ -94,4 +94,8 @@ public class Accounts extends BaseEntity {
     public void updateCheckAuthY() {
         this.checkAuthYn = 'Y';
     }
+
+    public void clearFileImgId() {
+        this.profileImgFileId = null;
+    }
 }

@@ -40,6 +40,7 @@ public abstract class EmailLogin {
     }
 
     public void isAutoCountOverFirstExistsException(String uidb){
+
         if(mapEmailLogin.get(uidb).getAutoCount() > 0){
             throw new RuntimeException("이메일 임시 로그인은 한번만 가능합니다.");
         }

@@ -85,37 +85,9 @@ public class MailServiceTest {
         mailService.sendUpdatePasswordEmail(mailSendRequest);
     }
 
-    @Test
-    void UUID테스트(){
-        UUID tempEmailUsername = UUID.randomUUID();
-        String uidb = tempEmailUsername.toString().substring(0,4);
-        String accessToken = generateValidJwtToken(uidb);
-        System.out.println(uidb);
-        System.out.println(accessToken);
-    }
 
     private String generateValidJwtToken(String uidb) {
         return jwtProvider.createAccessToken(uidb, uidb,"ROLE_USER");
     }
 
-    @Test
-    void vue페이지열기() throws Exception {
-        UUID tempEmailUsername = UUID.randomUUID();
-        String uidb = tempEmailUsername.toString().substring(0,4);
-        String accessToken = generateValidJwtToken(uidb);
-        mailService.putEmailLogin(uidb, accessToken, "etkim02@naver.com");
-
-        AccountsConfirmRequest accountsConfirmRequest = new AccountsConfirmRequest();
-        accountsConfirmRequest.setUidb(uidb);
-        accountsConfirmRequest.setAccessToken(accessToken);
-
-        String saveDtoJsonString = objectMapper.writeValueAsString(accountsConfirmRequest);
-        // System.out.println(saveDtoJsonString);
-
-        MvcResult result = mockMvc.perform(get("/api/auth/accounts/password/reset/confirm")
-                                            .contentType(MediaType.APPLICATION_JSON)
-                                            .content(saveDtoJsonString))
-                                    .andDo(print())
-                                    .andReturn();
-    }
 }

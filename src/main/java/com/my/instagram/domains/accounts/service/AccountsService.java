@@ -20,11 +20,15 @@ import com.my.instagram.domains.accounts.repository.AccountsRolesRepository;
 import com.my.instagram.domains.accounts.repository.RefreshTokenRepository;
 import com.my.instagram.domains.accounts.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -131,7 +135,7 @@ public class AccountsService extends EmailLogin{
 
         accounts.updatePassword(getEncode(accountsUpdatePasswordRequest.getPassword()));
         deleteTempAccounts(uidb);
-        System.out.println();
+
 
         return "비밀번호가 변경되었습니다.";
     }
@@ -244,21 +248,19 @@ public class AccountsService extends EmailLogin{
     public String deleteProfileImage(String profileName) {
         Accounts accounts = getAccounts(profileName);
         fileService.deleteFile(new FileDeleteRequest(accounts.getProfileImgFileId()));
+        accounts.clearFileImgId();
         return "파일이 삭제되었습니다.";
     }
 
     public String confirmEmailSignIn(AccountsConfirmRequest accountsConfirmRequest,
                                      HttpServletResponse response) {
         String uidb = accountsConfirmRequest.getUidb();
-        String accessToken = accountsConfirmRequest.getAccessToken();
-        isAutoCountOverFirstExistsException(uidb);
 
-        if(isRightTempAccessToken(uidb, accessToken)){
-            increaseAutoCount(uidb);
-        }
+        isAutoCountOverFirstExistsException(uidb);
+        increaseAutoCount(uidb);
 
         try {
-            response.sendRedirect("http://localhost:8081/?uidb="+uidb+"&accessToken="+accessToken);
+            response.sendRedirect("http://localhost:8081/sign-in/password/reset?uidb="+uidb);
         } catch (IOException e) {
             throw new RuntimeException("Vue 서버를 확인해주세요!");
         }
@@ -266,4 +268,20 @@ public class AccountsService extends EmailLogin{
         return "정상 처리 되었습니다.";
     }
 
+    public String confirmEmailPassword(AccountsConfirmRequest accountsConfirmRequest, HttpServletResponse response) {
+        String uidb = accountsConfirmRequest.getUidb();
+        String accessToken = accountsConfirmRequest.getAccessToken();
+
+        if(isRightTempAccessToken(uidb, accessToken)){
+            try {
+                response.sendRedirect("http://localhost:8081/password/reset"+uidb+"&accessToken="+accessToken);
+            } catch (IOException e) {
+                throw new RuntimeException("Vue 서버를 확인해주세요!");
+            }
+        }else{
+            throw new RuntimeException("올바르지 않은 토큰입니다.");
+        }
+
+        return "정상 처리 되었습니다.";
+    }
 }

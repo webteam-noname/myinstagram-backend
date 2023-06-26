@@ -193,7 +193,7 @@ public class MailService extends EmailLogin{
                                 "              <tr>\n" +
                                 "               <td width=\"20\" style=\"display:block;width:20px;\">&nbsp;&nbsp;&nbsp;</td > \n" +
                                 "               <td style = \"\" > \n" +
-                                "                <a href = \"http://localhost:8080/api/auth/accounts/password/reset/confirm?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
+                                "                <a href = \"http://localhost:8080/api/auth/accounts/password/reset/sign-in/confirm?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
                                 "                 style = \"color:#1b74e4;text-decoration:none;display:block;:370px;\"\n" +
                                 "                 rel = \"noreferrer noopener\"\n" +
                                 "                 target = \"_blank\" > \n" +
@@ -201,7 +201,7 @@ public class MailService extends EmailLogin{
                                 "                  <tbody > \n" +
                                 "                   <tr > \n" +
                                 "                    <td style = \"border-collapse:collapse;border-radius:3px;text-align:center;display:block;border:solid 1px #009fdf;padding:10px 16px 14px 16px;margin:0 2px 0 auto;min-width:80px;background-color:#47A2EA;\" > \n" +
-                                "                     <a href = \"http://localhost:8080/api/auth/accounts/password/reset/confirm?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
+                                "                     <a href = \"http://localhost:8080/api/auth/accounts/password/reset/sign-in/confirm?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
                                 "                      style = \"color:#1b74e4;text-decoration:none;display:block;\"\n" +
                                 "                      rel = \"noreferrer noopener\"\n" +
                                 "                      target = \"_blank\" > \n" +
@@ -239,7 +239,7 @@ public class MailService extends EmailLogin{
                                 "                          </tr>\n" +
                                 "                          <tr>\n" +
                                 "                           <td style=\"\">\n" +
-                                "                            <a href=\"http://localhost:8080/api/accounts/password/reset/confirm?uidb="+uidb+"&amp;accessToken="+accessToken+"\" \n" +
+                                "                            <a href=\"http://localhost:8080/api/auth/accounts/password/reset/confirm?uidb="+uidb+"&amp;accessToken="+accessToken+"\" \n" +
                                 "                             style=\"color: #1b74e4;text-decoration:none;display:block;:370px;\" \n" +
                                 "                             rel= \"noreferrer noopener\"\n" +
                                 "                             target = \"_blank\" > \n" +
@@ -247,7 +247,7 @@ public class MailService extends EmailLogin{
                                 "                              <tbody > \n" +
                                 "                               <tr > \n" +
                                 "                                <td style = \"border-collapse:collapse;border-radius:3px;text-align:center;display:block;border:solid 1px #009fdf;padding:10px 16px 14px 16px;margin:0 2px 0 auto;min-width:80px;background-color:#47A2EA;\" > \n" +
-                                "                                 <a href = \"http://localhost:8080/api/accounts/password/reset/confirm?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
+                                "                                 <a href = \"http://localhost:8080/api/auth/accounts/password/reset/confirm?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
                                 "                                  style = \"color:#1b74e4;text-decoration:none;display:block;\"\n" +
                                 "                                  rel = \"noreferrer noopener\"\n" +
                                 "                                  target = \"_blank\" > \n" +

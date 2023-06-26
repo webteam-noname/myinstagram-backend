@@ -5,6 +5,8 @@ import com.my.instagram.domains.accounts.dto.response.AccountsSearchResponse;
 import com.my.instagram.domains.accounts.repository.AccountsRepository;
 import com.my.instagram.config.security.auth.PrincipalDetails;
 import com.my.instagram.config.security.jwt.JwtProvider;
+import com.my.instagram.domains.accounts.service.AccountsService;
+import com.my.instagram.domains.accounts.service.EmailLogin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -29,18 +31,24 @@ import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
-public class JwtAuthorizationFilter extends OncePerRequestFilter {
+public class JwtAuthorizationFilter extends OncePerRequestFilter  {
 
     private final AccountsRepository accountsRepository;
     private final JwtProvider jwtProvider;
     private final String[] permitAllPaths;
+    private final AccountsService accountsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try{
-            System.out.println(request.getServletPath());
-
-            if(!shouldBypassAuthentication(request)){
+            if(isTempEmailLogin(request.getServletPath())){
+                String jwt = getJwtByHeader(request);
+                jwtProvider.validateJwt(jwt);
+                Map<String, Claim> claims = jwtProvider.decodeJwt(jwt);
+                String uidb = claims.get("username").asString();
+                String username = accountsService.getEamilLoginRealUsername(uidb);
+                setSecurityContext(username);
+            }else if(!shouldBypassAuthentication(request)){
                 String jwt = getJwtByHeader(request);
                 jwtProvider.validateJwt(jwt);
                 Map<String, Claim> claims = jwtProvider.decodeJwt(jwt);
@@ -52,6 +60,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request,response);
+    }
+
+    private Boolean isTempEmailLogin(String servletPath) {
+        return servletPath.indexOf("/api/accounts/password/reset") >= 0;
     }
 
     // JWT필터를 적용받지 않을 URI입니다.

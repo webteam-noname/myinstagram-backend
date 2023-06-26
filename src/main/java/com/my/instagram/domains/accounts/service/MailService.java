@@ -1,7 +1,9 @@
 package com.my.instagram.domains.accounts.service;
 
 import com.my.instagram.config.mail.properties.MailProperties;
+import com.my.instagram.config.security.jwt.JwtProvider;
 import com.my.instagram.domains.accounts.domain.Mail;
+import com.my.instagram.domains.accounts.dto.request.AccountsConfirmRequest;
 import com.my.instagram.domains.accounts.dto.request.MailCodeRequest;
 import com.my.instagram.domains.accounts.dto.response.AccountsSearchResponse;
 import com.my.instagram.domains.accounts.dto.response.MailCodeResponse;
@@ -16,17 +18,23 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.Optional;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class MailService {
+public class MailService extends EmailLogin{
 
     private final JavaMailSender javaMailSender;
     private final MailProperties mailProperties;
     private final MailRepository mailRepository;
     private final AccountsRepository accountsRepository;
+    private final JwtProvider jwtProvider;
 
     // 랜덤 인증 코드 전송
     public String createKey() {
@@ -56,7 +64,7 @@ public class MailService {
     }
 
     // 메일 발송
-    public MailCodeResponse sendPasswordCodeEmail(MailCodeRequest mailSendRequest) throws Exception {
+    public MailCodeResponse sendJoinCodeEmail(MailCodeRequest mailSendRequest) throws Exception {
         String ePw = createKey(); // 랜덤 인증번호 생성
         String to  = mailSendRequest.getUsername(); // 이메일 받는 사람
 
@@ -83,7 +91,7 @@ public class MailService {
     }
 
     // 비밀번호 인증코드 유효성을 검증합니다
-    public boolean validatePasswordCode(String username, String authCode) {
+    public boolean validateJoinCode(String username, String authCode) {
         AccountsSearchResponse accountsSearchResponse = validateAccount(username);// 유저의 정보를 조회
         Long isExist = mailRepository.findCodeByUsernameAuthCodeInQuery(username,authCode);
 
@@ -96,12 +104,12 @@ public class MailService {
     }
 
     // 메일 양식을 작성합니다.
-    private MimeMessage createEmailForm(InternetAddress from, String emailReceiver, String ePw) throws MessagingException {
+    private MimeMessage createEmailForm(InternetAddress from, String to, String ePw) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
         message.setFrom(from);
-        message.addRecipients(Message.RecipientType.TO, emailReceiver);
-        message.setSubject("insudagram 비밀번호 변경 메시지입니다.");
-        message.setText("비밀번호 변경 인증코드는 " + ePw + "입니다.");
+        message.addRecipients(Message.RecipientType.TO, to);
+        message.setSubject("insudagram 화원 인증 메시지입니다.");
+        message.setText("회원 인증코드는 " + ePw + "입니다.");
         return  message;
     }
 
@@ -109,4 +117,217 @@ public class MailService {
     public void deletePasswordCode(String username) {
         mailRepository.deleteByUsername(username);
     }
+
+    private String generateValidJwtToken(String uidb) {
+        return jwtProvider.createAccessToken(uidb, uidb,"ROLE_USER");
+    }
+
+    private MimeMessage createUpdateEmailForm(InternetAddress from, String to) throws MessagingException {
+        UUID tempEmailUsername = UUID.randomUUID();
+        String uidb = tempEmailUsername.toString().substring(0,4);
+        String accessToken = generateValidJwtToken(uidb);
+        putEmailLogin(uidb, accessToken, to);
+        MimeMessage message = javaMailSender.createMimeMessage();
+
+        message.setFrom(from);
+        message.addRecipients(Message.RecipientType.TO, to);
+        message.setSubject("insudagram 비밀번호 변경 관련 메시지입니다.");
+        message.setContent("<div>\n" +
+                                " <table align = \"center\" \n" +
+                                "     border = \"0\"\n" +
+                                "     cellspacing = \"0\"\n" +
+                                "   cellpadding = \"0\"\n" +
+                                "   style = \"border-collapse:collapse;\"> \n" +
+                                "  <tbody> \n" +
+                                "   <tr> \n" +
+                                "    <td style = \"font-family:Helvetica Neue,Helvetica,Lucida Grande,tahoma,verdana,arial,sans-serif;background:#ffffff;\" > \n" +
+                                "     <table border = \"0\" width = \"100%\" cellspacing = \"0\" cellpadding = \"0\" style = \"border-collapse:collapse;\" > \n" +
+                                "      <tbody > \n" +
+                                "       <tr style = \"\" > \n" +
+                                "        <td height = \"20\" style = \"line-height:20px;\" colspan = \"3\" >  </td>\n" +
+                                "       </tr > \n" +
+                                "       <tr > \n" +
+                                "        <td height = \"1\" colspan = \"3\" style = \"line-height:1px;\" > </td>\n" +
+                                "       </tr > \n" +
+                                "       <tr > \n" +
+                                "        <td style = \"\" > \n" +
+                                "         <table border = \"0\" width = \"100%\" cellspacing = \"0\" cellpadding = \"0\"\n" +
+                                "             style = \"border-collapse:collapse;text-align:center;html_width:100%;width:100%;\" > \n" +
+                                "            <tbody > \n" +
+                                "          <tr > \n" +
+                                "           <td width = \"15px\" style = \"width:15px;\" > \n" +
+                                "           </td>\n" +
+                                "           <td width=\"15 px \" style=\"width: 15 px;\"></td>\n" +
+                                "          </tr>\n" +
+                                "            </tbody>\n" +
+                                "            </table>\n" +
+                                "        </td>\n" +
+                                "       </tr>\n" +
+                                "       <tr>\n" +
+                                "       <td style=\"\">\n" +
+                                "        <table border=\"0 \" width=\"430 \" cellspacing=\"0 \" cellpadding=\"0 \" style=\"border - collapse: collapse;margin: 0 auto 0 auto;\">\n" +
+                                "         <tbody>\n" +
+                                "          <tr>\n" +
+                                "           <td style=\"\">\n" +
+                                "            <table border=\"0 \" width=\"430 px \" cellspacing=\"0 \" cellpadding=\"0 \" style=\"border - collapse: collapse; margin: 0 auto 0 auto;width: 430 px;\">\n" +
+                                "             <tbody>\n" +
+                                "              <tr>\n" +
+                                "               <td width=\"20 \" style=\"display: block;width: 20 px;\">\n" +
+                                "                &nbsp;&nbsp;&nbsp;\n" +
+                                "               </td>\n" +
+                                "               <td style=\"\">\n" +
+                                "                <p style=\"margin: 10 px 0 10 px 0; color: #565a5c;font-size:18px;\">\n" +
+                                "                 "+to+"님, 안녕하세요\n" +
+                                "                </p>\n" +
+                                "                <p style= \"margin:10px 0 10px 0;color:#565a5c;font-size:18px;\" >\n" +
+                                "                 Insudagram 로그인과 관련하여 불편을 끼쳐드려 죄송합니다.\n" +
+                                "                 비밀번호를 잊으셨나요? 회원님이 로그인한 것이 맞다면 지금 바로 계정에 로그인하거나비밀번호를 재설정할 수 있습니다. \n" +
+                                "                </p>\n" +
+                                "               </td > \n" +
+                                "              </tr>\n" +
+                                "              <tr style=\"\">\n" +
+                                "               <td height=\"20\" style=\"line-height:20px;\">\n" +
+                                "                &nbsp;\n" +
+                                "               </td > \n" +
+                                "              </tr>\n" +
+                                "              <tr>\n" +
+                                "               <td width=\"20\" style=\"display:block;width:20px;\">&nbsp;&nbsp;&nbsp;</td > \n" +
+                                "               <td style = \"\" > \n" +
+                                "                <a href = \"http://localhost:8080/api/auth/accounts/password/reset/sign-in/confirm?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
+                                "                 style = \"color:#1b74e4;text-decoration:none;display:block;:370px;\"\n" +
+                                "                 rel = \"noreferrer noopener\"\n" +
+                                "                 target = \"_blank\" > \n" +
+                                "                 <table border = \"0\" width = \"390\" cellspacing = \"0\" cellpadding = \"0\" style = \"border-collapse:collapse;\" > \n" +
+                                "                  <tbody > \n" +
+                                "                   <tr > \n" +
+                                "                    <td style = \"border-collapse:collapse;border-radius:3px;text-align:center;display:block;border:solid 1px #009fdf;padding:10px 16px 14px 16px;margin:0 2px 0 auto;min-width:80px;background-color:#47A2EA;\" > \n" +
+                                "                     <a href = \"http://localhost:8080/api/auth/accounts/password/reset/sign-in/confirm?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
+                                "                      style = \"color:#1b74e4;text-decoration:none;display:block;\"\n" +
+                                "                      rel = \"noreferrer noopener\"\n" +
+                                "                      target = \"_blank\" > \n" +
+                                "                      <center > \n" +
+                                "                       <font size = \"3\" > \n" +
+                                "                        <span style = \"font-family:Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;white-space:nowrap;font-weight:bold;vertical-align:middle;color:#fdfdfd;font-size:16px;line-height:16px;\" > \n" +
+                                "                         "+to+"(으)로 로그인\n" +
+                                "                        </span>\n" +
+                                "                       </font > \n" +
+                                "                      </center>\n" +
+                                "                      </a > \n" +
+                                "                     </td>\n" +
+                                "                    </tr > \n" +
+                                "                   </tbody>\n" +
+                                "                  </table > \n" +
+                                "                 </a>\n" +
+                                "                </td > \n" +
+                                "               </tr>\n" +
+                                "               <tr>\n" +
+                                "               <td width=\"20\" style=\"display:block;width:20px;\">&nbsp;&nbsp;&nbsp;</td > \n" +
+                                "               <td style = \"\" > \n" +
+                                "                <table border = \"0\" width = \"100%\"cellspacing = \"0\"cellpadding = \"0\"style = \"border-collapse:collapse;\" > \n" +
+                                "                 <tbody > \n" +
+                                "                  <tr > \n" +
+                                "                   <td style = \"\" > \n" +
+                                "                    <table border = \"0\" cellspacing = \"0\" cellpadding = \"0\" style = \"border-collapse:collapse;\" > \n" +
+                                "                     <tbody > \n" +
+                                "                      <tr > \n" +
+                                "                       <td style = \"\" > \n" +
+                                "                        <table border = \"0\" cellspacing = \"0\" cellpadding = \"0\" style = \"border-collapse:collapse;\" > \n" +
+                                "                         <tbody > \n" +
+                                "                          <tr > </tr>\n" +
+                                "                          <tr style=\"\">\n" +
+                                "                           <td height=\"20\" style=\"line-height:20px;\">&nbsp;</td > \n" +
+                                "                          </tr>\n" +
+                                "                          <tr>\n" +
+                                "                           <td style=\"\">\n" +
+                                "                            <a href=\"http://localhost:8080/api/auth/accounts/password/reset/confirm?uidb="+uidb+"&amp;accessToken="+accessToken+"\" \n" +
+                                "                             style=\"color: #1b74e4;text-decoration:none;display:block;:370px;\" \n" +
+                                "                             rel= \"noreferrer noopener\"\n" +
+                                "                             target = \"_blank\" > \n" +
+                                "                             <table border = \"0\" width = \"390\" cellspacing = \"0\" cellpadding = \"0\"style = \"border-collapse:collapse;\" > \n" +
+                                "                              <tbody > \n" +
+                                "                               <tr > \n" +
+                                "                                <td style = \"border-collapse:collapse;border-radius:3px;text-align:center;display:block;border:solid 1px #009fdf;padding:10px 16px 14px 16px;margin:0 2px 0 auto;min-width:80px;background-color:#47A2EA;\" > \n" +
+                                "                                 <a href = \"http://localhost:8080/api/auth/accounts/password/reset/confirm?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
+                                "                                  style = \"color:#1b74e4;text-decoration:none;display:block;\"\n" +
+                                "                                  rel = \"noreferrer noopener\"\n" +
+                                "                                  target = \"_blank\" > \n" +
+                                "                                  <center > \n" +
+                                "                                   <font size = \"3\" > \n" +
+                                "                                    <span style = \"font-family:Helvetica Neue,Helvetica,Roboto,Arial,sans-serif;white-space:nowrap;font-weight:bold;vertical-align:middle;color:#fdfdfd;font-size:16px;line-height:16px;\" > \n" +
+                                "                                     비밀번호 재설정 \n" +
+                                "                                    </span>\n" +
+                                "                                   </font > \n" +
+                                "                                  </center>\n" +
+                                "                                 </a > \n" +
+                                "                                </td>\n" +
+                                "                               </tr > \n" +
+                                "                              </tbody>\n" +
+                                "                             </table > \n" +
+                                "                            </a>\n" +
+                                "                           </td > \n" +
+                                "                          </tr>\n" +
+                                "                          <tr style=\"\">\n" +
+                                "                           <td height=\"20\" style=\"line-height:20px;\">&nbsp;</td > \n" +
+                                "                          </tr>\n" +
+                                "                          <tr>\n" +
+                                "                           <td width=\"15\" style=\"display:block;width:15px;\">&nbsp;&nbsp;&nbsp;</td > \n" +
+                                "                          </tr>\n" +
+                                "                          <tr></tr > \n" +
+                                "                         </tbody>\n" +
+                                "                        </table > \n" +
+                                "                       </td>\n" +
+                                "                      </tr > \n" +
+                                "                      <tr > \n" +
+                                "                       <td width = \"20\" style = \"display:block;width:20px;\" > \n" +
+                                "                           \n" +
+                                "                       </td>\n" +
+                                "                      </tr > \n" +
+                                "                     </tbody>\n" +
+                                "                    </table > \n" +
+                                "                   </td>\n" +
+                                "                  </tr > \n" +
+                                "                 </tbody>\n" +
+                                "                </table > \n" +
+                                "               </td>\n" +
+                                "              </tr > \n" +
+                                "             </tbody>\n" +
+                                "            </table > \n" +
+                                "           </td>\n" +
+                                "          </tr > \n" +
+                                "         </tbody>\n" +
+                                "        </table > \n" +
+                                "       </td>\n" +
+                                "      </tr > \n" +
+                                "     </tbody>\n" +
+                                "    </table>\n" +
+                                "   </td>\n" +
+                                "  </tr>\n" +
+                                " </tbody>\n" +
+                                "</table>\n" +
+                                "</div>", "text/html; charset=utf-8");
+        return  message;
+    }
+
+    public String sendUpdatePasswordEmail(MailCodeRequest mailSendRequest) {
+        String to  = mailSendRequest.getUsername(); // 이메일 받는 사람
+        AccountsSearchResponse accountsSearchResponse = validateAccount(to);// 유저의 정보를 조회
+
+        try {
+            InternetAddress from = new InternetAddress(mailProperties.getUsername(), "insudagram");
+            MimeMessage message = createUpdateEmailForm(from, to); // 메일 발송
+            javaMailSender.send(message);
+        } catch (MailException es) {
+            es.printStackTrace();
+            throw new IllegalArgumentException();
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return "비밀번호를 변경합니다.";
+    }
+
+
+
 }

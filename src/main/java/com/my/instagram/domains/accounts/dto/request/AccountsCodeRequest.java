@@ -6,11 +6,14 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotEmpty;
 
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
-public class MailCodeRequest {
+public class AccountsCodeRequest {
 
     @NotEmpty(message = "아이디 입력은 필수입니다.")
     private String username;
+
+    @NotEmpty(message = "인증코드 입력은 필수입니다.")
+    private String authCode;
 }

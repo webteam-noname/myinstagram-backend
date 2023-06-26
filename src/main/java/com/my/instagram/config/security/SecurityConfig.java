@@ -90,6 +90,11 @@ public class SecurityConfig {
                     .failureHandler(oAuth2AuthenticationFailureHandler)
             ;
 
+        http.logout()
+            .logoutUrl("/api/auth/accounts/sign-out")
+            .logoutSuccessUrl("/")
+            .invalidateHttpSession(true)
+            .deleteCookies("JSESSIONID");
 
         return http.build();
     }

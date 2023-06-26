@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,9 +53,16 @@ public class AccountsController {
     }
 
     @PostMapping("/api/auth/accounts/sign-out")
-    public ApiResponse<String> signOut(@Valid @RequestBody AccountsLoginOutReqeust AccountsLoginOutReqeust,
-                                       HttpServletResponse response){
-        return new ApiResponse<>(HttpStatus.OK, "로그아웃 처리 필요");
+    public ApiResponse<String> signOut(){
+        // 현재 인증 정보를 가져옴
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // 인증 정보를 제거하여 로그아웃 처리
+        if (authentication != null) {
+            SecurityContextHolder.getContext().setAuthentication(null);
+        }
+
+        return new ApiResponse<>(HttpStatus.OK, "로그아웃 처리 완료");
     }
 
     @PostMapping("/api/auth/accounts/password/email")

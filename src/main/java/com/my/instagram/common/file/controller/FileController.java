@@ -19,23 +19,23 @@ public class FileController {
 
      private final FileService fileService;
 
-     @GetMapping("/api/file")
+     @GetMapping("/api/files")
      public ApiResponse<FileSearchResponse> searchFile(@Valid @RequestBody FileSearchRequest fileSearchRequest){
          return new ApiResponse<>(HttpStatus.OK, fileService.searchFile(fileSearchRequest));
      }
 
-     @PostMapping("/api/file")
+     @PostMapping("/api/files")
      public ApiResponse<Long> saveFile(@RequestPart(required = false) MultipartFile file){
          return new ApiResponse<>(HttpStatus.OK, fileService.saveFile( file));
      }
 
-     @PutMapping("/api/file")
+     @PutMapping("/api/files")
      public ApiResponse<Long> updateFile(@Valid FileUpdateRequest fileUpdateRequest,
                                          @RequestPart(required = false) MultipartFile file){
         return new ApiResponse<>(HttpStatus.OK, fileService.updateFile(fileUpdateRequest, file));
      }
 
-    @DeleteMapping("/api/file")
+    @DeleteMapping("/api/files")
     public ApiResponse<String> deleteFile(@Valid @RequestBody FileDeleteRequest fileDeleteRequest){
         return new ApiResponse<>(HttpStatus.OK, fileService.deleteFile(fileDeleteRequest));
     }

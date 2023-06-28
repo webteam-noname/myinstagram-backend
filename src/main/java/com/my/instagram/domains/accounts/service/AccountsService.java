@@ -55,7 +55,6 @@ public class AccountsService extends EmailLogin{
 
     public AccountsLoginResponse login(AccountsLoginReqeust accountsLoginReqeust){
         PrincipalDetails principalDetails = (PrincipalDetails) getAuthentication(accountsLoginReqeust).getPrincipal();
-        System.out.println("principalDetails ::: " + principalDetails);
         JwtDto jwtDto = jwtProvider.createJwtDto(principalDetails);
         Accounts accounts = getAccountsByUsername(principalDetails.getAccountResponse().getUsername());
         refreshTokenRepository.save(RefreshToken.builder()
@@ -97,7 +96,8 @@ public class AccountsService extends EmailLogin{
     }
 
     public String inputJoinCodeEmail(AccountsCodeRequest accountsCodeRequest) {
-        Accounts accounts = getAccountsByUsername(accountsCodeRequest.getUsername());
+        Accounts accounts = accountsRepository.findByUsernameAndCheckAuthN(accountsCodeRequest.getUsername())
+                                              .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
 
         if(mailService.validateJoinCode(accounts.getUsername(),accountsCodeRequest.getAuthCode())){
             throw new RuntimeException("인증코드가 틀렸습니다. 다시한번 조회해주세요");
@@ -162,9 +162,9 @@ public class AccountsService extends EmailLogin{
         return new ProfileSearchResponse(accounts, file);
     }
 
-    public ProfileUpdateResponse updateProfile(ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
+    public ProfileUpdateResponse updateProfile(String profileName, ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
         profileNameOverTwiceExistsException(profileUpdateRequest.getChangeProfileName());
-        Accounts accounts = getAccounts(profileUpdateRequest.getProfileName());
+        Accounts accounts = getAccounts(profileName);
 
         Long fileId = null;
 
@@ -257,12 +257,13 @@ public class AccountsService extends EmailLogin{
 
         isAutoCountOverFirstExistsException(uidb);
         increaseAutoCount(uidb);
-
+        /*
         try {
-            response.sendRedirect("http://localhost:8081/sign-in/password/reset?uidb="+uidb);
+            response.sendRedirect("http://localhost:8081/sign-ins/passwords/resets?uidb="+uidb+"&accessToken="+accessToken);
         } catch (IOException e) {
             throw new RuntimeException("Vue 서버를 확인해주세요!");
         }
+        */
 
         return "정상 처리 되었습니다.";
     }
@@ -272,11 +273,12 @@ public class AccountsService extends EmailLogin{
         String accessToken = accountsConfirmRequest.getAccessToken();
 
         if(isRightTempAccessToken(uidb, accessToken)){
+            /*
             try {
-                response.sendRedirect("http://localhost:8081/password/reset"+uidb+"&accessToken="+accessToken);
+                response.sendRedirect("http://localhost:8081/passwords/resets?"+uidb+"&accessToken="+accessToken);
             } catch (IOException e) {
                 throw new RuntimeException("Vue 서버를 확인해주세요!");
-            }
+            }*/
         }else{
             throw new RuntimeException("올바르지 않은 토큰입니다.");
         }

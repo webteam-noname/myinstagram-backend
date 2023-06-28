@@ -78,7 +78,7 @@ public class AccountsServiceTest {
 
         String jwtToken = testGenerateValidJwtToken();
 
-        MvcResult result = mockMvc.perform(post("/api/auth/accounts/sign-in")
+        MvcResult result = mockMvc.perform(post("/api/auth/accounts/sign-ins")
                         .header("Authorization", "Bearer " + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(saveDtoJsonString))
@@ -93,7 +93,7 @@ public class AccountsServiceTest {
     @Test
     void 로그인_비밀번호틀림(){
         AccountsLoginReqeust accountsLoginReqeust = new AccountsLoginReqeust();
-        accountsLoginReqeust.setUsername("test0@gmail.com");
+        accountsLoginReqeust.setUsername("test4@gmail.com");
         accountsLoginReqeust.setPassword("123");
 
         RuntimeException runtimeException = assertThrows(BadCredentialsException.class, () -> {
@@ -119,7 +119,7 @@ public class AccountsServiceTest {
         // Generate a valid JWT token
         String jwtToken = testGenerateValidJwtToken(); // 유효한 JWT 토큰 생성하는 함수 (구현 필요)
 
-        MvcResult result = mockMvc.perform(post("/api/auth/accounts/sign-up")
+        MvcResult result = mockMvc.perform(post("/api/auth/accounts/sign-ups")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + jwtToken) // JWT 토큰을 Authorization 헤더에 포함
                         .content(saveDtoJsonString))
@@ -173,7 +173,7 @@ public class AccountsServiceTest {
 
 
     private String testGenerateValidJwtToken() {
-        return jwtProvider.createAccessToken("test0@gmail.com", "kim0","ROLE_USER");
+        return jwtProvider.createAccessToken("test4@gmail.com", "test4","ROLE_USER");
     }
 
     private String generateValidJwtToken(String username, String name) {
@@ -205,11 +205,10 @@ public class AccountsServiceTest {
     @Test
     void 프로필수정_프로필명중복(){
         ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
-        profileUpdateRequest.setProfileName("test0");
         profileUpdateRequest.setChangeProfileName("test0");
 
         RuntimeException runtimeException = assertThrows(RuntimeException.class, () -> {
-            accountsService.updateProfile(profileUpdateRequest,null);
+            accountsService.updateProfile("test0", profileUpdateRequest,null);
         });
 
         assertThat(runtimeException.getMessage()).isEqualTo("프로필 명은 중복될 수 없습니다.");
@@ -219,13 +218,12 @@ public class AccountsServiceTest {
     void 프로필_필수입력안함() throws Exception {
         // Given
         ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
-        profileUpdateRequest.setProfileName("");
 
         String saveDtoJsonString = objectMapper.writeValueAsString(profileUpdateRequest);
         System.out.println(saveDtoJsonString);
         // Generate a valid JWT token
         String jwtToken = testGenerateValidJwtToken(); // 유효한 JWT 토큰 생성하는 함수 (구현 필요)
-        MvcResult result = mockMvc.perform(put("/api/accounts/test0/profile")
+        MvcResult result = mockMvc.perform(put("/api/accounts/test0/profiles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + jwtToken) // JWT 토큰을 Authorization 헤더에 포함
                         .content(saveDtoJsonString))
@@ -238,11 +236,10 @@ public class AccountsServiceTest {
     @Test
     void 프로필수정_이미지등록없음(){
         ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
-        profileUpdateRequest.setProfileName("test0");
         profileUpdateRequest.setChangeProfileName("수정_kimgun");
         profileUpdateRequest.setProfileIntro("수정_프로필 소개글입니다.");
 
-        accountsService.updateProfile(profileUpdateRequest,null);
+        accountsService.updateProfile("test0", profileUpdateRequest,null);
 
         ProfileSearchResponse searchProfile = accountsService.searchProfile("수정_kimgun");
         String profileName = searchProfile.getProfileName();
@@ -255,7 +252,6 @@ public class AccountsServiceTest {
     @Test
     void 프로필수정_이미지ID있음_파일no(){
         ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
-        profileUpdateRequest.setProfileName("test0");
         profileUpdateRequest.setChangeProfileName("수정_kimgun");
         profileUpdateRequest.setProfileIntro("수정_프로필 소개글입니다.");
 
@@ -265,7 +261,7 @@ public class AccountsServiceTest {
                 "image/jpeg",
                 fileContent);
 
-        accountsService.updateProfile(profileUpdateRequest, file);
+        accountsService.updateProfile("test0", profileUpdateRequest, file);
 
         ProfileSearchResponse searchProfile = accountsService.searchProfile("수정_kimgun");
         String profileName = searchProfile.getProfileName();
@@ -281,12 +277,11 @@ public class AccountsServiceTest {
 
     void 프로필수정_존재하지않는회원(){
         ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
-        profileUpdateRequest.setProfileName("test1234");
         profileUpdateRequest.setChangeProfileName("");
         profileUpdateRequest.setProfileIntro("");
 
         RuntimeException runtimeException = assertThrows(RuntimeException.class, () -> {
-            accountsService.updateProfile(profileUpdateRequest, null);
+            accountsService.updateProfile("test1234", profileUpdateRequest, null);
         });
 
         assertThat("유저를 조회할 수 없습니다.").isEqualTo(runtimeException.getMessage());
@@ -295,7 +290,6 @@ public class AccountsServiceTest {
     @Test
     void 프로필수정_이미지등록(){
         ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
-        profileUpdateRequest.setProfileName("test0");
         profileUpdateRequest.setChangeProfileName("수정_kimgun");
         profileUpdateRequest.setProfileIntro("수정_프로필 소개글입니다.");
 
@@ -305,7 +299,7 @@ public class AccountsServiceTest {
                 "image/jpeg",
                 fileContent);
 
-        accountsService.updateProfile(profileUpdateRequest, file);
+        accountsService.updateProfile("test0", profileUpdateRequest, file);
 
         ProfileSearchResponse searchProfile = accountsService.searchProfile("수정_kimgun");
         String profileName = searchProfile.getProfileName();
@@ -320,12 +314,11 @@ public class AccountsServiceTest {
         Accounts test0 = accountsRepository.findByProfileName("test0").get();
         ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
 
-        profileUpdateRequest.setProfileName(test0.getProfileName());
         profileUpdateRequest.setChangeProfileName("");
         profileUpdateRequest.setProfileIntro("");
         profileUpdateRequest.setProfileImgFileId(test0.getProfileImgFileId());
 
-        accountsService.updateProfile(profileUpdateRequest, null);
+        accountsService.updateProfile("test0", profileUpdateRequest, null);
 
         ProfileSearchResponse searchProfile = accountsService.searchProfile(test0.getProfileName());
         System.out.println(searchProfile.getProfileImg());
@@ -342,7 +335,6 @@ public class AccountsServiceTest {
 
     private void updateImage(String profileName) throws IOException {
         ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
-        profileUpdateRequest.setProfileName(profileName);
         int imgNumber = 0;
         String filePath = "C:/Images/"+"test"+imgNumber+".jpg";
         byte[] fileData = Files.readAllBytes(Paths.get(filePath));
@@ -354,7 +346,7 @@ public class AccountsServiceTest {
                 fileData
         );
 
-        accountsService.updateProfile(profileUpdateRequest, file);
+        accountsService.updateProfile(profileName, profileUpdateRequest, file);
     }
 
     @Test
@@ -367,7 +359,7 @@ public class AccountsServiceTest {
 
     @Test
     void 이미지등록_파일이있을경우() throws IOException {
-        String profileName = "test0";
+        String profileName = "test4";
         int imgNumber = 1;
         String filePath = "C:/Images/"+"test"+imgNumber+".jpg";
         byte[] fileData = Files.readAllBytes(Paths.get(filePath));

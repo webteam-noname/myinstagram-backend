@@ -63,7 +63,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter  {
     }
 
     private Boolean isTempEmailLogin(String servletPath) {
-        return servletPath.indexOf("/api/accounts/password/reset") >= 0;
+        return servletPath.indexOf("/api/accounts/passwords/resets") >= 0;
     }
 
     // JWT필터를 적용받지 않을 URI입니다.

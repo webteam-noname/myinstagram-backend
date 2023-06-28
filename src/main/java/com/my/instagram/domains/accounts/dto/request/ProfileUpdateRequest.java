@@ -12,8 +12,6 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 @NoArgsConstructor
 public class ProfileUpdateRequest {
-    @NotEmpty(message = "프로필 명을 입력하셔야 합니다.")
-    private String profileName;
 
     private String changeProfileName;
 

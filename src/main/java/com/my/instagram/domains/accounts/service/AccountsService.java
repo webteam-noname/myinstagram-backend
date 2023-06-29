@@ -39,7 +39,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 @Validated
-
 public class AccountsService extends EmailLogin{
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -61,6 +60,7 @@ public class AccountsService extends EmailLogin{
                                                 .token(jwtDto.getRefreshToken())
                                                 .accounts(accounts)
                                                 .build());
+
         return new AccountsLoginResponse(jwtDto, new AccountsResponse(accounts));
     }
 
@@ -70,16 +70,16 @@ public class AccountsService extends EmailLogin{
     }
 
     public String signUp(AccountsSaveRequest accountsSaveRequest) {
-        // 회원 중복 여부 체크
-        usernameOverTwiceExistsException(accountsSaveRequest.getUsername());
-        profileNameOverTwiceExistsException(accountsSaveRequest.getProfileName());
+        AccountsCodeRequest accountsCodeRequest = new AccountsCodeRequest();
+        accountsCodeRequest.setAuthCode(accountsSaveRequest.getAuthCode());
+        accountsCodeRequest.setUsername(accountsSaveRequest.getUsername());
+        inputJoinCodeEmail(accountsCodeRequest);
 
         Accounts accounts = Accounts.builder()
                                     .username(accountsSaveRequest.getUsername())
                                     .name(accountsSaveRequest.getName())
                                     .profileName(accountsSaveRequest.getProfileName())
                                     .password(getEncode(accountsSaveRequest.getPassword()))
-                                    .checkAuthYn('N')
                                     .build();
 
         Role roleAccounts = roleRepository.findByType("ROLE_USER").get();
@@ -92,21 +92,15 @@ public class AccountsService extends EmailLogin{
         accountsRepository.save(accounts);
         accountsRolesRepository.save(accountsRole);
 
-        return "회원가입에 성공했습니다.";
+        return "회원가입을 완료했습니다.";
     }
 
-    public String inputJoinCodeEmail(AccountsCodeRequest accountsCodeRequest) {
-        Accounts accounts = accountsRepository.findByUsernameAndCheckAuthN(accountsCodeRequest.getUsername())
-                                              .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
-
-        if(mailService.validateJoinCode(accounts.getUsername(),accountsCodeRequest.getAuthCode())){
+    public void inputJoinCodeEmail(AccountsCodeRequest accountsCodeRequest) {
+        if(mailService.validateJoinCode(accountsCodeRequest.getUsername(),accountsCodeRequest.getAuthCode())){
             throw new RuntimeException("인증코드가 틀렸습니다. 다시한번 조회해주세요");
         }else{
-            accounts.updateCheckAuthY();
-            mailService.deletePasswordCode(accounts.getUsername());
+            mailService.deletePasswordCode(accountsCodeRequest.getUsername());
         }
-
-        return "인증 코드 입력이 완료됐습니다.";
     }
 
     public Slice<AccountsResponse> searchSliceRecommendAccounts(int currentPage) {
@@ -193,14 +187,13 @@ public class AccountsService extends EmailLogin{
     }
 
 
-    private void usernameOverTwiceExistsException(String username) {
-        System.out.println(accountsRepository.countByUsername(username));
+    public void usernameOverTwiceExistsException(String username) {
         if(accountsRepository.countByUsername(username) > 0){
             throw new RuntimeException("사용자 ID는 중복될 수 없습니다.");
         }
     }
 
-    private void profileNameOverTwiceExistsException(String profileName) {
+    public void profileNameOverTwiceExistsException(String profileName) {
         System.out.println(accountsRepository.countByProfileName(profileName));
         if(accountsRepository.countByProfileName(profileName) > 0){
             throw new RuntimeException("프로필 명은 중복될 수 없습니다.");

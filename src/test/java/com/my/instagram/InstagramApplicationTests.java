@@ -46,7 +46,6 @@ class InstagramApplicationTests {
     void 프로필입력() throws IOException {
         for (int i = 0; i < 1; i++) {
             ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
-            profileUpdateRequest.setProfileName("test"+i);
             int imgNumber = i % 8;
             String filePath = "C:/Images/"+"test"+imgNumber+".jpg";
             byte[] fileData = Files.readAllBytes(Paths.get(filePath));
@@ -58,7 +57,7 @@ class InstagramApplicationTests {
                     fileData
             );
 
-            accountsService.updateProfile(profileUpdateRequest, file);
+            accountsService.updateProfile("test"+i, profileUpdateRequest, file);
         }
     }
 

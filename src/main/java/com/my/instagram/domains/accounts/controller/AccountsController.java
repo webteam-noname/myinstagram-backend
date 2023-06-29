@@ -28,22 +28,17 @@ public class AccountsController {
     private final AccountsService accountService;
     private final MailService mailService;
 
-    @PostMapping("/api/auth/accounts/sign-ups")
+    @PostMapping("/api/auth/accounts/sign-up")
     public ApiResponse<String> signUp(@Valid @RequestBody AccountsSaveRequest accountsSaveRequest){
         return new ApiResponse<>(HttpStatus.OK, accountService.signUp(accountsSaveRequest));
     }
 
-    @PostMapping("/api/auth/accounts/sign-ups/codes")
+    @PostMapping("/api/auth/accounts/sign-up/codes")
     public ApiResponse<MailCodeResponse> sendJoinCodeEmail(@Valid @RequestBody MailCodeRequest mailCodeRequest) throws Exception {
         return new ApiResponse<>(HttpStatus.OK, mailService.sendJoinCodeEmail(mailCodeRequest));
     }
 
-    @PutMapping("/api/auth/accounts/sign-ups/codes")
-    public ApiResponse<String> inputJoinCodeEmail(@Valid @RequestBody AccountsCodeRequest accountsCodeRequest) throws Exception {
-        return new ApiResponse<>(HttpStatus.OK, accountService.inputJoinCodeEmail(accountsCodeRequest));
-    }
-
-    @PostMapping("/api/auth/accounts/sign-ins")
+    @PostMapping("/api/auth/accounts/sign-in")
     public ApiResponse<AccountsLoginResponse> signIn(@Valid @RequestBody AccountsLoginReqeust accountsLoginReqeust,
                                                     HttpServletResponse response){
         AccountsLoginResponse accountsLoginResponse = accountService.login(accountsLoginReqeust);
@@ -51,7 +46,7 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
-    @PostMapping("/api/auth/accounts/sign-outs")
+    @PostMapping("/api/auth/accounts/sign-out")
     public ApiResponse<String> signOut(){
         // 현재 인증 정보를 가져옴
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -69,30 +64,30 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, mailService.sendUpdatePasswordEmail(mailSendRequest));
     }
 
-    @GetMapping("/api/auth/accounts/passwords/resets/sign-ins/confirmations")
+    @GetMapping("/api/auth/accounts/passwords/reset/sign-in/confirmations")
     public ApiResponse<String> confirmEmailSignIn(AccountsConfirmRequest accountsConfirmRequest,
                                                   HttpServletResponse response){
         return new ApiResponse<>(HttpStatus.OK, accountService.confirmEmailSignIn(accountsConfirmRequest,response));
     }
 
-    @GetMapping("/api/auth/accounts/passwords/resets/confirmations")
+    @GetMapping("/api/auth/accounts/passwords/reset/confirmations")
     public ApiResponse<String> confirmEmailPassword(AccountsConfirmRequest accountsConfirmRequest,
                                                   HttpServletResponse response){
         return new ApiResponse<>(HttpStatus.OK, accountService.confirmEmailPassword(accountsConfirmRequest,response));
     }
 
-    @PutMapping("/api/accounts/passwords/resets")
+    @PutMapping("/api/accounts/passwords/reset")
     public ApiResponse<String> updatePassword(@Valid @RequestBody AccountsUpdatePasswordRequest accountsUpdatePasswordRequest){
         return new ApiResponse<>(HttpStatus.OK, accountService.updatePassword(accountsUpdatePasswordRequest));
     }
 
-    @PutMapping("/api/accounts/{profileName}/passwords/resets")
+    @PutMapping("/api/accounts/{profileName}/passwords/reset")
     public ApiResponse<String> updateProfilePassword(@PathVariable("profileName") String profileName,
                                                      @Valid @RequestBody UpdateProfilePasswordRequest updateProfilePasswordRequest){
         return new ApiResponse<>(HttpStatus.OK, accountService.updateProfilePassword(profileName, updateProfilePasswordRequest));
     }
 
-    @GetMapping("/api/accounts/{profileName}/profiles/sign-ins-day")
+    @GetMapping("/api/accounts/{profileName}/profiles/sign-in-days")
     public ApiResponse<ProfileSignInDayResponse> searchProfileSignInDay(@PathVariable("profileName") String profileName){
         ProfileSignInDayResponse accountsLoginResponse = accountService.searchProfileSignInDay(profileName);
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);

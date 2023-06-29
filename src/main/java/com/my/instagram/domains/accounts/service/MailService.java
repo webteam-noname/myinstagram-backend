@@ -2,9 +2,7 @@ package com.my.instagram.domains.accounts.service;
 
 import com.my.instagram.config.mail.properties.MailProperties;
 import com.my.instagram.config.security.jwt.JwtProvider;
-import com.my.instagram.domains.accounts.domain.Accounts;
 import com.my.instagram.domains.accounts.domain.Mail;
-import com.my.instagram.domains.accounts.dto.request.AccountsConfirmRequest;
 import com.my.instagram.domains.accounts.dto.request.MailCodeRequest;
 import com.my.instagram.domains.accounts.dto.response.AccountsSearchResponse;
 import com.my.instagram.domains.accounts.dto.response.MailCodeResponse;
@@ -19,11 +17,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -65,22 +59,29 @@ public class MailService extends EmailLogin{
     }
 
     // 메일 발송
-    public MailCodeResponse sendJoinCodeEmail(MailCodeRequest mailSendRequest) throws Exception {
+    public MailCodeResponse sendJoinCodeEmail(MailCodeRequest mailSendRequest) {
+        // 회원 중복 여부 체크
+        usernameOverTwiceExistsException(mailSendRequest.getUsername());
+        profileNameOverTwiceExistsException(mailSendRequest.getProfileName());
+
         String ePw = createKey(); // 랜덤 인증번호 생성
         String to  = mailSendRequest.getUsername(); // 이메일 받는 사람
 
-        Accounts accounts = accountsRepository.findByUsernameAndCheckAuthN(to)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
+        InternetAddress from = null;
 
-        InternetAddress from = new InternetAddress(mailProperties.getUsername(), "insudagram");
+        try {
+            from = new InternetAddress(mailProperties.getUsername(), "insudagram");
 
-        // TODO Auto-generated method stub
-        MimeMessage message = createEmailForm(from, to, ePw); // 메일 발송
-        try {// 예외처리
+            MimeMessage message = createEmailForm(from, to, ePw); // 메일 발송
+
             javaMailSender.send(message);
         } catch (MailException es) {
             es.printStackTrace();
             throw new IllegalArgumentException();
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
 
         // 인증 코드를 서버에 저장합니다.
@@ -92,11 +93,26 @@ public class MailService extends EmailLogin{
         return new MailCodeResponse(ePw); // 메일로 보냈던 인증 코드를 서버로 반환
     }
 
+    public void usernameOverTwiceExistsException(String username) {
+        if(accountsRepository.countByUsername(username) > 0){
+            throw new RuntimeException("사용자 ID는 중복될 수 없습니다.");
+        }
+    }
+
+    public void profileNameOverTwiceExistsException(String profileName) {
+        System.out.println(accountsRepository.countByProfileName(profileName));
+        if(accountsRepository.countByProfileName(profileName) > 0){
+            throw new RuntimeException("프로필 명은 중복될 수 없습니다.");
+        }
+    }
+
+    private AccountsSearchResponse validateAccount(String username) {
+        return accountsRepository.findByUsernameInQuery(username)
+                .orElseThrow(() -> new RuntimeException("해당 유저가 없음."));
+    }
+
     // 비밀번호 인증코드 유효성을 검증합니다
     public boolean validateJoinCode(String username, String authCode) {
-        accountsRepository.findByUsernameAndCheckAuthN(username)
-                          .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
-
         Long isExist = mailRepository.findCodeByUsernameAuthCodeInQuery(username,authCode);
 
         return isExist == 0L;
@@ -107,7 +123,7 @@ public class MailService extends EmailLogin{
         MimeMessage message = javaMailSender.createMimeMessage();
         message.setFrom(from);
         message.addRecipients(Message.RecipientType.TO, to);
-        message.setSubject("insudagram 화원 인증 메시지입니다.");
+        message.setSubject("insudagram 회원 인증 메시지입니다.");
         message.setText("회원 인증코드는 " + ePw + "입니다.");
         return  message;
     }

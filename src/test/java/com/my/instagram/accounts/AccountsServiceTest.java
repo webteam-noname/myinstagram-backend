@@ -78,7 +78,7 @@ public class AccountsServiceTest {
 
         String jwtToken = testGenerateValidJwtToken();
 
-        MvcResult result = mockMvc.perform(post("/api/auth/accounts/sign-ins")
+        MvcResult result = mockMvc.perform(post("/api/auth/accounts/sign-in")
                         .header("Authorization", "Bearer " + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(saveDtoJsonString))
@@ -119,7 +119,7 @@ public class AccountsServiceTest {
         // Generate a valid JWT token
         String jwtToken = testGenerateValidJwtToken(); // 유효한 JWT 토큰 생성하는 함수 (구현 필요)
 
-        MvcResult result = mockMvc.perform(post("/api/auth/accounts/sign-ups")
+        MvcResult result = mockMvc.perform(post("/api/auth/accounts/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + jwtToken) // JWT 토큰을 Authorization 헤더에 포함
                         .content(saveDtoJsonString))
@@ -214,24 +214,6 @@ public class AccountsServiceTest {
         assertThat(runtimeException.getMessage()).isEqualTo("프로필 명은 중복될 수 없습니다.");
     }
 
-    @Test
-    void 프로필_필수입력안함() throws Exception {
-        // Given
-        ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
-
-        String saveDtoJsonString = objectMapper.writeValueAsString(profileUpdateRequest);
-        System.out.println(saveDtoJsonString);
-        // Generate a valid JWT token
-        String jwtToken = testGenerateValidJwtToken(); // 유효한 JWT 토큰 생성하는 함수 (구현 필요)
-        MvcResult result = mockMvc.perform(put("/api/accounts/test0/profiles")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + jwtToken) // JWT 토큰을 Authorization 헤더에 포함
-                        .content(saveDtoJsonString))
-                .andDo(print())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Validation Failed"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.errors.profileName").value("프로필 명을 입력하셔야 합니다."))
-                .andReturn();
-    }
 
     @Test
     void 프로필수정_이미지등록없음(){
@@ -359,7 +341,7 @@ public class AccountsServiceTest {
 
     @Test
     void 이미지등록_파일이있을경우() throws IOException {
-        String profileName = "test4";
+        String profileName = "test5";
         int imgNumber = 1;
         String filePath = "C:/Images/"+"test"+imgNumber+".jpg";
         byte[] fileData = Files.readAllBytes(Paths.get(filePath));

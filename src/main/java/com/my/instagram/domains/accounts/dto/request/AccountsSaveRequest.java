@@ -24,5 +24,8 @@ public class AccountsSaveRequest {
     @NotEmpty(message = "프로필 명을 입력하셔야 합니다.")
     private String profileName;
 
+    @NotEmpty(message = "인증코드 입력은 필수입니다.")
+    private String authCode;
+
 }
 

@@ -24,7 +24,6 @@ public class AccountsRepositoryCustomImpl implements AccountsRepositoryCustom{
         List<AccountsResponse> content = queryFactory.select(Projections.constructor(AccountsResponse.class,
                                                              accounts))
                                                      .from(accounts)
-                                                     .where(accounts.checkAuthYn.eq('Y'))
                                                      .offset(pageable.getOffset())
                                                      .limit(pageable.getPageSize())
                                                      .fetch();

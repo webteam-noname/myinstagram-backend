@@ -61,11 +61,10 @@ public class MailServiceTest {
         AccountsCodeRequest accountsCodeRequest = new AccountsCodeRequest();
         accountsCodeRequest.setUsername(username);
         accountsCodeRequest.setAuthCode(mailCodeResponse.getAuthCode());
-        String result = accountsService.inputJoinCodeEmail(accountsCodeRequest);
+        accountsService.inputJoinCodeEmail(accountsCodeRequest);
 
         assertThat(mailCodeResponse.getAuthCode()).isNotEmpty();
         assertThat(count).isEqualTo(1);
-        assertThat("인증 코드 입력이 완료됐습니다.").isEqualTo(result);
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.my.instagram.config.security.jwt.JwtProvider;
 import com.my.instagram.domains.accounts.dto.request.AccountsCodeRequest;
 import com.my.instagram.domains.accounts.dto.request.AccountsConfirmRequest;
 import com.my.instagram.domains.accounts.dto.request.MailCodeRequest;
+import com.my.instagram.domains.accounts.dto.request.MailUpdatePasswordRequest;
 import com.my.instagram.domains.accounts.dto.response.MailCodeResponse;
 import com.my.instagram.domains.accounts.repository.MailRepository;
 import com.my.instagram.domains.accounts.service.AccountsService;
@@ -70,18 +71,18 @@ public class MailServiceTest {
     @Test
     void 비밀번호찾기(){
         String username = "etkim02@naver.com";
-        MailCodeRequest mailSendRequest = new MailCodeRequest();
-        mailSendRequest.setUsername(username);
-        String result = mailService.sendUpdatePasswordEmail(mailSendRequest);
+        MailUpdatePasswordRequest mailUpdatePasswordRequest = new MailUpdatePasswordRequest();
+        mailUpdatePasswordRequest.setUsername(username);
+        String result = mailService.sendUpdatePasswordEmail(mailUpdatePasswordRequest);
 
         assertThat("비밀번호를 변경합니다.").isEqualTo(result);
     }
 
     @Test
     void 비밀번호변경_이메일전송(){
-        MailCodeRequest mailSendRequest = new MailCodeRequest();
-        mailSendRequest.setUsername("etkim02@naver.com");
-        mailService.sendUpdatePasswordEmail(mailSendRequest);
+        MailUpdatePasswordRequest mailUpdatePasswordRequest = new MailUpdatePasswordRequest();
+        mailUpdatePasswordRequest.setUsername("etkim02@naver.com");
+        mailService.sendUpdatePasswordEmail(mailUpdatePasswordRequest);
     }
 
 

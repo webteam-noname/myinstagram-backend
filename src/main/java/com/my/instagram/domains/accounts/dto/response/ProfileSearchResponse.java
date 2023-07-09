@@ -20,11 +20,10 @@ public class ProfileSearchResponse {
         this.profileIntro     = accounts.getProfileIntro();
         this.profileImgFileId = accounts.getProfileImgFileId();
 
-        if(file.getFileName() != null){
+        if(file != null){
             this.profileImg = file.getFilePath()+file.getFileName()+"."+file.getFileExt();
         }else{
             this.profileImg = "c:/files/no-image.jpg";
         }
-
     }
 }

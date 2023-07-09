@@ -4,6 +4,7 @@ import com.my.instagram.config.mail.properties.MailProperties;
 import com.my.instagram.config.security.jwt.JwtProvider;
 import com.my.instagram.domains.accounts.domain.Mail;
 import com.my.instagram.domains.accounts.dto.request.MailCodeRequest;
+import com.my.instagram.domains.accounts.dto.request.MailUpdatePasswordRequest;
 import com.my.instagram.domains.accounts.dto.response.AccountsSearchResponse;
 import com.my.instagram.domains.accounts.dto.response.MailCodeResponse;
 import com.my.instagram.domains.accounts.repository.AccountsRepository;
@@ -208,7 +209,7 @@ public class MailService extends EmailLogin{
                                 "              <tr>\n" +
                                 "               <td width=\"20\" style=\"display:block;width:20px;\">&nbsp;&nbsp;&nbsp;</td > \n" +
                                 "               <td style = \"\" > \n" +
-                                "                <a href = \"http://localhost:8080/api/auth/accounts/passwords/resets/sign-ins/confirmations?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
+                                "                <a href = \"http://10.90.1.111:8080/api/auth/accounts/passwords/reset/sign-in/confirmations?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
                                 "                 style = \"color:#1b74e4;text-decoration:none;display:block;:370px;\"\n" +
                                 "                 rel = \"noreferrer noopener\"\n" +
                                 "                 target = \"_blank\" > \n" +
@@ -216,7 +217,7 @@ public class MailService extends EmailLogin{
                                 "                  <tbody > \n" +
                                 "                   <tr > \n" +
                                 "                    <td style = \"border-collapse:collapse;border-radius:3px;text-align:center;display:block;border:solid 1px #009fdf;padding:10px 16px 14px 16px;margin:0 2px 0 auto;min-width:80px;background-color:#47A2EA;\" > \n" +
-                                "                     <a href = \"http://localhost:8080/api/auth/accounts/passwords/resets/sign-ins/confirmations?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
+                                "                     <a href = \"http://10.90.1.111:8080/api/auth/accounts/passwords/reset/sign-in/confirmations?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
                                 "                      style = \"color:#1b74e4;text-decoration:none;display:block;\"\n" +
                                 "                      rel = \"noreferrer noopener\"\n" +
                                 "                      target = \"_blank\" > \n" +
@@ -254,7 +255,7 @@ public class MailService extends EmailLogin{
                                 "                          </tr>\n" +
                                 "                          <tr>\n" +
                                 "                           <td style=\"\">\n" +
-                                "                            <a href=\"http://localhost:8080/api/auth/accounts/passwords/resets/confirmations?uidb="+uidb+"&amp;accessToken="+accessToken+"\" \n" +
+                                "                            <a href=\"http://10.90.1.111:8080/api/auth/accounts/passwords/reset/confirmations?uidb="+uidb+"&amp;accessToken="+accessToken+"\" \n" +
                                 "                             style=\"color: #1b74e4;text-decoration:none;display:block;:370px;\" \n" +
                                 "                             rel= \"noreferrer noopener\"\n" +
                                 "                             target = \"_blank\" > \n" +
@@ -262,7 +263,7 @@ public class MailService extends EmailLogin{
                                 "                              <tbody > \n" +
                                 "                               <tr > \n" +
                                 "                                <td style = \"border-collapse:collapse;border-radius:3px;text-align:center;display:block;border:solid 1px #009fdf;padding:10px 16px 14px 16px;margin:0 2px 0 auto;min-width:80px;background-color:#47A2EA;\" > \n" +
-                                "                                 <a href = \"http://localhost:8080/api/auth/accounts/passwords/resets/confirmations?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
+                                "                                 <a href = \"http://10.90.1.111:8080/api/auth/accounts/passwords/reset/confirmations?uidb="+uidb+"&amp;accessToken="+accessToken+"\"\n" +
                                 "                                  style = \"color:#1b74e4;text-decoration:none;display:block;\"\n" +
                                 "                                  rel = \"noreferrer noopener\"\n" +
                                 "                                  target = \"_blank\" > \n" +
@@ -323,8 +324,8 @@ public class MailService extends EmailLogin{
         return  message;
     }
 
-    public String sendUpdatePasswordEmail(MailCodeRequest mailSendRequest) {
-        String to  = mailSendRequest.getUsername(); // 이메일 받는 사람
+    public String sendUpdatePasswordEmail(MailUpdatePasswordRequest mailUpdatePasswordRequest) {
+        String to  = mailUpdatePasswordRequest.getUsername(); // 이메일 받는 사람
         accountsRepository.findByUsername(to)
                           .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
 

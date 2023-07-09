@@ -9,9 +9,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ProfileUpdateResponse {
+    private String profileName;
+    private String profileIntro;
     private Long profileImgFileId;
 
     public ProfileUpdateResponse(Accounts accounts){
+        this.profileName = accounts.getProfileName();
+        this.profileIntro = accounts.getProfileIntro();
         this.profileImgFileId = accounts.getProfileImgFileId();
     }
 }

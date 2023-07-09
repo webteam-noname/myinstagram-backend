@@ -46,6 +46,14 @@ public class AccountsController {
         return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
     }
 
+    @PostMapping("/api/auth/accounts/temp/sign-in")
+    public ApiResponse<AccountsLoginResponse> tempSignIn(@Valid @RequestBody AccountsConfirmRequest accountsConfirmRequest,
+                                                         HttpServletResponse response){
+        AccountsLoginResponse accountsLoginResponse = accountService.tempSignIn(accountsConfirmRequest);
+        setCookie(response,accountsLoginResponse.getJwt());
+        return new ApiResponse<>(HttpStatus.OK, accountsLoginResponse);
+    }
+
     @PostMapping("/api/auth/accounts/sign-out")
     public ApiResponse<String> signOut(){
         // 현재 인증 정보를 가져옴
@@ -60,8 +68,8 @@ public class AccountsController {
     }
 
     @PostMapping("/api/auth/accounts/passwords/emails")
-    public ApiResponse<String> sendUpdatePasswordEmail(@Valid @RequestBody MailCodeRequest mailSendRequest){
-        return new ApiResponse<>(HttpStatus.OK, mailService.sendUpdatePasswordEmail(mailSendRequest));
+    public ApiResponse<String> sendUpdatePasswordEmail(@Valid @RequestBody MailUpdatePasswordRequest mailUpdatePasswordRequest){
+        return new ApiResponse<>(HttpStatus.OK, mailService.sendUpdatePasswordEmail(mailUpdatePasswordRequest));
     }
 
     @GetMapping("/api/auth/accounts/passwords/reset/sign-in/confirmations")
@@ -101,7 +109,7 @@ public class AccountsController {
 
     @PutMapping("/api/accounts/{profileName}/images")
     public ApiResponse<String> updateProfileImage(@PathVariable("profileName") String profileName,
-                                                                 MultipartFile file){
+                                                  MultipartFile file){
         return new ApiResponse<>(HttpStatus.OK, accountService.updateProfileImage(profileName, file));
     }
 
@@ -111,10 +119,12 @@ public class AccountsController {
     }
 
     @PutMapping("/api/accounts/{profileName}/profiles")
-    public ApiResponse<ProfileUpdateResponse> updateProfile(@PathVariable("profileName") String profileName,
-                                                            @Valid ProfileUpdateRequest profileUpdateRequest,
-                                                            MultipartFile file){
-        ProfileUpdateResponse profileUpdateResponse = accountService.updateProfile(profileName, profileUpdateRequest,file);
+    public ApiResponse<AccountsLoginResponse> updateProfile(@PathVariable("profileName") String profileName,
+                                                            @Valid @RequestBody ProfileUpdateRequest profileUpdateRequest,
+                                                            MultipartFile file,
+                                                            HttpServletResponse response){
+        AccountsLoginResponse profileUpdateResponse = accountService.updateProfile(profileName, profileUpdateRequest,file);
+        setCookie(response,profileUpdateResponse.getJwt());
         return new ApiResponse<>(HttpStatus.OK, profileUpdateResponse);
     }
 

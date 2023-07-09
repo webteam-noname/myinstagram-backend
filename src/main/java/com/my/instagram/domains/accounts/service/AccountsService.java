@@ -64,6 +64,22 @@ public class AccountsService extends EmailLogin{
         return new AccountsLoginResponse(jwtDto, new AccountsResponse(accounts));
     }
 
+    public AccountsLoginResponse tempSignIn(AccountsConfirmRequest accountsConfirmRequest) {
+        String username = getEamilLoginRealUsername(accountsConfirmRequest.getUidb());
+        AccountsSearchResponse accountResponse = accountsRepository.findByUsernameInQuery(username).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
+        PrincipalDetails principalDetails = new PrincipalDetails(accountResponse);
+
+        JwtDto jwtDto = jwtProvider.createJwtDto(principalDetails);
+        Accounts selectAccounts = getAccountsByUsername(principalDetails.getAccountResponse().getUsername());
+
+        refreshTokenRepository.save(RefreshToken.builder()
+                .token(jwtDto.getRefreshToken())
+                .accounts(selectAccounts)
+                .build());
+
+        return new AccountsLoginResponse(jwtDto, new AccountsResponse(selectAccounts));
+    }
+
     private Accounts getAccountsByUsername(String username) {
         Accounts accounts = accountsRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
         return accounts;
@@ -156,7 +172,8 @@ public class AccountsService extends EmailLogin{
         return new ProfileSearchResponse(accounts, file);
     }
 
-    public ProfileUpdateResponse updateProfile(String profileName, ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
+    public AccountsLoginResponse updateProfile(String profileName, ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
+        System.out.println("프로필 업데이트");
         profileNameOverTwiceExistsException(profileUpdateRequest.getChangeProfileName());
         Accounts accounts = getAccounts(profileName);
 
@@ -169,7 +186,19 @@ public class AccountsService extends EmailLogin{
 
         // profileNameOverTwiceExistsException(profileUpdateRequest.getProfileName());
         accounts.updateProfile(profileUpdateRequest);
-        return new ProfileUpdateResponse(accounts);
+
+        AccountsSearchResponse accountResponse = accountsRepository.findByUsernameInQuery(accounts.getUsername()).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
+        PrincipalDetails principalDetails = new PrincipalDetails(accountResponse);
+
+        JwtDto jwtDto = jwtProvider.createJwtDto(principalDetails);
+        Accounts selectAccounts = getAccountsByUsername(principalDetails.getAccountResponse().getUsername());
+
+        refreshTokenRepository.save(RefreshToken.builder()
+                              .token(jwtDto.getRefreshToken())
+                              .accounts(selectAccounts)
+                              .build());
+
+        return new AccountsLoginResponse(jwtDto, new AccountsResponse(selectAccounts));
     }
 
     private Long getFileId(MultipartFile file, Long imgFileId) {
@@ -250,13 +279,13 @@ public class AccountsService extends EmailLogin{
 
         isAutoCountOverFirstExistsException(uidb);
         increaseAutoCount(uidb);
-        /*
+
         try {
-            response.sendRedirect("http://localhost:8081/sign-ins/passwords/resets?uidb="+uidb+"&accessToken="+accessToken);
+            response.sendRedirect("http://10.40.1.129:8080/accounts/recoveryPassword?uidb="+uidb);
         } catch (IOException e) {
             throw new RuntimeException("Vue 서버를 확인해주세요!");
         }
-        */
+
 
         return "정상 처리 되었습니다.";
     }
@@ -266,16 +295,18 @@ public class AccountsService extends EmailLogin{
         String accessToken = accountsConfirmRequest.getAccessToken();
 
         if(isRightTempAccessToken(uidb, accessToken)){
-            /*
+
             try {
-                response.sendRedirect("http://localhost:8081/passwords/resets?"+uidb+"&accessToken="+accessToken);
+                response.sendRedirect("http://10.40.1.129:8080/accounts/changePassword?uidb="+uidb+"&accessToken="+accessToken);
             } catch (IOException e) {
                 throw new RuntimeException("Vue 서버를 확인해주세요!");
-            }*/
+            }
         }else{
             throw new RuntimeException("올바르지 않은 토큰입니다.");
         }
 
         return "정상 처리 되었습니다.";
     }
+
+
 }

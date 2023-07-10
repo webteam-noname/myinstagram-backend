@@ -42,18 +42,19 @@ public class SecurityConfig {
     private final PrincipalOauth2UserService principalOauth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-    private final String[] permitAllPaths = {"/api/auth/**",
-                                             "/swagger-resources/**",
-                                             "/swagger-ui/**",
-                                             "/v3/api-docs/**",
-                                             "/",
-                                             "/app/accounts/**",
-                                             "/login/**",
-                                             "/oauth2/**",
-                                             "/api/file",
-                                             "/api/images/**",
-                                             "/favicon.ico",
-                                             "/error"};
+    private final String[] permitAllPaths = { "/images/**",
+                                              "/api/auth/**",
+                                              "/swagger-resources/**",
+                                              "/swagger-ui/**",
+                                              "/v3/api-docs/**",
+                                              "/",
+                                              "/app/accounts/**",
+                                              "/login/**",
+                                              "/oauth2/**",
+                                              "/api/file",
+                                              "/api/images/**",
+                                              "/favicon.ico",
+                                              "/error"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

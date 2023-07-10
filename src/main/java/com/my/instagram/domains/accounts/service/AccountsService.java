@@ -276,12 +276,13 @@ public class AccountsService extends EmailLogin{
     public String confirmEmailSignIn(AccountsConfirmRequest accountsConfirmRequest,
                                      HttpServletResponse response) {
         String uidb = accountsConfirmRequest.getUidb();
+        String accessToken = accountsConfirmRequest.getAccessToken();
 
         isAutoCountOverFirstExistsException(uidb);
         increaseAutoCount(uidb);
 
         try {
-            response.sendRedirect("http://10.40.1.129:8080/accounts/recoveryPassword?uidb="+uidb);
+            response.sendRedirect("http://10.40.1.129:8080/accounts/recoveryPassword?uidb="+uidb+"&accessToken="+accessToken);
         } catch (IOException e) {
             throw new RuntimeException("Vue 서버를 확인해주세요!");
         }

@@ -21,9 +21,9 @@ public class ProfileSearchResponse {
         this.profileImgFileId = accounts.getProfileImgFileId();
 
         if(file != null){
-            this.profileImg = file.getFilePath()+file.getFileName()+"."+file.getFileExt();
+            this.profileImg = file.getFileName()+"."+file.getFileExt();
         }else{
-            this.profileImg = "c:/files/no-image.jpg";
+            this.profileImg = "no-image.jpg";
         }
     }
 }

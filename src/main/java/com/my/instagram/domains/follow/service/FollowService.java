@@ -11,6 +11,7 @@ import com.my.instagram.domains.follow.dto.request.FollowDeleteRequest;
 import com.my.instagram.domains.follow.dto.request.FollowSaveRequest;
 import com.my.instagram.domains.follow.dto.response.FollowSaveResponse;
 import com.my.instagram.domains.follow.dto.response.FollowSearchResponse;
+import com.my.instagram.domains.follow.dto.response.FollowingSearchResponse;
 import com.my.instagram.domains.follow.repository.FollowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,19 +28,28 @@ public class FollowService {
     private final AccountsRepository accountsRepository;
     private final FileRepository fileRepository;
 
-    public Long searchFollowCount(String profileName) {
+    /*public Long searchFollowCount(String profileName) {
         return followRepository.countFollowByUsername(profileName);
-    }
+    }*/
 
-    public List<FollowSearchResponse> searchFollower(String profileName) {
-        List<FollowSearchResponse> followerByUsername = followRepository.findFollowerByUsername(profileName);
-        existDataSkipElseException(followerByUsername);
-        inputFollowerFileImg(followerByUsername);
-        return followerByUsername;
+    // 2023-08-08 변경 사항
+    // 메서드 명 변경: searchFollower -> searchFollowing, 관련 테스트 코드 수정
+    // 변수명 변경: followerByUsername -> followingByUsername
+    // Repository 메서드명 변경: findFollowerByUsername -> findFollowingByUsername
+    // 메서드명 변경: inputFollowerFileImg -> inputFollowingFileImg
+    // DTO명 변경: FollowSearchResponse -> FollowingSearchResponse
+    // 임시로 existDataSkipElseException 파라미터 수정
+    // 다음에는 공통 메서드에 대해서 파라미터를 DTO로 넘겨주는 작업은 지양한다.
+    public List<FollowingSearchResponse> searchFollowing(String profileName) {
+        List<FollowingSearchResponse> followingByUsername = followRepository.findFollowingByUsername(profileName);
+        existDataSkipElseException(followingByUsername.size());
+        inputFollowingFileImg(followingByUsername);
+        return followingByUsername;
     }
 
     private void inputFollowFileImg(List<FollowSearchResponse> listData) {
         int dataLength = listData.size();
+
         for (int i = 0; i < dataLength; i++) {
              if(listData.get(i).getProfileImgFileId() != null){
                  Accounts accounts = accountsRepository.findByProfileName(listData.get(i).getFollowName()).get();
@@ -49,7 +59,10 @@ public class FollowService {
         }
     }
 
-    private void inputFollowerFileImg(List<FollowSearchResponse> listData) {
+    // 2023-08-08 변경 사항
+    // 메서드명 변경: inputFollowerFileImg -> inputFollowingFileImg
+    // DTO명 변경: FollowSearchResponse -> FollowingSearchResponse
+    private void inputFollowingFileImg(List<FollowingSearchResponse> listData) {
         int dataLength = listData.size();
         for (int i = 0; i < dataLength; i++) {
             if(listData.get(i).getProfileImgFileId() != null){
@@ -60,19 +73,19 @@ public class FollowService {
         }
     }
 
-    public Long searchFollowerCount(String profileName) {
+    /*public Long searchFollowerCount(String profileName) {
         return followRepository.countFollowerByUsername(profileName);
-    }
+    }*/
 
     public List<FollowSearchResponse> searchFollow(String profileName) {
         List<FollowSearchResponse> followByUsername = followRepository.findFollowByUsername(profileName);
-        existDataSkipElseException(followByUsername);
+        existDataSkipElseException(followByUsername.size());
         inputFollowFileImg(followByUsername);
         return followByUsername;
     }
 
-    private void existDataSkipElseException(List<FollowSearchResponse> followByUsername) {
-        if (followByUsername.size() == 0) {
+    private void existDataSkipElseException(int userCount) {
+        if (userCount == 0) {
             throw new RuntimeException("팔로우 조회를 할 수 없습니다.");
         }
     }
@@ -112,17 +125,18 @@ public class FollowService {
         return StringUtils.hasText(name);
     }
 
+    // 2023-08-08 변경 사항
+    // 아래 코드 주석 처리하였음
     public String deleteFollow(FollowDeleteRequest followDeleteRequest) {
         Follow follow = followRepository.findAcceptByProfileNameAndFollowName(followDeleteRequest.getProfileName(), followDeleteRequest.getFollowName(), 'Y');
         followRepository.deleteByAccountsIdAndFollowAccountsId(follow.getAccounts().getId(), follow.getFollowAccounts().getId());
 
-        System.out.println(followDeleteRequest.getFollowName());
-        System.out.println(followDeleteRequest.getProfileName());
-        Follow oppositeFollow = followRepository.findAcceptByProfileNameAndFollowName(followDeleteRequest.getFollowName(), followDeleteRequest.getProfileName(),'Y');
+        // 2023-08-08: 맞팔되어 있는 대상 중 한명이라도 삭제하면 둘다 삭제된다고 생각했는데 그것은 아니어서 주석 처리함
+        /*Follow oppositeFollow = followRepository.findAcceptByProfileNameAndFollowName(followDeleteRequest.getFollowName(), followDeleteRequest.getProfileName(),'Y');
 
         if(oppositeFollow != null){
             followRepository.deleteByAccountsIdAndFollowAccountsId(oppositeFollow.getAccounts().getId(), oppositeFollow.getFollowAccounts().getId());
-        }
+        }*/
 
         return "팔로워를 취소했습니다.";
     }

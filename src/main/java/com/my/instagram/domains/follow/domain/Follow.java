@@ -26,6 +26,8 @@ public class Follow {
     @JoinColumn(name = "accounts_id")
     private Accounts accounts;
 
+    // 2023-08-08 의문 사항
+    // 아래와 같이 구현한 이유는?
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follow_accounts_id")

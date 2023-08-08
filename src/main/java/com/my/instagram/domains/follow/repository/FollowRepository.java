@@ -2,6 +2,7 @@ package com.my.instagram.domains.follow.repository;
 
 import com.my.instagram.domains.follow.domain.Follow;
 import com.my.instagram.domains.follow.dto.response.FollowSearchResponse;
+import com.my.instagram.domains.follow.dto.response.FollowingSearchResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,13 +12,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FollowRepository extends JpaRepository<Follow,Long> {
-    @Query("select count(1)" +
+    // 2023-08-08 변경 사항
+    // 카운트 하는 쿼리 주석 처리
+
+    /*@Query("select count(1)" +
            " from Follow f" +
            " inner join f.accounts a" +
            " where a.profileName = :profileName" +
            " and f.blockYn = 'N'" +
            " and f.followAccept = 'Y'")
-    Long countFollowByUsername(@Param("profileName") String profileName);
+    Long countFollowByUsername(@Param("profileName") String profileName);*/
 
     @Query("select f" +
            " from Follow f" +
@@ -27,13 +31,15 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
            " and f.followAccept = 'Y'")
     List<FollowSearchResponse> findFollowByUsername(@Param("profileName") String profileName);
 
-    @Query( "select count(1)" +
+    // 2023-08-08 변경 사항
+    // 카운트 하는 쿼리 주석 처리
+    /*@Query( "select count(1)" +
             " from Follow f" +
             " inner join f.followAccounts fa" +
             " where fa.profileName = :profileName" +
             " and f.blockYn = 'N'"+
             " and f.followAccept = 'Y'")
-    Long countFollowerByUsername(@Param("profileName") String profileName);
+    Long countFollowerByUsername(@Param("profileName") String profileName);*/
 
     @Query( "select f" +
             " from Follow f" +
@@ -41,7 +47,7 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
             " where fa.profileName = :profileName" +
             " and f.blockYn = 'N'"+
             " and f.followAccept = 'Y'")
-    List<FollowSearchResponse> findFollowerByUsername(@Param("profileName") String profileName);
+    List<FollowingSearchResponse> findFollowingByUsername(@Param("profileName") String profileName);
 
     @Query( "select f" +
             " from Follow f" +
@@ -64,7 +70,8 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
     Follow findAcceptByProfileNameAndFollowName(@Param("profileName") String profileName,
                                                 @Param("followName") String followName,
                                                 @Param("followAccept") Character followAccept);
-
+    // 2023-08-08 의문사항
+    // 수정과 관련된 기능을 이렇게 수정하는게 맞을까?
     @Modifying
     @Query( "update Follow f" +
             " set f.blockYn = :blockYn" +
@@ -74,6 +81,8 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
                      @Param("followAccountId") Long followAccountId,
                      @Param("blockYn") char blockYn);
 
+    // 2023-08-08 의문사항
+    // 수정과 관련된 기능을 이렇게 수정하는게 맞을까?
     @Modifying
     @Query( "update Follow f" +
             " set f.followAccept = :followAccept" +
@@ -83,6 +92,8 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
                        @Param("followAccountId") Long followAccountId,
                        @Param("followAccept") Character followAccept);
 
+    // 2023-08-08 의문사항
+    // 수정과 관련된 기능을 이렇게 수정하는게 맞을까?
     @Modifying
     @Query("delete from Follow f"+
             " where f.accounts.id = :accountsId" +

@@ -18,9 +18,9 @@ public class ProfileSignInDayResponse {
     public ProfileSignInDayResponse(Accounts accounts, Files file){
         this.createdDate = accounts.getCreatedDate();
         if(file.getFileName() != null){
-            this.profileImg = file.getFilePath()+file.getFileName()+"."+file.getFileExt();
+            this.profileImg = file.getFileName()+"."+file.getFileExt();
         }else{
-            this.profileImg = "c:/files/no-image.jpg";
+            this.profileImg = "no-image.jpg";
         }
     }
 }

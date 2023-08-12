@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.nio.file.Files;
 
 @Entity
 @Getter
@@ -29,7 +30,6 @@ public class Follow {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follow_accounts_id")
-    @org.hibernate.annotations.Index(name = "follow_accounts_id_index")
     private Accounts followAccounts;
 
     @Builder

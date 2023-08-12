@@ -7,6 +7,7 @@ import com.my.instagram.domains.follow.dto.request.FollowDeleteRequest;
 import com.my.instagram.domains.follow.dto.request.FollowSaveRequest;
 import com.my.instagram.domains.follow.dto.response.FollowSaveResponse;
 import com.my.instagram.domains.follow.dto.response.FollowSearchResponse;
+import com.my.instagram.domains.follow.dto.response.FollowingSearchResponse;
 import com.my.instagram.domains.follow.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,24 +23,17 @@ public class FollowController {
 
     private final FollowService followService;
 
-    @GetMapping("/api/follows/{profileName}/count")
-    public ApiResponse<Long> searchFollowCount(@PathVariable("profileName") String profileName) throws IOException {
-        return new ApiResponse<>(HttpStatus.OK, followService.searchFollowCount(profileName));
-    }
-
     @GetMapping("/api/follows/{profileName}")
     public ApiResponse<List<FollowSearchResponse>> searchFollow(@PathVariable("profileName") String profileName) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, followService.searchFollow(profileName));
     }
 
-    @GetMapping("/api/followers/{profileName}/count")
-    public ApiResponse<Long> searchFollowerCount(@PathVariable("profileName") String profileName) throws IOException {
-        return new ApiResponse<>(HttpStatus.OK, followService.searchFollowerCount(profileName));
-    }
-
-    @GetMapping("/api/followers/{profileName}")
-    public ApiResponse<List<FollowSearchResponse>> searchFollower(@PathVariable("profileName") String profileName) throws IOException {
-        return new ApiResponse<>(HttpStatus.OK, followService.searchFollower(profileName));
+    // 2023-08-08 변경 사항
+    // followers -> following으로 변경, 메서드 명 변경: searchFollower -> searchFollowing
+    // dto명 변경: FollowSearchResponse -> FollowingSearchResponse
+    @GetMapping("/api/following/{profileName}")
+    public ApiResponse<List<FollowingSearchResponse>> searchFollowing(@PathVariable("profileName") String profileName) throws IOException {
+        return new ApiResponse<>(HttpStatus.OK, followService.searchFollowing(profileName));
     }
 
     @PostMapping("/api/follows/{profileName}")

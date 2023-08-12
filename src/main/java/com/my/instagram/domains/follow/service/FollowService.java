@@ -28,10 +28,6 @@ public class FollowService {
     private final AccountsRepository accountsRepository;
     private final FileRepository fileRepository;
 
-    /*public Long searchFollowCount(String profileName) {
-        return followRepository.countFollowByUsername(profileName);
-    }*/
-
     // 2023-08-08 변경 사항
     // 메서드 명 변경: searchFollower -> searchFollowing, 관련 테스트 코드 수정
     // 변수명 변경: followerByUsername -> followingByUsername
@@ -46,6 +42,7 @@ public class FollowService {
         inputFollowingFileImg(followingByUsername);
         return followingByUsername;
     }
+
     // 2023-08-12 검토 사항
     // 현재 엔티티 설계가 좀 많이 복잡하게되어 있어 나온 follow 이미지 리소스 입력 방식이다.
     // 추후 inputFollowFileImg, inputFollowingFileImg 메서드는 엔티티 변경과 함께 없어지거나 변경되었으면 좋겠다.
@@ -75,14 +72,13 @@ public class FollowService {
         }
     }
 
-    /*public Long searchFollowerCount(String profileName) {
-        return followRepository.countFollowerByUsername(profileName);
-    }*/
-
     public List<FollowSearchResponse> searchFollow(String profileName) {
         List<FollowSearchResponse> followByUsername = followRepository.findFollowByUsername(profileName);
         existDataSkipElseException(followByUsername.size());
+
+        // 파일 처리에 대한 부분을 고민할 필요가 있음
         inputFollowFileImg(followByUsername);
+
         return followByUsername;
     }
 
@@ -138,13 +134,6 @@ public class FollowService {
     public String deleteFollow(FollowDeleteRequest followDeleteRequest) {
         Follow follow = followRepository.findAcceptByProfileNameAndFollowName(followDeleteRequest.getProfileName(), followDeleteRequest.getFollowName(), 'Y');
         followRepository.deleteByAccountsIdAndFollowAccountsId(follow.getAccounts().getId(), follow.getFollowAccounts().getId());
-
-        // 2023-08-08: 맞팔되어 있는 대상 중 한명이라도 삭제하면 둘다 삭제된다고 생각했는데 그것은 아니어서 주석 처리함
-        /*Follow oppositeFollow = followRepository.findAcceptByProfileNameAndFollowName(followDeleteRequest.getFollowName(), followDeleteRequest.getProfileName(),'Y');
-
-        if(oppositeFollow != null){
-            followRepository.deleteByAccountsIdAndFollowAccountsId(oppositeFollow.getAccounts().getId(), oppositeFollow.getFollowAccounts().getId());
-        }*/
 
         return "팔로워를 취소했습니다.";
     }

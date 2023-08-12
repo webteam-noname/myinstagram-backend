@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(SpringExtension.class)
 public class followServiceTest {
 
-
     @Autowired
     private AccountsService accountsService;
 
@@ -39,26 +38,21 @@ public class followServiceTest {
     @Autowired
     FollowRepository followRepository;
 
-
-    // 2023-08-08 변경사항
-    // count 주석 처리
     @Test
     void 팔로우조회(){
         List<FollowSearchResponse> responses = followService.searchFollow("test0");
-        //Long searchFollowCount = followService.searchFollowCount("test0");
-        Long totalCount = (long) responses.size();
+        // Long totalCount = (long) responses.size();
 
+        // assertThat(totalCount).isEqualTo(9);
+    }
+
+    @Test
+    void 팔로우조회_없는아이디(){
         assertThrows(RuntimeException.class, () -> {
             followService.searchFollow("test12412");
         });
-        for (int i = 0; i < responses.size(); i++) {
-            System.out.println(responses.get(i));
-        }
-        System.out.println();
-
-        // assertThat(totalCount).isEqualTo(searchFollowCount);
-
     }
+
 
     @Test
     void 프로필명수정후_팔로우조회(){
@@ -93,10 +87,6 @@ public class followServiceTest {
     void 팔로잉조회(){
         List<FollowingSearchResponse> test0 = followService.searchFollowing("test0");
         int totalCount = test0.size();
-
-        for (int i = 0; i < test0.size(); i++) {
-            System.out.println(test0.get(i));
-        }
 
         assertThat(totalCount).isEqualTo(9);
     }

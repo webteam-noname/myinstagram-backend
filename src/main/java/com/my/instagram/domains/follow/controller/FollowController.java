@@ -23,22 +23,10 @@ public class FollowController {
 
     private final FollowService followService;
 
-    // 2023-08-08 변경 사항
-    /*@GetMapping("/api/follows/{profileName}/count")
-    public ApiResponse<Long> searchFollowCount(@PathVariable("profileName") String profileName) throws IOException {
-        return new ApiResponse<>(HttpStatus.OK, followService.searchFollowCount(profileName));
-    }*/
-
     @GetMapping("/api/follows/{profileName}")
     public ApiResponse<List<FollowSearchResponse>> searchFollow(@PathVariable("profileName") String profileName) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, followService.searchFollow(profileName));
     }
-
-    // 2023-08-08 변경 사항
-    /*@GetMapping("/api/followers/{profileName}/count")
-    public ApiResponse<Long> searchFollowerCount(@PathVariable("profileName") String profileName) throws IOException {
-        return new ApiResponse<>(HttpStatus.OK, followService.searchFollowerCount(profileName));
-    }*/
 
     // 2023-08-08 변경 사항
     // followers -> following으로 변경, 메서드 명 변경: searchFollower -> searchFollowing

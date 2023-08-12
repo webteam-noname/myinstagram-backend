@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +25,24 @@ public class FileService {
     public FileSearchResponse searchFile(FileSearchRequest fileSearchRequest) {
         Files files = fileRepository.findById(fileSearchRequest.getId()).get();
         return new FileSearchResponse(files);
+    }
+
+    public void saveFileTest(FileSaveEntity function, MultipartFile file) {
+        UUID fileName       = UUID.randomUUID();
+        String realFileName = file.getOriginalFilename();
+        String filePath     = "c:/files/";
+        String fileExt      = realFileName.substring(realFileName.lastIndexOf(".") + 1);
+
+        Files fileEntity = Files.builder()
+                                .filePath(filePath)
+                                .fileName(fileName)
+                                .realFileName(file.getOriginalFilename())
+                                .fileExt(fileExt)
+                                .fileSeq(searchFileSeq())
+                                .build();
+
+        fileRepository.save(fileEntity);
+        fileEntity.saveFileTest(function, file);
     }
 
     public Long saveFile(MultipartFile file) {
@@ -77,6 +95,5 @@ public class FileService {
         Files files = new Files(fileById.getFilePath(), fileById.getFileName(), fileById.getFileExt());
         files.deleteFile();
     }
-
 
 }

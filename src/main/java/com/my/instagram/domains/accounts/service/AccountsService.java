@@ -4,6 +4,7 @@ import com.my.instagram.common.file.domain.Files;
 import com.my.instagram.common.file.dto.request.FileDeleteRequest;
 import com.my.instagram.common.file.dto.request.FileUpdateRequest;
 import com.my.instagram.common.file.repository.FileRepository;
+import com.my.instagram.common.file.service.FileSaveEntity;
 import com.my.instagram.common.file.service.FileService;
 import com.my.instagram.config.security.auth.PrincipalDetails;
 import com.my.instagram.config.security.jwt.JwtProvider;
@@ -34,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -172,6 +174,16 @@ public class AccountsService extends EmailLogin{
         return new ProfileSearchResponse(accounts, file);
     }
 
+
+
+    public void updateProfileTest(String profileName, ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
+        Accounts accounts = getAccounts(profileName);
+        // accounts.updateProfileTest(profileUpdateRequest);
+        fileService.saveFileTest(accounts, file);
+    }
+
+    // 2023-08-12 파일 적용방식 변경
+    //
     public AccountsLoginResponse updateProfile(String profileName, ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
         System.out.println("프로필 업데이트");
         profileNameOverTwiceExistsException(profileUpdateRequest.getChangeProfileName());

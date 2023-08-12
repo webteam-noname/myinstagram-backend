@@ -1,24 +1,27 @@
 package com.my.instagram.domains.accounts.domain;
 
 import com.my.instagram.common.file.domain.Files;
-import com.my.instagram.domains.accounts.dto.request.AccountsUpdateRequest;
+import com.my.instagram.common.file.service.FileSaveEntity;
+import com.my.instagram.common.file.service.FileService;
 import com.my.instagram.domains.accounts.dto.request.ProfileUpdateRequest;
 import com.my.instagram.common.domain.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Accounts extends BaseEntity {
+public class Accounts extends BaseEntity implements FileSaveEntity{
+
     @Id // primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "accounts_id")
@@ -36,8 +39,17 @@ public class Accounts extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String profileName;
     private String profileIntro;
+
+    // 2023-08-12 변경사항
+    // profileImgFileId를 통한 조회가 아닌 file_id를 통한 조회로 변경 필요로 아래와 같이 조치함
     private Long profileImgFileId;
 
+    // 2023-08-12 파일 적용방식 변경
+    // 첨부파일을 사용하는 객체에서 파일을 관리하는 것으로 제작하려고 함
+    // 지금 당장은 이 방식이 N+1을 해결하는 방법이라 생각이 든다.
+    @OneToOne(fetch= FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name="file_id")
+    private Files files;
 
     // oauth 관련된 프로퍼티
     private String provider;
@@ -89,8 +101,20 @@ public class Accounts extends BaseEntity {
         this.password = changePassword;
     }
 
-
     public void clearFileImgId() {
         this.profileImgFileId = null;
+    }
+
+    public void updateProfileTest(ProfileUpdateRequest profileUpdateRequest) {
+
+    }
+
+    private void setFiles(Files files){
+        this.files = files;
+    }
+
+    @Override
+    public void saveFiles(Files files) {
+        setFiles(files);
     }
 }

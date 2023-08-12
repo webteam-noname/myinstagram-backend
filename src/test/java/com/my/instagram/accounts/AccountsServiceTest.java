@@ -13,6 +13,7 @@ import com.my.instagram.domains.accounts.dto.response.ProfileSignInDayResponse;
 import com.my.instagram.domains.accounts.repository.AccountsRepository;
 import com.my.instagram.domains.accounts.service.AccountsService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -36,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,7 +54,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 public class AccountsServiceTest {
 
     @Autowired
-
     private AccountsService accountsService;
 
     @Autowired
@@ -66,6 +67,23 @@ public class AccountsServiceTest {
 
     @Autowired
     JwtProvider jwtProvider;
+
+    @Test
+    void cascade_save_test1() throws IOException {
+        ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
+        int imgNumber = 0;
+        String filePath = "C:/Images/"+"test"+imgNumber+".jpg";
+        byte[] fileData = Files.readAllBytes(Paths.get(filePath));
+
+        MockMultipartFile file = new MockMultipartFile(
+                "test"+imgNumber,
+                "test"+imgNumber+".jpg",
+                "image/jpeg",
+                fileData
+        );
+
+        accountsService.updateProfileTest("test0", profileUpdateRequest, file);
+    }
 
     @Test
     void 로그인_필수입력안함() throws Exception {

@@ -1,7 +1,7 @@
 package com.my.instagram.common.file.domain;
 
 import com.my.instagram.common.domain.BaseEntity;
-import com.my.instagram.domains.accounts.domain.Accounts;
+import com.my.instagram.common.file.service.FileSaveEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +12,7 @@ import javax.persistence.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.function.Function;
 
 @Entity
 @Getter
@@ -89,5 +90,21 @@ public class Files extends BaseEntity {
             this.fileExt      = fileExt;
         }
 
+    }
+
+    public void saveFileTest(FileSaveEntity function, MultipartFile file) {
+        if(file == null){
+            return;
+        }
+
+        File dest = new File(this.filePath+this.fileName+"."+this.fileExt);
+
+        try {
+            file.transferTo(dest);
+        } catch (IOException e) {
+            throw new RuntimeException("파일 업로드를 실패했습니다.");
+        }
+
+        function.saveFiles(this);
     }
 }

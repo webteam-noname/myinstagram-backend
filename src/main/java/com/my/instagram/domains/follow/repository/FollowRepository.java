@@ -23,6 +23,8 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
            " and f.followAccept = 'Y'")
     Long countFollowByUsername(@Param("profileName") String profileName);*/
 
+    // 2023-08-12 검토 사항
+    // fetch join을 이용해 지연 로딩을 하지 않고 있어 N+1 문제가 발생할 수 있는 쿼리문
     @Query("select f" +
            " from Follow f" +
            " inner join f.accounts a" +

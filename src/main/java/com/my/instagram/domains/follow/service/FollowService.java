@@ -46,7 +46,9 @@ public class FollowService {
         inputFollowingFileImg(followingByUsername);
         return followingByUsername;
     }
-
+    // 2023-08-12 검토 사항
+    // 현재 엔티티 설계가 좀 많이 복잡하게되어 있어 나온 follow 이미지 리소스 입력 방식이다.
+    // 추후 inputFollowFileImg, inputFollowingFileImg 메서드는 엔티티 변경과 함께 없어지거나 변경되었으면 좋겠다.
     private void inputFollowFileImg(List<FollowSearchResponse> listData) {
         int dataLength = listData.size();
 
@@ -84,6 +86,10 @@ public class FollowService {
         return followByUsername;
     }
 
+    // 2023-08-12 검토 사항
+    // 1. Exception 처리가 너무 일반적으로 String의 내용을 포함하고 있다.
+    //    그렇기에 Exception의 내용을 정리한 별도의 클래스가 하나만 있으면 좋겠다.
+    // 2. Exception 명명 규칙을 정해서 만들었으면 좋겠음
     private void existDataSkipElseException(int userCount) {
         if (userCount == 0) {
             throw new RuntimeException("팔로우 조회를 할 수 없습니다.");
@@ -114,6 +120,8 @@ public class FollowService {
         }
     }
 
+    // 2023-08-12 검토사항
+    // 1. return 조회시 accountsRepository가 아닌 accountsService에 하나만 정의해서 사용해도 되지 않을까?
     private Accounts getAccounts(String profileName) {
         if(accountNameExists(profileName)){
             return accountsRepository.findByProfileName(profileName).orElseThrow(() -> new RuntimeException("유저를 조회할 수 없습니다."));

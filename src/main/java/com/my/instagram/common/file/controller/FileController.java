@@ -2,9 +2,7 @@ package com.my.instagram.common.file.controller;
 
 import com.my.instagram.common.dto.ApiResponse;
 import com.my.instagram.common.file.dto.request.FileDeleteRequest;
-import com.my.instagram.common.file.dto.request.FileSearchRequest;
 import com.my.instagram.common.file.dto.request.FileUpdateRequest;
-import com.my.instagram.common.file.dto.response.FileSearchResponse;
 import com.my.instagram.common.file.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,10 +17,13 @@ public class FileController {
 
      private final FileService fileService;
 
-     @GetMapping("/api/files")
+     // 2023-08-14 주석
+     // 현재의 협력을 표현할 때는 굳이 이 메서드를 사용할 필요가 없다.
+     // 필요 없는 이유는 따로 파일 테이블 조회하는 경우는 없기 때문이다.
+     /*@GetMapping("/api/files")
      public ApiResponse<FileSearchResponse> searchFile(@Valid @RequestBody FileSearchRequest fileSearchRequest){
          return new ApiResponse<>(HttpStatus.OK, fileService.searchFile(fileSearchRequest));
-     }
+     }*/
 
      @PostMapping("/api/files")
      public ApiResponse<Long> saveFile(@RequestPart(required = false) MultipartFile file){

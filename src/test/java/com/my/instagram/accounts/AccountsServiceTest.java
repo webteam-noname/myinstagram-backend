@@ -69,6 +69,12 @@ public class AccountsServiceTest {
     JwtProvider jwtProvider;
 
     @Test
+    void 조회_test(){
+        Optional<Accounts> test0 = accountsRepository.findWithFilesByProfileName("test0");
+    }
+
+    @Test
+    @Rollback(false)
     void cascade_save_test1() throws IOException {
         ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
         int imgNumber = 0;
@@ -82,7 +88,7 @@ public class AccountsServiceTest {
                 fileData
         );
 
-        accountsService.updateProfileTest("test0", profileUpdateRequest, file);
+        accountsService.updateProfile1("test0", profileUpdateRequest, file);
     }
 
     @Test

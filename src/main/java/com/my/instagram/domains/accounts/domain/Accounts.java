@@ -1,13 +1,14 @@
 package com.my.instagram.domains.accounts.domain;
 
+import com.my.instagram.common.domain.BaseEntity;
 import com.my.instagram.common.file.domain.Files;
 import com.my.instagram.common.file.service.FileSaveType;
 import com.my.instagram.domains.accounts.dto.request.ProfileUpdateRequest;
-import com.my.instagram.common.domain.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -77,6 +78,9 @@ public class Accounts extends BaseEntity implements FileSaveType {
         this.providerId = providerId;
     }
 
+    // 2023-08-15 변경 내용
+    // 파일에 대한 저장및 수정은 file 엔티티에서 진행될 것이다.
+    // 그래서 다음의 소스를 주석 처리하였다.
     // 프로파일을 수정합니다.
     public void updateProfile(ProfileUpdateRequest profileUpdateRequest){
         if(profileUpdateRequest.getChangeProfileName() != null && profileUpdateRequest.getChangeProfileName() != ""){
@@ -87,10 +91,27 @@ public class Accounts extends BaseEntity implements FileSaveType {
             this.profileIntro     = profileUpdateRequest.getProfileIntro();
         }
 
-        if(profileUpdateRequest.getProfileImgFileId() != null){
+        /*if(profileUpdateRequest.getProfileImgFileId() != null){
             this.profileImgFileId = profileUpdateRequest.getProfileImgFileId();
+        }*/
+    }
+
+    public void updateProfile1(ProfileUpdateRequest profileUpdateRequest){
+        if(profileUpdateRequest.getChangeProfileName() != null && profileUpdateRequest.getChangeProfileName() != ""){
+            this.profileName      = profileUpdateRequest.getChangeProfileName();
+        }
+
+        if(profileUpdateRequest.getProfileIntro() != null){
+            this.profileIntro     = profileUpdateRequest.getProfileIntro();
         }
     }
+
+
+    @Override
+    public void saveFiles(Files files) {
+        this.files = files;
+    }
+
 
     // 비밀번호를 변경합니다.
     public void updatePassword(String changePassword) {
@@ -101,16 +122,4 @@ public class Accounts extends BaseEntity implements FileSaveType {
         this.profileImgFileId = null;
     }
 
-    public void updateProfileTest(ProfileUpdateRequest profileUpdateRequest) {
-
-    }
-
-    private void setFiles(Files files){
-        this.files = files;
-    }
-
-    @Override
-    public void saveFiles(Files files) {
-        setFiles(files);
-    }
 }

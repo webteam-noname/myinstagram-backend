@@ -172,31 +172,70 @@ public class AccountsService extends EmailLogin{
         return new ProfileSearchResponse(accounts, file);
     }
 
+    // 2023-08-14 프로필을 조회
+    // 기존의 조회는 fileRepository에서 file을 조회한 후 그 파일을 다시 Dto에 넣는 방식이었다.
+    // 흠... 진짜 이상하다.. ㅋㅋㅋ
+    // 그래서 현재는 getAccountsWithFile에서 파일 조회한 뒤 DTO에서 후속 처리를 하였다.
+    // 그것조차 아직까지는 문제가 있기에 조금더 수정을 해야할 것 같다.
+    public ProfileSearchResponse searchProfile1(String profileName) {
+        Accounts accounts = getAccountsWithFile(profileName);
+        return new ProfileSearchResponse(accounts);
+    }
 
+    // 2023-08-14 프로필을 업데이트
+    // 프로필을 업데이트 하는 것에서 파일 저장 영역을 Accounts으로 밀어넣으려했다.
+    // 하지만 그렇게 작업하는 것은 Accounts Entity의 역할을 다하지 못하게 만든다는 생각이 들었다.
+    // 그래서 Service에서 파일을 수정하고 삭제하는 퍼블릭 인터페이스를 만들었다.
+    // 프로필 수정을 saveProfile1과 updateProfile1으로 만들려했다.
+    // 하지만 점점 만들다보니 프로필의 경우 회원가입시 저장되고, 이후 개인 설정에서의 프로필은 수정된다.
+    // 결국 저장이 아닌 수정이기에 updateProfile1이라고 표현했다.
+    // 하지만 Account 안에 있는 Files가 null인지의 여부에 따라 파일을 저장하거나 업데이트하는게 정말
+    // 최선의 방법일까라는 생각이 든다.
+    // 결론적으로 분기를 통해서가 아닌 하나의 메서드로만 호출하고 싶은데 뭔가 의미가 모호해진다는 생각에서
+    // 더 좋은 방법이 있지않을까하는 생각이 들었다.
+    // 하지만 너무 오랜시간 고민을 하다보니 답이 안나와 일단 지금 내가 생각할 수 있는 최선의 답을 적은 것 같다.
+    public void updateProfile1(String profileName, ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
+        Accounts accounts = getAccountsWithFile(profileName);
+        accounts.updateProfile1(profileUpdateRequest);
 
-    public void updateProfileTest(String profileName, ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
-        Accounts accounts = getAccounts(profileName);
-        // accounts.updateProfileTest(profileUpdateRequest);
-        fileService.saveFileTest(accounts, file);
+        if(accounts.getFiles() == null){
+            fileService.saveSingleFile(accounts,file);
+        }else{
+            fileService.updateSingleFile(accounts.getFiles(), file);
+        }
+    }
+    // 2023-08-14 회원정보 파일과 함께 조회
+    // @EntityGraph를 사용해 Accounts와 Files를 조회하였다.
+    // 너무 편하다... ㅋㅋㅋㅋ
+    private Accounts getAccountsWithFile(String profileName) {
+        return accountsRepository.findWithFilesByProfileName(profileName).get();
     }
 
     // 2023-08-12 파일 적용방식 변경
-    //
+    // 업데이트 및 저장을 할 경우 return 값이 없도록 메서드를 만드는게 맞는데 ..
+    // 그 당시엔 프로젝트를 빨리 끝내야한다는 압박때문에 좀 급하게 만드느라 업데이트 후 리턴값을 가지게 되었다..
+    // 업데이트는 하는 값엔 리턴값을 가지지 않도록 해야겠다.
+    // 또한 기존에 파일을 조회하던 메서드인 getFileId를 제거하였다.
+    // 기존 getFileId 메서드도 return과 수정을 동시에 하는 코드였다.. 흠.. 그래서 삭제를 하였다.
+
+    // 그렇지만 당장은 해당 메서드를 삭제할 순 없었다.. 왜냐하면 프론트에서도 이 메서드를 사용하기 때문이다...ㅠ
+    // 무튼 추후에 없어져야할 메서드의 형태이다..
+    // 추후 삭제를 하면서 기존에 잘못 적용된 파일 처리 방식을 삭제해야겠다.
     public AccountsLoginResponse updateProfile(String profileName, ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
-        System.out.println("프로필 업데이트");
         profileNameOverTwiceExistsException(profileUpdateRequest.getChangeProfileName());
-        Accounts accounts = getAccounts(profileName);
 
-        Long fileId = null;
-
-        if(file != null){
-            fileId = getFileId(file, profileUpdateRequest.getProfileImgFileId());
-            profileUpdateRequest.setProfileImgFileId(fileId);
-        }
-
-        // profileNameOverTwiceExistsException(profileUpdateRequest.getProfileName());
+        // 2023-08-15 소스 변경
+        // 기존의 getAccount 메서드 호출을 getAccountsWithFile로 변경하였다.
+        Accounts accounts = getAccountsWithFile(profileName);
         accounts.updateProfile(profileUpdateRequest);
 
+        if(accounts.getFiles() == null){
+            fileService.saveSingleFile(accounts,file);
+        }else{
+            fileService.updateSingleFile(accounts.getFiles(), file);
+        }
+
+        // 급하게 만들었지만 아래와 같은 방법은 지양되어야 한다.
         AccountsSearchResponse accountResponse = accountsRepository.findByUsernameInQuery(accounts.getUsername()).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없음"));
         PrincipalDetails principalDetails = new PrincipalDetails(accountResponse);
 
@@ -210,21 +249,6 @@ public class AccountsService extends EmailLogin{
 
         return new AccountsLoginResponse(jwtDto, new AccountsResponse(selectAccounts));
     }
-
-    private Long getFileId(MultipartFile file, Long imgFileId) {
-
-        // 프로필을 수정합니다.
-        if(imgFileId == null){
-            // 이미지 파일이 존재하지 않으면
-            imgFileId = fileService.saveFile(file);
-        }else{
-            // 이미지 파일이 존재하면
-            imgFileId = fileService.updateFile(new FileUpdateRequest(imgFileId), file);
-        }
-
-        return imgFileId;
-    }
-
 
     public void usernameOverTwiceExistsException(String username) {
         if(accountsRepository.countByUsername(username) > 0){

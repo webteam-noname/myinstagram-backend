@@ -4,6 +4,7 @@ import com.my.instagram.domains.accounts.domain.Accounts;
 import com.my.instagram.domains.accounts.dto.response.AccountsResponse;
 import com.my.instagram.domains.accounts.dto.response.AccountsSearchResponse;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,6 +25,9 @@ public interface AccountsRepository extends JpaRepository<Accounts,Long>, Accoun
     Optional<Accounts> findByUsername(String username);
 
     Optional<Accounts> findByProfileName(String profileName);
+
+    @EntityGraph(attributePaths = "files")
+    Optional<Accounts> findWithFilesByProfileName(String profileName);
 
     @Query("select count(1)" +
             " from Accounts a" +

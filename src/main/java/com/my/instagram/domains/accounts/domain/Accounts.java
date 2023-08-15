@@ -1,26 +1,22 @@
 package com.my.instagram.domains.accounts.domain;
 
 import com.my.instagram.common.file.domain.Files;
-import com.my.instagram.common.file.service.FileSaveEntity;
-import com.my.instagram.common.file.service.FileService;
+import com.my.instagram.common.file.service.FileSaveType;
 import com.my.instagram.domains.accounts.dto.request.ProfileUpdateRequest;
 import com.my.instagram.common.domain.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Accounts extends BaseEntity implements FileSaveEntity{
+public class Accounts extends BaseEntity implements FileSaveType {
 
     @Id // primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -4,7 +4,6 @@ import com.my.instagram.common.file.domain.Files;
 import com.my.instagram.common.file.dto.request.FileDeleteRequest;
 import com.my.instagram.common.file.dto.request.FileUpdateRequest;
 import com.my.instagram.common.file.repository.FileRepository;
-import com.my.instagram.common.file.service.FileSaveEntity;
 import com.my.instagram.common.file.service.FileService;
 import com.my.instagram.config.security.auth.PrincipalDetails;
 import com.my.instagram.config.security.jwt.JwtProvider;
@@ -35,7 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor

@@ -18,6 +18,11 @@ public class ApiResponse<T> {
     private String message;
     private T data;
 
+    public ApiResponse(HttpStatus statusCode) {
+        this.result = getResultByStatusCode(Integer.toString(statusCode.value()));
+        this.statusCode = statusCode.value();
+    }
+
     public ApiResponse(HttpStatus statusCode, T data) {
         this.result = getResultByStatusCode(Integer.toString(statusCode.value()));
         this.statusCode = statusCode.value();

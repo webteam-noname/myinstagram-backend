@@ -1,7 +1,6 @@
 package com.my.instagram.common.file.domain;
 
 import com.my.instagram.common.domain.BaseEntity;
-import com.my.instagram.common.file.service.FileSaveType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,13 +30,13 @@ public class Files extends BaseEntity {
     private String fileExt;
     private int fileSeq;
 
-    public Files(Long fileId, MultipartFile file){
-        this(fileId,
-             UUID.randomUUID(),
-             file.getOriginalFilename(),
-             "c:/files/",
-             file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1),
-             0);
+    public Files(Long id, UUID fileName, String realFileName, String filePath, String fileExt, int fileSeq) {
+        this.id           = id;
+        this.fileName     = fileName;
+        this.realFileName = realFileName;
+        this.filePath     = filePath;
+        this.fileExt      = fileExt;
+        this.fileSeq      = fileSeq;
     }
 
     public Files(MultipartFile file){
@@ -48,11 +47,6 @@ public class Files extends BaseEntity {
                 file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1),
                 0);
     }
-
-    /*public void saveFileTest(FileSaveType entity, MultipartFile file) {
-        uploadFile(file);
-        entity.saveFiles(this);
-    }*/
 
     public void saveSingleFile(FileSaveType entity, MultipartFile file) {
         uploadFile(file);
@@ -81,16 +75,16 @@ public class Files extends BaseEntity {
         uploadFile(file);
     }
 
-    public String getImageFile(){
-        if(this.fileName == null){
-            return "no-image.jpg";
-        }else{
-            return this.filePath+ this.fileName+"."+this.fileExt;
-        }
+    // 2023-08-16 메서드명 변경
+    // 파일을 들고오는 방식은 비슷함
+    // 또한 이미지 파일뿐 아니라 모든 데이터를 들고 올 수 있게 변경할 예정임
+    // 파일 접근은 직접 할 수 없으며 Files 엔티티만 접근가능함
+    protected String getFile(){
+        return this.filePath+ this.fileName+"."+this.fileExt;
     }
 
     public void deleteSingleFile() {
-        File file = new File(getImageFile());
+        File file = new File(getFile());
 
         if(file.exists()){
             file.delete();
@@ -104,7 +98,7 @@ public class Files extends BaseEntity {
             return;
         }
 
-        File dest = new File(this.filePath+this.fileName+"."+this.fileExt);
+        File dest = new File(getFile());
 
         try {
             file.transferTo(dest);
@@ -112,65 +106,5 @@ public class Files extends BaseEntity {
             throw new RuntimeException("파일 업로드를 실패했습니다.");
         }
     }
-
-    @Builder
-    public Files(Long id, UUID fileName, String realFileName, String filePath, String fileExt, int fileSeq) {
-        this.id           = id;
-        this.fileName     = fileName;
-        this.realFileName = realFileName;
-        this.filePath     = filePath;
-        this.fileExt      = fileExt;
-        this.fileSeq      = fileSeq;
-    }
-
-    public Files(String filePath, UUID fileName, String fileExt) {
-        this(null, fileName,null,filePath,fileExt,0);
-    }
-
-    public void updateFile(MultipartFile file) {
-        if(file == null){
-            this.fileName     = null;
-            this.realFileName = null;
-            this.filePath     = null;
-            this.fileExt      = null;
-        }else{
-            UUID fileName       = UUID.randomUUID();
-            String realFileName = file.getOriginalFilename();
-            String filePath     = "c:/files/";
-            String fileExt      = realFileName.substring(realFileName.lastIndexOf(".") + 1);
-
-            this.fileName     = fileName;
-            this.realFileName = realFileName;
-            this.filePath     = filePath;
-            this.fileExt      = fileExt;
-        }
-    }
-
-    public void saveFile(MultipartFile file) {
-        if(file == null){
-            return;
-        }
-
-        File dest = new File(this.filePath+this.fileName+"."+this.fileExt);
-
-        try {
-            file.transferTo(dest);
-        } catch (IOException e) {
-            throw new RuntimeException("파일 업로드를 실패했습니다.");
-        }
-
-    }
-
-    public void deleteFile() {
-        System.out.println(this.filePath+ this.fileName+"."+this.fileExt);
-        File file = new File(this.filePath+ this.fileName+"."+this.fileExt);
-
-        if(file.exists()){
-            file.delete();
-        }else{
-            throw new RuntimeException("서버 파일 삭제가 완료되지 않았습니다.");
-        }
-    }
-
 
 }

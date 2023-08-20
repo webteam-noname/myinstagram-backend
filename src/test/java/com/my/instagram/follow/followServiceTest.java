@@ -41,6 +41,9 @@ public class followServiceTest {
     @Test
     void 팔로우조회(){
         List<FollowSearchResponse> responses = followService.searchFollow("test0");
+
+        System.out.println(responses);
+
         // Long totalCount = (long) responses.size();
 
         // assertThat(totalCount).isEqualTo(9);
@@ -57,11 +60,10 @@ public class followServiceTest {
     @Test
     void 프로필명수정후_팔로우조회(){
         ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
-        profileUpdateRequest.setProfileName("test0");
         profileUpdateRequest.setChangeProfileName("수정_kimgun");
         profileUpdateRequest.setProfileIntro("수정_프로필 소개글입니다.");
 
-        accountsService.updateProfile(profileUpdateRequest,null);
+        accountsService.updateProfile("test0", profileUpdateRequest,null);
 
         List<FollowSearchResponse> followResponses = followService.searchFollow("수정_kimgun");
         List<FollowingSearchResponse> followeresponses = followService.searchFollowing("수정_kimgun");

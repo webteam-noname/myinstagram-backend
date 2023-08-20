@@ -1,5 +1,6 @@
 package com.my.instagram.domains.follow.dto.response;
 
+import com.my.instagram.common.file.domain.ImageFile;
 import com.my.instagram.domains.follow.domain.Follow;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,6 @@ public class FollowSearchResponse {
     private String followUsername;
     private String followName;
     private Character blockYn;
-    private Long profileImgFileId;
     private String profileImg;
 
     public FollowSearchResponse(Follow follow) {
@@ -27,7 +27,7 @@ public class FollowSearchResponse {
         this.followUsername = follow.getFollowAccounts().getUsername();
         this.followName = follow.getFollowAccounts().getProfileName();
         this.blockYn = follow.getBlockYn();
-        this.profileImgFileId = follow.getAccounts().getProfileImgFileId();
+        this.profileImg = new ImageFile(follow.getFollowAccounts().getFiles()).get();
     }
 
     @Override
@@ -40,7 +40,6 @@ public class FollowSearchResponse {
                 ", followUsername='" + followUsername + '\'' +
                 ", followName='" + followName + '\'' +
                 ", blockYn=" + blockYn +
-                ", profileImgFileId=" + profileImgFileId +
                 ", profileImg='" + profileImg + '\'' +
                 '}';
     }

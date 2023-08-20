@@ -26,6 +26,7 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
            " from Follow f" +
            " join fetch f.accounts a" +
            " join fetch f.followAccounts fa" +
+           " left join fetch a.files fs" +
            " where a.profileName = :profileName" +
            " and f.blockYn = 'N'" +
            " and f.followAccept = 'Y'")
@@ -37,6 +38,7 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
             " from Follow f" +
             " join fetch f.accounts a" +
             " join fetch f.followAccounts fa" +
+            " left join fetch a.files fs" +
             " where fa.profileName = :profileName" +
             " and f.blockYn = 'N'"+
             " and f.followAccept = 'Y'")

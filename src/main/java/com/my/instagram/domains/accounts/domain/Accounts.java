@@ -2,13 +2,12 @@ package com.my.instagram.domains.accounts.domain;
 
 import com.my.instagram.common.domain.BaseEntity;
 import com.my.instagram.common.file.domain.Files;
-import com.my.instagram.common.file.service.FileSaveType;
+import com.my.instagram.common.file.domain.FileSaveType;
 import com.my.instagram.domains.accounts.dto.request.ProfileUpdateRequest;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -37,10 +36,6 @@ public class Accounts extends BaseEntity implements FileSaveType {
     private String profileName;
     private String profileIntro;
 
-    // 2023-08-12 변경사항
-    // profileImgFileId를 통한 조회가 아닌 file_id를 통한 조회로 변경 필요로 아래와 같이 조치함
-    private Long profileImgFileId;
-
     // 2023-08-12 파일 적용방식 변경
     // 첨부파일을 사용하는 객체에서 파일을 관리하는 것으로 제작하려고 함
     // 지금 당장은 이 방식이 N+1을 해결하는 방법이라 생각이 든다.
@@ -66,7 +61,6 @@ public class Accounts extends BaseEntity implements FileSaveType {
                     String name,
                     String profileName,
                     String profileIntro,
-                    Long profileImgFileId,
                     String provider,
                     String providerId) {
         this.username = username;
@@ -90,36 +84,16 @@ public class Accounts extends BaseEntity implements FileSaveType {
         if(profileUpdateRequest.getProfileIntro() != null){
             this.profileIntro     = profileUpdateRequest.getProfileIntro();
         }
-
-        /*if(profileUpdateRequest.getProfileImgFileId() != null){
-            this.profileImgFileId = profileUpdateRequest.getProfileImgFileId();
-        }*/
     }
-
-    public void updateProfile1(ProfileUpdateRequest profileUpdateRequest){
-        if(profileUpdateRequest.getChangeProfileName() != null && profileUpdateRequest.getChangeProfileName() != ""){
-            this.profileName      = profileUpdateRequest.getChangeProfileName();
-        }
-
-        if(profileUpdateRequest.getProfileIntro() != null){
-            this.profileIntro     = profileUpdateRequest.getProfileIntro();
-        }
-    }
-
 
     @Override
     public void saveFiles(Files files) {
         this.files = files;
     }
 
-
     // 비밀번호를 변경합니다.
     public void updatePassword(String changePassword) {
         this.password = changePassword;
-    }
-
-    public void clearFileImgId() {
-        this.profileImgFileId = null;
     }
 
 }

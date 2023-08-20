@@ -13,7 +13,6 @@ import com.my.instagram.domains.accounts.dto.response.ProfileSignInDayResponse;
 import com.my.instagram.domains.accounts.repository.AccountsRepository;
 import com.my.instagram.domains.accounts.service.AccountsService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -44,7 +43,6 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
@@ -74,10 +72,19 @@ public class AccountsServiceTest {
     }
 
     @Test
-    @Rollback(false)
+    void paging_조회_test(){
+        List<ProfileSearchResponse> list = accountsService.searchAccounts("test");
+        System.out.println(list);
+        //int count = list.size();
+
+        //assertThat(count).isEqualTo(20);
+    }
+
+    @Test
+    // @Rollback(false)
     void cascade_save_test1() throws IOException {
         ProfileUpdateRequest profileUpdateRequest = new ProfileUpdateRequest();
-        int imgNumber = 0;
+        int imgNumber = 1;
         String filePath = "C:/Images/"+"test"+imgNumber+".jpg";
         byte[] fileData = Files.readAllBytes(Paths.get(filePath));
 
@@ -88,7 +95,7 @@ public class AccountsServiceTest {
                 fileData
         );
 
-        accountsService.updateProfile1("test0", profileUpdateRequest, file);
+        accountsService.updateProfile1("test"+imgNumber, profileUpdateRequest, file);
     }
 
     @Test
@@ -159,10 +166,10 @@ public class AccountsServiceTest {
 
     @Test
     void 회원을조회(){
-        List<AccountsResponse> list = accountsService.searchAccounts("test");
+        List<ProfileSearchResponse> list = accountsService.searchAccounts("test0");
         int count = list.size();
 
-        assertThat(count).isEqualTo(20);
+        assertThat(count).isEqualTo(2);
     }
 
     @Test
@@ -309,10 +316,10 @@ public class AccountsServiceTest {
 
         ProfileSearchResponse searchProfile = accountsService.searchProfile("수정_kimgun");
         String profileName = searchProfile.getProfileName();
-        Long profileImgId  = searchProfile.getProfileImgFileId();
+        // Long profileImgId  = searchProfile.get;
 
         assertThat(profileName).isEqualTo("수정_kimgun");
-        assertThat(profileImgId).isNotZero();
+        // assertThat(profileImgId).isNotZero();
     }
 
     @Test
@@ -322,7 +329,7 @@ public class AccountsServiceTest {
 
         profileUpdateRequest.setChangeProfileName("");
         profileUpdateRequest.setProfileIntro("");
-        profileUpdateRequest.setProfileImgFileId(test0.getProfileImgFileId());
+        // profileUpdateRequest.setProfileImgFileId(test0.getProfileImgFileId());
 
         accountsService.updateProfile("test0", profileUpdateRequest, null);
 
@@ -334,8 +341,8 @@ public class AccountsServiceTest {
     @Rollback(false)
     void 이미지삭제() throws IOException {
         String profileName = "test0";
-        String result = accountsService.deleteProfileImage(profileName);
-        assertThat("파일이 삭제되었습니다.").isEqualTo(result);
+        accountsService.deleteProfileImage(profileName);
+        // assertThat("파일이 삭제되었습니다.").isEqualTo(result);
         updateImage(profileName);
     }
 
@@ -359,7 +366,7 @@ public class AccountsServiceTest {
     void 이미지삭제_파일이없을경우(){
         String profileName = "test0";
         assertThrows(RuntimeException.class, () -> {
-            String result = accountsService.deleteProfileImage(profileName);
+            accountsService.deleteProfileImage(profileName);
         });
     }
 

@@ -19,7 +19,4 @@ public class ProfileSaveRequest {
 
     @NotEmpty(message = "프로필 소개글은 필수입니다.")
     private String profileIntro;
-
-    @NotEmpty(message = "프로필 이미지는 필수입니다.")
-    private String profileImg;
 }

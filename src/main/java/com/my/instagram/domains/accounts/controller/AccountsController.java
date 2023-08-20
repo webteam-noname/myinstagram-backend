@@ -108,14 +108,16 @@ public class AccountsController {
     }
 
     @PutMapping("/api/accounts/{profileName}/images")
-    public ApiResponse<String> updateProfileImage(@PathVariable("profileName") String profileName,
-                                                  MultipartFile file){
-        return new ApiResponse<>(HttpStatus.OK, accountService.updateProfileImage(profileName, file));
+    public ApiResponse<Void> updateProfileImage(@PathVariable("profileName") String profileName,
+                                                MultipartFile file){
+        accountService.updateProfileImage(profileName, file);
+        return new ApiResponse<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/api/accounts/{profileName}/images")
-    public ApiResponse<String> deleteProfileImage(@PathVariable("profileName") String profileName){
-        return new ApiResponse<>(HttpStatus.OK, accountService.deleteProfileImage(profileName));
+    public ApiResponse<Void> deleteProfileImage(@PathVariable("profileName") String profileName){
+        accountService.deleteProfileImage(profileName);
+        return new ApiResponse<>(HttpStatus.OK);
     }
 
     @PutMapping("/api/accounts/{profileName}/profiles")
@@ -123,6 +125,7 @@ public class AccountsController {
                                                             @Valid @RequestBody ProfileUpdateRequest profileUpdateRequest,
                                                             MultipartFile file,
                                                             HttpServletResponse response){
+
         AccountsLoginResponse profileUpdateResponse = accountService.updateProfile(profileName, profileUpdateRequest,file);
         setCookie(response,profileUpdateResponse.getJwt());
         return new ApiResponse<>(HttpStatus.OK, profileUpdateResponse);
@@ -134,7 +137,7 @@ public class AccountsController {
     }
 
     @GetMapping("/api/accounts/{searchName}")
-    public ApiResponse<List<AccountsResponse>> searchAccounts(@PathVariable("searchName") String searchName) throws IOException {
+    public ApiResponse<List<ProfileSearchResponse>> searchAccounts(@PathVariable("searchName") String searchName) throws IOException {
         return new ApiResponse<>(HttpStatus.OK, accountService.searchAccounts(searchName));
     }
 

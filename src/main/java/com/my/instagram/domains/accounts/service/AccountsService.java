@@ -1,9 +1,5 @@
 package com.my.instagram.domains.accounts.service;
 
-import com.my.instagram.common.file.domain.Files;
-import com.my.instagram.common.file.dto.request.FileDeleteRequest;
-import com.my.instagram.common.file.dto.request.FileUpdateRequest;
-import com.my.instagram.common.file.repository.FileRepository;
 import com.my.instagram.common.file.service.FileService;
 import com.my.instagram.config.security.auth.PrincipalDetails;
 import com.my.instagram.config.security.jwt.JwtProvider;
@@ -48,7 +44,6 @@ public class AccountsService extends EmailLogin{
     private final AccountsRolesRepository accountsRolesRepository;
     private final MailService mailService;
     private final FileService fileService;
-    private final FileRepository fileRepository;
     private final RoleRepository roleRepository;
     private final JwtProvider jwtProvider;
 
@@ -124,7 +119,7 @@ public class AccountsService extends EmailLogin{
         return accountsRepository.findAllSlice(pageable);
     }
 
-    public List<AccountsResponse> searchAccounts(String searchName) {
+    public List<ProfileSearchResponse> searchAccounts(String searchName) {
         Pageable pageable = PageRequest.of(0, 20);
         return accountsRepository.findByName(searchName+"%", pageable);
     }
@@ -162,14 +157,8 @@ public class AccountsService extends EmailLogin{
     }
 
     public ProfileSearchResponse searchProfile(String profileName) {
-        Accounts accounts = getAccounts(profileName);
-        Files file = null;
-
-        if(accounts.getProfileImgFileId() != null){
-            file = fileRepository.findById(accounts.getProfileImgFileId()).get();
-        }
-
-        return new ProfileSearchResponse(accounts, file);
+        Accounts accounts = getAccountsWithFile(profileName);
+        return new ProfileSearchResponse(accounts);
     }
 
     // 2023-08-14 프로필을 조회
@@ -196,7 +185,7 @@ public class AccountsService extends EmailLogin{
     // 하지만 너무 오랜시간 고민을 하다보니 답이 안나와 일단 지금 내가 생각할 수 있는 최선의 답을 적은 것 같다.
     public void updateProfile1(String profileName, ProfileUpdateRequest profileUpdateRequest, MultipartFile file) {
         Accounts accounts = getAccountsWithFile(profileName);
-        accounts.updateProfile1(profileUpdateRequest);
+        accounts.updateProfile(profileUpdateRequest);
 
         if(accounts.getFiles() == null){
             fileService.saveSingleFile(accounts,file);
@@ -250,11 +239,12 @@ public class AccountsService extends EmailLogin{
         return new AccountsLoginResponse(jwtDto, new AccountsResponse(selectAccounts));
     }
 
-    public void usernameOverTwiceExistsException(String username) {
+    // 2023-08-17 당장은 사용되지 않아 주석처리
+    /*public void usernameOverTwiceExistsException(String username) {
         if(accountsRepository.countByUsername(username) > 0){
             throw new RuntimeException("사용자 ID는 중복될 수 없습니다.");
         }
-    }
+    }*/
 
     public void profileNameOverTwiceExistsException(String profileName) {
         System.out.println(accountsRepository.countByProfileName(profileName));
@@ -282,29 +272,19 @@ public class AccountsService extends EmailLogin{
                 );
     }
 
-
     public ProfileSignInDayResponse searchProfileSignInDay(String profileName) {
-        Accounts accounts = getAccounts(profileName);
-        Files file = null;
-
-        if(accounts.getProfileImgFileId() != null){
-            file = fileRepository.findById(accounts.getProfileImgFileId()).get();
-        }
-
-        return new ProfileSignInDayResponse(accounts, file);
+        Accounts accounts = getAccountsWithFile(profileName);
+        return new ProfileSignInDayResponse(accounts);
     }
 
-    public String updateProfileImage(String profileName, MultipartFile file) {
-        Accounts accounts = getAccounts(profileName);
-        fileService.updateFile(new FileUpdateRequest(accounts.getProfileImgFileId()), file);
-        return "업데이트가 완료되었습니다.";
+    public void updateProfileImage(String profileName, MultipartFile file) {
+        Accounts accounts = getAccountsWithFile(profileName);
+        accounts.getFiles().updateSingleFile(file);
     }
 
-    public String deleteProfileImage(String profileName) {
-        Accounts accounts = getAccounts(profileName);
-        fileService.deleteFile(new FileDeleteRequest(accounts.getProfileImgFileId()));
-        accounts.clearFileImgId();
-        return "파일이 삭제되었습니다.";
+    public void deleteProfileImage(String profileName) {
+        Accounts accounts = getAccountsWithFile(profileName);
+        accounts.getFiles().deleteSingleFile();
     }
 
     public String confirmEmailSignIn(AccountsConfirmRequest accountsConfirmRequest,

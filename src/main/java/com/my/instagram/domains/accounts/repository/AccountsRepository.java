@@ -3,6 +3,7 @@ package com.my.instagram.domains.accounts.repository;
 import com.my.instagram.domains.accounts.domain.Accounts;
 import com.my.instagram.domains.accounts.dto.response.AccountsResponse;
 import com.my.instagram.domains.accounts.dto.response.AccountsSearchResponse;
+import com.my.instagram.domains.accounts.dto.response.ProfileSearchResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,9 +40,11 @@ public interface AccountsRepository extends JpaRepository<Accounts,Long>, Accoun
             " where a.username = :username")
     int countByUsername(@Param("username") String username);
 
-    @Query("select a from Accounts a" +
-            " where a.username like :searchName" +
-            " or a.profileName like :searchName" +
-            " or a.name like :searchName")
-    List<AccountsResponse> findByName(@Param("searchName") String searchName, Pageable pageable);
+    @Query("select a " +
+           " from Accounts a" +
+           " left join fetch a.files fs" +
+           " where a.username like :searchName" +
+           " or a.profileName like :searchName" +
+           " or a.name like :searchName")
+    List<ProfileSearchResponse> findByName(@Param("searchName") String searchName, Pageable pageable);
 }

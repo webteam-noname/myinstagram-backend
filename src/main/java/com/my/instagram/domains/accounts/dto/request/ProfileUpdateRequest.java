@@ -17,7 +17,4 @@ public class ProfileUpdateRequest {
 
     private String profileIntro;
 
-    // 2023-08-14 추후 삭제 예정
-    private Long profileImgFileId;
-
 }

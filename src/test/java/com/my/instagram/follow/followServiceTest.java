@@ -41,6 +41,9 @@ public class followServiceTest {
     @Test
     void 팔로우조회(){
         List<FollowSearchResponse> responses = followService.searchFollow("test0");
+
+        System.out.println(responses);
+
         // Long totalCount = (long) responses.size();
 
         // assertThat(totalCount).isEqualTo(9);
